@@ -1,0 +1,100 @@
+.custom-card {
+    width: 90%; /* Use relative width */
+    max-width: 400px; /* Maintain a reasonable max-width */
+    background-color: #333; /* Grey / black */
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.custom-input {
+    background-color: rgba(0,0,0,0.7); /* Input dark */
+    color: white;
+    border: 1px solid hsla(0, 0%, 100%, 0.2);
+    padding: 8.5px;
+    font-size: 1rem;
+    border-radius: 7.5px;
+    width: 100%;
+}
+.custom-input::placeholder {
+    color: #bdbebe;
+}
+.custom-input:focus {
+    border-color: white;
+    color: white;
+    outline: none;
+    background-color: rgba(0,0,0,0.7);
+}
+.custom-button {
+    background: transparent;
+    border: 1px solid #bdbebe;
+    color: hsla(0, 0%, 100%, 0.7);
+    transition: border-color 0.3s, color 0.3s;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 10px;
+}
+.custom-button:hover {
+    border-color: white;
+    background: transparent;
+    color: white;
+}
+.alert {
+    border: 1px solid red;
+    background-color: #f8d7da;
+    color: red;
+    font-size: 0.8rem; /* small font size */
+    padding: 0.4rem 0.8rem; /* reduced padding */
+    border-radius: 4px;
+    margin-top: 10px;
+}
+.loading-indicator {
+    display: none;
+    color: white;
+    font-size: 1.5rem; /* size increased */
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Enhanced Responsive Adjustments */
+@media (min-width: 769px) {
+    .custom-card {
+        width: 400px; /* Fixed width for larger screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-card {
+        width: 80%; /* Slightly narrower on tablets */
+        max-width: 350px;
+        padding: 18px;
+    }
+    .custom-input, .custom-button {
+        font-size: 0.95rem;
+        padding: 8px;
+    }
+    .loading-indicator {
+        font-size: 1.3rem;
+        margin-top: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .custom-card {
+        width: 95%; /* Almost full width on mobile */
+        max-width: 100%;
+        padding: 15px;
+        border-radius: 6px;
+    }
+    .custom-input, .custom-button {
+        font-size: 0.9rem;
+        padding: 7px;
+    }
+    .loading-indicator {
+        font-size: 1.2rem;
+        margin-top: 10px;
+    }
+}
