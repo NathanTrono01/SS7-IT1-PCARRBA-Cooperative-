@@ -1,7 +1,6 @@
 <?php
 include 'db.php';
 session_start();
-sleep(3);
 
 if (isset($_SESSION['username'])) {
     header("Location: loading.php"); // redirect location

@@ -146,7 +146,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `accountLevel` enum('Admin','nonAdmin') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,7 +155,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (5,'testAdmin','$2y$10$G7xCY4d.XIZeIqC/wHnhnOKTMOyeITube1d3AxNniaiB0H2TWlU0.','Admin'),(6,'testUser','$2y$10$R7vTV5uuGsMXfCb9tr3dIOYRSfEE.oQ/La85EsQIeBC5Sad.9Gzvy','nonAdmin'),(7,'bering','$2y$10$Q8OVSiYWjngIRo1c/RFHH.0tawIghcyX2ojs5wurQ5HI35jtOKwGu','Admin');
+INSERT INTO `users` VALUES (5,'testAdmin','$2y$10$G7xCY4d.XIZeIqC/wHnhnOKTMOyeITube1d3AxNniaiB0H2TWlU0.','Admin'),(6,'testUser','$2y$10$R7vTV5uuGsMXfCb9tr3dIOYRSfEE.oQ/La85EsQIeBC5Sad.9Gzvy','nonAdmin'),(7,'bering','$2y$10$Q8OVSiYWjngIRo1c/RFHH.0tawIghcyX2ojs5wurQ5HI35jtOKwGu','Admin'),(8,'jaymar','$2y$10$TomQuVOPB360G5RfSCZKzect0yJJFO00N0qP6Ice6K2s6lVUYQHuK','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -168,4 +168,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-29  1:28:39
+-- Dump completed on 2025-01-29  3:18:19
