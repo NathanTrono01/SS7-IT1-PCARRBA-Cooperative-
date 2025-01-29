@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'Admin') {
+if (!isset($_SESSION['username']) || $_SESSION['accountLevel'] !== 'Admin') {
     header("Location: index.php");
     exit();
 }
@@ -200,8 +200,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'Admin') {
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

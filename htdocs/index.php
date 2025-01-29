@@ -2,10 +2,10 @@
 include 'db.php';
 session_start();
 
-if (isset($_SESSION['username'])) {
-    header("Location: loading.php"); // redirect location
-    exit();
-}
+// if (isset($_SESSION['username'])) {
+//     header("Location: loading.php"); // redirect location
+//     exit();
+// }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($user && password_verify($password, $user['password'])) {
             // Set session variables
             $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['accountLevel'] = $user['accountLevel'];
 
             // redirection location
             header("Location: loading.php"); // or "dashboard.php"

@@ -2,7 +2,7 @@
 include 'db.php';
 session_start();
 
-if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'Admin') {
+if (!isset($_SESSION['username']) || $_SESSION['accountLevel'] !== 'Admin') {
     header("Location: index.php");
     exit();
 }
@@ -10,7 +10,7 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'Admin') {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $role = $_POST['role'];
+    $accountLevel = $_POST['accountLevel'];
 
     // Check if username is unique
     $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result->num_rows > 0) {
             $error = "Username already exists.";
         } else {
-            $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $username, $password, $role);
+            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $username, $password, $accountLevel);
             if ($stmt->execute()) {
                 $success = "Registration successful!";
             } else {
@@ -50,22 +50,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             position: fixed;
             top: 0;
             width: 100%;
-            z-index: 1030; /* Ensures navbar stays above other elements */
-            border-bottom: 2px solid #ffffff; /* White bottom border */
+            height: 70px;
+            /* Adjusted height */
+            z-index: 1030;
+            /* Ensures navbar stays above other elements */
+            border-bottom: 2px solid rgb(114, 114, 114);
+            /* White bottom border */
+            padding-left: 20px;
+            padding-right: 20px;
+            background-color: #232527;
+            display: flex;
+            align-items: center;
+            /* Vertically center content */
+        }
+
+        .dropdown {
+            margin-left: 20px;
+            padding: 10px;
+        }
+
+        .dropdown-menu {
+            background-color: #444;
+        }
+
+        .dropdown-item {
+            color: hsla(0, 0%, 100%, 0.7);
+        }
+
+        .dropdown-item:hover {
+            background: transparent;
+            color: #fff;
         }
 
         /* Sidebar Styling */
         .sidebar {
             position: fixed;
-            top: 56px; /* Height of the navbar */
+            top: 56px;
+            /* Height of the navbar */
             left: 0;
-            height: calc(100vh - 56px); /* Full viewport height minus navbar height */
-            width: 200px;
-            background-color: #222;
+            height: 100vh;
+            /* Full viewport height minus navbar height */
+            width: 250px;
+            background-color: #232527;
             padding-top: 20px;
-            z-index: 1020; /* Below navbar but above main content */
-            border-right: 2px solid #ffffff; /* White right border */
-            overflow-y: auto; /* Enable vertical scroll if content overflows */
+            z-index: 1020;
+            /* Below navbar but above main content */
+            border-right: 2px solid rgb(114, 114, 114);
+            /* White right border */
+            overflow-y: auto;
+            /* Enable vertical scroll if content overflows */
         }
 
         .sidebar a {
@@ -84,8 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         /* Main Content Styling */
         .main-content {
-            margin-top: 56px; /* Height of the navbar */
-            margin-left: 200px; /* Width of the sidebar */
+            margin-top: 56px;
+            /* Height of the navbar */
+            margin-left: 250px;
+            /* Width of the sidebar */
             padding: 20px;
         }
 
@@ -107,8 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         /* Custom Card Styling */
         .custom-card {
             width: 100%;
-            max-width: 500px; /* Maintain a reasonable max-width */
-            background-color: #333; /* Grey / black */
+            max-width: 500px;
+            /* Maintain a reasonable max-width */
+            background-color: #333;
+            /* Grey / black */
             color: white;
             padding: 20px;
             box-sizing: border-box;
@@ -118,7 +155,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .custom-input {
-            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent input */
+            background-color: rgba(255, 255, 255, 0.1);
+            /* Semi-transparent input */
             color: white;
             border: 1px solid hsla(0, 0%, 100%, 0.2);
             padding: 10px;
@@ -160,8 +198,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border: 1px solid red;
             background-color: #f8d7da;
             color: red;
-            font-size: 0.8rem; /* Small font size */
-            padding: 0.4rem 0.8rem; /* Reduced padding */
+            font-size: 0.8rem;
+            /* Small font size */
+            padding: 0.4rem 0.8rem;
+            /* Reduced padding */
             border-radius: 4px;
             margin-top: 10px;
         }
@@ -175,7 +215,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .loading-indicator {
             display: none;
             color: white;
-            font-size: 1.5rem; /* Size increased */
+            font-size: 1.5rem;
+            /* Size increased */
             text-align: center;
             margin-top: 15px;
         }
@@ -184,6 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
+            margin-right: 20px;
+
         }
 
         /* Scrollbar Styling for Sidebar */
@@ -202,79 +245,69 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 
-<body class="bg-dark text-white">
-    <?php include 'navbar.php'; ?>
-    <?php include 'sidebar.php'; ?>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark  navbar-fixed-top">
+        <a class="navbar-brand" href="adminDashboard.php">Admin Panel</a>
+        <div class="ms-auto">
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?php echo $_SESSION['username']; ?>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="adminDashboard.php" class="active">Admin Dashboard</a>
+        <a href="inventory.php">Inventory</a>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
-        <!-- Welcome Section -->
         <div class="container">
-            <h1>Welcome, Admin <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
-            <p>Use the sidebar to navigate through!</p>
-        </div>
-
-        <!-- Registration Card -->
-        <div class="container">
-            <div class="card mx-auto custom-card">
-                <div class="card-header text-center">
-                    <h2>Register a User</h2>
-                </div>
-                <div class="card-body">
-                    <?php if (isset($error)) echo "<div class='alert'>$error</div>"; ?>
-                    <?php if (isset($success)) echo "<div class='alert alert-success'>$success</div>"; ?>
-                    <form method="POST" action="">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" name="username" class="custom-input" placeholder="Username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" name="password" class="custom-input" placeholder="Password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Account Level</label>
-                            <select name="role" class="form-select custom-input" required>
-                                <option value="nonAdmin">Non-Admin</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                    </form>
-                </div>
-            </div>
+            <h1>Admin Panel</h1>
+            <p>Welcome, <?php echo $_SESSION['username']; ?>. You have administrative privileges.</p>
+            <a href="adminDashboard.php" class="btn btn-primary">Back to Dashboard</a>
+            <a href="logout.php" class="btn btn-secondary">Logout</a>
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="container">
+        <div class="card mx-auto custom-card">
+            <div class="card-header text-center">
+                <h2>Register a User</h2>
+            </div>
+            <div class="card-body">
+                <?php if (isset($error)) echo "<div class='alert'>$error</div>"; ?>
+                <?php if (isset($success)) echo "<div class='alert alert-success'>$success</div>"; ?>
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" name="username" class="custom-input" placeholder="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" name="password" class="custom-input" placeholder="Password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="accountLevel" class="form-label">Account Level</label>
+                        <select name="accountLevel" class="form-select custom-input" required>
+                            <option value="nonAdmin">Non-Admin</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+            </div>
+        </div>
 
-    <!-- Custom JS for Loading Indicator (if needed) -->
-    <script>
-        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-            // Show loading indicator and hide submit button
-            const submitButton = document.getElementById('submitButton');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            if (submitButton && loadingIndicator) {
-                submitButton.style.display = 'none';
-                loadingIndicator.style.display = 'block';
-
-                // Animate loading dots
-                let dots = 1;
-                const maxDots = 3;
-                const interval = setInterval(function() {
-                    loadingIndicator.textContent = '•'.repeat(dots);
-                    dots++;
-                    if (dots > maxDots) {
-                        dots = 1;
-                    }
-
-                    // Optionally, clear interval after a certain time
-                    // setTimeout(() => clearInterval(interval), 5000);
-                }, 500);
-            }
-        });
-    </script>
+        <!-- Bootstrap JS Bundle -->
+        <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
