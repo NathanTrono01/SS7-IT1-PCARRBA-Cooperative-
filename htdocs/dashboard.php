@@ -5,27 +5,25 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Revenue</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CSS -->
+    <title>User Dashboard</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
 </head>
 <?php include 'navbar.php'; ?>
 <body>
-    <!-- Main Content -->
-    <div class="main-content">
+<div class="main-content">
         <div class="container">
-            <h1>Revenue</h1>
-            <p>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>.</p>
-            <!-- Inventory Management Content Goes Here -->
+            <h1>Dashboard</h1>
+            <p>Welcome, <?php echo $_SESSION['username']; ?>!</p>
             <a href="logout.php" class="btn btn-secondary">Logout</a>
         </div>
     </div>
 
-
+    <!-- Bootstrap JS Bundle -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+</div>
 </body>
-
 </html>

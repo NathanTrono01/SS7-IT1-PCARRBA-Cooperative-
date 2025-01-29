@@ -1,11 +1,12 @@
 <?php
 include 'db.php';
 session_start();
+sleep(3);
 
-// if (isset($_SESSION['username'])) {
-//     header("Location: loading.php"); // redirect location
-//     exit();
-// }
+if (isset($_SESSION['username'])) {
+    header("Location: loading.php"); // redirect location
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
@@ -42,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/customcard.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .main-title {
