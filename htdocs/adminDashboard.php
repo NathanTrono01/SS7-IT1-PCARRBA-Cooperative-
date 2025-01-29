@@ -265,6 +265,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="sidebar">
         <a href="adminDashboard.php" class="active">Admin Dashboard</a>
         <a href="inventory.php">Inventory</a>
+        <a href="revenue.php">Revenue</a>
+        <a href="credit.php">Credit</a>
     </div>
 
     <!-- Main Content -->
