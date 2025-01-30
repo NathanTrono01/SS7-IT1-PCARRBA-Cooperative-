@@ -16,6 +16,31 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `creditor`
+--
+
+DROP TABLE IF EXISTS `creditor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creditor` (
+  `customerId` int(11) NOT NULL AUTO_INCREMENT,
+  `customerName` varchar(100) NOT NULL,
+  `phoneNumber` varchar(15) DEFAULT NULL,
+  `totalCredit` decimal(10,2) DEFAULT 0.00,
+  PRIMARY KEY (`customerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `creditor`
+--
+
+LOCK TABLES `creditor` WRITE;
+/*!40000 ALTER TABLE `creditor` DISABLE KEYS */;
+/*!40000 ALTER TABLE `creditor` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `credits`
 --
 
@@ -23,18 +48,20 @@ DROP TABLE IF EXISTS `credits`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `credits` (
-  `creditId` int(12) NOT NULL AUTO_INCREMENT,
-  `productId` int(12) NOT NULL,
-  `userId` int(12) NOT NULL,
-  `creditorName` varchar(100) NOT NULL,
-  `creditAmount` int(11) NOT NULL,
-  `dateRecorded` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `dueDate` date NOT NULL,
-  `paidStatus` tinyint(1) NOT NULL,
+  `creditId` int(11) NOT NULL AUTO_INCREMENT,
+  `customerId` int(11) NOT NULL,
+  `productId` int(11) NOT NULL,
+  `userId` int(11) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `totalAmount` decimal(10,2) NOT NULL,
+  `transactionDate` datetime NOT NULL,
+  `paymentStatus` varchar(40) DEFAULT 'Unpaid',
   PRIMARY KEY (`creditId`),
-  KEY `inventory_credits` (`productId`),
+  KEY `customerId` (`customerId`),
+  KEY `productId` (`productId`),
   KEY `users_credits` (`userId`),
-  CONSTRAINT `inventory_credits` FOREIGN KEY (`productId`) REFERENCES `inventory` (`productId`) ON UPDATE CASCADE,
+  CONSTRAINT `credits_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `creditor` (`customerId`),
+  CONSTRAINT `credits_ibfk_2` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `users_credits` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -49,31 +76,58 @@ LOCK TABLES `credits` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `inventory`
+-- Table structure for table `inventoryLog`
 --
 
-DROP TABLE IF EXISTS `inventory`;
+DROP TABLE IF EXISTS `inventoryLog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `inventory` (
-  `productId` int(12) NOT NULL AUTO_INCREMENT,
-  `productName` varchar(255) NOT NULL,
-  `productDescription` varchar(255) DEFAULT NULL,
-  `productCategory` varchar(255) NOT NULL,
-  `productQuantity` int(11) NOT NULL DEFAULT 0,
-  `productPrice` decimal(10,0) NOT NULL,
-  `datePurchased` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`productId`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+CREATE TABLE `inventoryLog` (
+  `logId` int(11) NOT NULL AUTO_INCREMENT,
+  `productId` int(11) NOT NULL,
+  `changeType` varchar(20) NOT NULL,
+  `quantityType` int(11) NOT NULL,
+  `logDate` datetime NOT NULL,
+  PRIMARY KEY (`logId`),
+  KEY `productId` (`productId`),
+  CONSTRAINT `inventoryLog_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `inventory`
+-- Dumping data for table `inventoryLog`
 --
 
-LOCK TABLES `inventory` WRITE;
-/*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-/*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
+LOCK TABLES `inventoryLog` WRITE;
+/*!40000 ALTER TABLE `inventoryLog` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inventoryLog` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `products` (
+  `productId` int(11) NOT NULL AUTO_INCREMENT,
+  `productName` varchar(100) NOT NULL,
+  `unitPrice` decimal(10,2) NOT NULL,
+  `stockLevel` int(11) NOT NULL,
+  `reorderLevel` int(11) NOT NULL,
+  `costPrice` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`productId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -84,17 +138,15 @@ DROP TABLE IF EXISTS `sales`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sales` (
-  `saleId` int(12) NOT NULL AUTO_INCREMENT,
-  `productId` int(12) NOT NULL,
-  `userId` int(12) NOT NULL,
-  `amountSold` int(11) NOT NULL,
-  `dateSold` timestamp NOT NULL DEFAULT current_timestamp(),
+  `saleId` int(11) NOT NULL AUTO_INCREMENT,
+  `productId` int(11) NOT NULL,
+  `quantitySold` int(11) NOT NULL,
+  `totalPrice` decimal(10,2) NOT NULL,
+  `saleDate` datetime NOT NULL,
   PRIMARY KEY (`saleId`),
-  KEY `users_sales` (`userId`),
-  KEY `inventory_sales` (`productId`),
-  CONSTRAINT `inventory_sales` FOREIGN KEY (`productId`) REFERENCES `inventory` (`productId`) ON UPDATE CASCADE,
-  CONSTRAINT `users_sales` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  KEY `productId` (`productId`),
+  CONSTRAINT `sales_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,12 +166,13 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `userId` int(12) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
+  `userId` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `accountLevel` enum('Admin','nonAdmin') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `accountLevel` enum('Admin','nonAdmin') NOT NULL,
+  PRIMARY KEY (`userId`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,7 +181,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (5,'testAdmin','$2y$10$G7xCY4d.XIZeIqC/wHnhnOKTMOyeITube1d3AxNniaiB0H2TWlU0.','Admin'),(6,'testUser','$2y$10$R7vTV5uuGsMXfCb9tr3dIOYRSfEE.oQ/La85EsQIeBC5Sad.9Gzvy','nonAdmin'),(7,'bering','$2y$10$Q8OVSiYWjngIRo1c/RFHH.0tawIghcyX2ojs5wurQ5HI35jtOKwGu','Admin'),(8,'jaymar','$2y$10$TomQuVOPB360G5RfSCZKzect0yJJFO00N0qP6Ice6K2s6lVUYQHuK','Admin');
+INSERT INTO `users` VALUES (1,'testAdmin','$2y$10$jEPDkLBw8B0W10wq5VqA/.20og8n3buCv2G4wwmtfpdEumy1CJQ66','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -141,4 +194,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-29  3:22:51
+-- Dump completed on 2025-01-30 11:54:42
