@@ -135,7 +135,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <?php if ($_SESSION['accountLevel'] === 'Admin'): ?>
                         <li><a href="adminPanel.php" class="dropdown-item">Settings</a></li>
                     <?php else: ?>
-                        <li><a href="generalSettings" class="dropdown-item">Settings</a></li>
+                        <li><a href="generalSettings.php" class="dropdown-item">Settings</a></li>
                     <?php endif; ?>
                     <li><a class="dropdown-item" href="logout.php">Logout</a></li>
                 </ul>

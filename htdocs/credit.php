@@ -14,7 +14,10 @@ if (!isset($_SESSION['username'])) {
     <link rel="stylesheet" href="css/layer1.css">
     <link rel="stylesheet" href="css/layer2.css">
 </head>
+
 <?php include 'navbar.php'; ?>
+<script src="js/bootstrap.bundle.min.js"></script>
+
 <body>
     <!-- Main Content -->
     <div class="main-content">
@@ -26,7 +29,7 @@ if (!isset($_SESSION['username'])) {
         </div>
     </div>
 
-    <script src="js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

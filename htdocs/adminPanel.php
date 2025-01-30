@@ -177,9 +177,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </style>
 </head>
-<?php
-include 'navbar.php';
-?>
+
+<?php include 'navbar.php'; ?>
+<script src="js/bootstrap.bundle.min.js"></script>
 
 <body>
     <!-- Main Content -->
@@ -217,8 +217,6 @@ include 'navbar.php';
         </form>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

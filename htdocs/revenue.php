@@ -13,7 +13,10 @@ if (!isset($_SESSION['username'])) {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
 </head>
+
 <?php include 'navbar.php'; ?>
+<script src="js/bootstrap.bundle.min.js"></script>
+
 <body>
     <!-- Main Content -->
     <div class="main-content">
