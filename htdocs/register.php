@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Register</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="bg-dark text-white">
 <div class="container mt-5">
     <div class="card mx-auto" style="max-width: 500px;">
         <div class="card-header text-center">

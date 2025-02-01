@@ -11,7 +11,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        /* Fixed Navbar Styling */
         .navbar-fixed-top {
             display: flex;
             justify-content: space-between;
@@ -20,21 +19,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
             top: 0;
             width: 100%;
             height: 60px;
-            z-index: 1030;
-            border-bottom: 0.25px solid rgba(187, 188, 190, 0.25);
-            padding-left: 20px;
-            padding-right: 20px;
+            padding: 0 20px;
             background-color: rgb(17, 18, 22);
+            border-bottom: 0.25px solid rgba(187, 188, 190, 0.25);
+            z-index: 1030;
         }
 
         .navbar1 {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            align-items: center;
         }
 
         .navbar2 {
-            display: grid;
-            grid-template-columns: auto;
+            display: flex;
+            align-items: center;
         }
 
         .dropdown {
@@ -43,47 +41,54 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .dropdown-menu {
-            background-color: #444;
+            color: #b6b7be;
+            padding: 10px;
+            background-color: #1f2024;
             border: transparent;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.17);
         }
 
         .dropdown-item {
-            color: hsla(0, 0%, 100%, 0.7);
+            padding: 7.5px;
+            display: flex;
+            align-content: center;
+            border-radius: 5px;
+            color: #b6b7be;
+            transition: background 0.3s, color 0.3s;
         }
 
         .dropdown-item:hover {
-            background: transparent;
+            background: #3a3b3f;
             color: #fff;
         }
 
-        /* Sidebar Styling */
         .sidebar {
             position: fixed;
             top: 56px;
             left: 0;
             height: 100vh;
-            width: 250px;
+            width: 260px;
             background-color: rgb(17, 18, 22);
             padding-top: 20px;
             z-index: 1020;
             border-right: 0.25px solid rgba(187, 188, 190, 0.25);
             overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
         }
 
-        .sidebar-record-sale a[href*="sell.php"] {
-            font-size: 1.2rem;
-            padding: 20px 25px;
+        .sidebar-collapsed {
+            transform: translateX(-100%);
         }
 
         .sidebar a {
-            border-radius: 10px;
-            color: #ddd;
-            margin-left: 10px;
-            margin-right: 10px;
-            padding: 15px 20px;
+            margin-left: 20px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            padding: 13px 20px;
+            color: rgba(255, 255, 255, 0.92);
             text-decoration: none;
-            display: block;
+            border-radius: 7.5px;
             transition: background 0.3s, color 0.3s;
         }
 
@@ -91,42 +96,144 @@ $current_page = basename($_SERVER['PHP_SELF']);
             background-color: rgba(255, 255, 255, 0.06);
             color: #fff;
         }
+
         .sidebar a.active {
             background-color: rgba(187, 194, 209, 0.17);
             font-size: 1.05rem;
             color: #fff;
         }
 
-        /* Main Content Styling */
-        .main-content {
-            margin-top: 56px;
-            margin-left: 250px;
-            padding: 20px;
+        .sidebar-record-sale {
+            font-size: 1.2rem;
+            padding: 15px 25px;
+            background: transparent;
+            border: 0.5px solid rgba(187, 188, 190, 0.5);
+            transition: border-color 0.3s, color 0.3s;
+            margin-bottom: 16px;
         }
 
-        /* Responsive Adjustments */
+        .sidebar-record-sale:hover {
+            background: transparent;
+            border: 1.5px solid rgb(187, 188, 190);
+            color: #fff;
+        }
+
+        .sidebar-record-sale.active {
+            color: #fff;
+        }
+
+        .main-content {
+            margin-top: 10px;
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        /* Mobile Devices (e.g., up to 768px) */
         @media (max-width: 768px) {
             .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                border-right: none;
-                border-bottom: 2px solid #ffffff;
+                width: 80%;
+                /* 80% width for mobile devices */
+                transform: translateX(-100%);
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
             }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(92, 92, 92, 0.06);
+                backdrop-filter: blur(1px);
+                z-index: 1010;
+            }
+
+            .overlay-open {
+                display: block;
+            }
         }
 
-        /* Navbar Title Styling */
+        /* Tablet Devices (e.g., 768px to 1024px) */
+        @media (max-width: 1023px) and (min-width: 766px) {
+            .sidebar {
+                width: 40%;
+                transform: translateX(-100%);
+            }
+
+            .sidebar-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.10);
+                backdrop-filter: blur(1px);
+                z-index: 1010;
+            }
+
+            .overlay-open {
+                display: block;
+            }
+        }
+
         .navbar-brand {
+            display: none !important;
+        }
+
+        .navbar-brand-mobile {
+            display: block;
             font-size: 1.5rem;
             font-weight: bold;
-            margin-right: 20px;
+            margin-left: 10px;
         }
 
-        /* Scrollbar Styling for Sidebar */
+        .minimize-btn {
+            display: block;
+            margin-left: 10px;
+        }
+
+        .navbar1 {
+            display: flex;
+            align-items: center;
+        }
+
+        @media (min-width: 769px) {
+            .sidebar {
+                display: block !important;
+                transform: translateX(0) !important;
+            }
+
+            .minimize-btn {
+                display: none !important;
+            }
+
+            .navbar-brand-mobile {
+                display: none !important;
+            }
+
+            .navbar-brand {
+                display: block !important;
+            }
+        }
+
         .sidebar::-webkit-scrollbar {
             width: 8px;
         }
@@ -139,44 +246,86 @@ $current_page = basename($_SERVER['PHP_SELF']);
             background-color: #555;
             border-radius: 4px;
         }
+
+        .minimize-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-right: 20px;
+        }
     </style>
 </head>
 
 <body>
-
-    <body>
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-fixed-top">
-            <div class="navbar1">
-                <a class="navbar-brand" href="dashboard.php">PCARBA Sari-Sari Store</a>
-            </div>
-            <div class="navbar2">
-                <div class="ms-auto">
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo $_SESSION['username']; ?>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <?php if ($_SESSION['accountLevel'] === 'Admin'): ?>
-                                <li><a href="adminPanel.php" class="dropdown-item">Settings</a></li>
-                            <?php else: ?>
-                                <li><a href="generalSettings.php" class="dropdown-item">Settings</a></li>
-                            <?php endif; ?>
-                            <li><a class="dropdown-item" href="logout.php">Logout</a></li>
-                        </ul>
-                    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-fixed-top">
+        <div class="navbar1">
+            <button class="minimize-btn" onclick="toggleSidebar()">☰</button>
+            <a class="navbar-brand" href="dashboard.php">PCARBA Sari-Sari Store</a>
+            <span class="navbar-brand-mobile">Dashboard</span>
+        </div>
+        <div class="navbar2">
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <?php echo $_SESSION['username']; ?>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a href="generalSettings.php" class="dropdown-item">Settings</a></li>
+                        <li><a class="dropdown-item" href="logout.php">Logout</a></li>
+                    </ul>
                 </div>
             </div>
-        </nav>
-
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <a href="sell.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'sell.php' ? 'active' : ''; ?>">Record Sale</a>
-            <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">Dashboard</a>
-            <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">Inventory</a>
-            <a href="revenue.php" class="<?php echo $current_page == 'revenue.php' ? 'active' : ''; ?>">Revenue</a>
-            <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">Credit</a>
         </div>
-    </body>
+    </nav>
+
+    <div class="sidebar">
+        <a href="sell.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'sell.php' ? 'active' : ''; ?>">Record Sale</a>
+        <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">Dashboard</a>
+        <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">Inventory</a>
+        <a href="sales.php" class="<?php echo $current_page == 'sales.php' ? 'active' : ''; ?>">Sales</a>
+        <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">Credit</a>
+    </div>
+
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        <!-- Your main content goes here -->
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('sidebar-open');
+            overlay.classList.toggle('overlay-open');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = "<?php echo $current_page; ?>";
+            const pageNames = {
+                'sell.php': 'Record Sale',
+                'dashboard.php': 'Dashboard',
+                'inventory.php': 'Inventory',
+                'revenue.php': 'Revenue',
+                'credit.php': 'Credit'
+            };
+
+            const navbarBrandMobile = document.querySelector('.navbar-brand-mobile');
+            if (navbarBrandMobile && pageNames[currentPage]) {
+                navbarBrandMobile.textContent = pageNames[currentPage];
+            }
+        });
+    </script>
+</body>
 
 </html>

@@ -21,7 +21,7 @@ if (!isset($_SESSION['username'])) {
     <!-- Main Content -->
     <div class="main-content">
         <div class="container">
-            <h1>Revenue</h1>
+            <h1>Sales</h1>
             <p>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>.</p>
             <!-- Inventory Management Content Goes Here -->
             <a href="logout.php" class="btn btn-secondary">Logout</a>
