@@ -289,17 +289,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </nav>
 
     <div class="sidebar">
-        <a href="sell.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'sell.php' ? 'active' : ''; ?>">Record Sale</a>
-        <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">Dashboard</a>
-        <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">Inventory</a>
-        <a href="sales.php" class="<?php echo $current_page == 'sales.php' ? 'active' : ''; ?>">Sales</a>
-        <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">Credit</a>
+        <a href="addSale.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">Record Sale</a>
+        <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard.png' : 'dashboard.png'; ?>" alt="Dashboard">&nbsp;Dashboard
+        </a>
+        <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'inventory.php' ? 'cabinet_active.png' : 'cabinet.png'; ?>" alt="Inventory">&nbsp;Inventory
+        </a>
+        <a href="sales.php" class="<?php echo $current_page == 'sales.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'sales.php' ? 'barsales_active.png' : 'barsales.png'; ?>" alt="Sales">&nbsp;Sales
+        </a>
+        <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits_active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
+        </a>
     </div>
 
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <div class="main-content">
-        <!-- Your main content goes here -->
     </div>
 
     <script>
