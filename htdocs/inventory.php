@@ -46,12 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             max-width: none;
             margin: 25px auto;
             position: relative;
-            padding: 0 10px;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0 10px; /* Add spacing between rows */
         }
 
         .table-wrapper::-webkit-scrollbar {
@@ -71,24 +81,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 0;
             z-index: 10;
             background-color: #1f1f1f;
-            border-bottom: 0.25px solid rgba(187, 188, 190, 0.25);
-            border-radius: 10px 10px 0 0;
         }
 
         table th {
             padding: 7.5px;
-            background-color: rgb(17, 18, 22);
+            background-color: rgb(1, 1, 2);
             color: #fff;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
-            border-radius: 10px 10px 0 0;
+            margin: 0 5px; /* Add margin to th */
+        }
+
+        table th:first-child {
+            border-top-left-radius: 7px;
+            border-bottom-left-radius: 7px;
+        }
+
+        table th:last-child {
+            border-top-right-radius: 7px;
+            border-bottom-right-radius: 7px;
         }
 
         table td {
             padding: 5px;
             font-size: 1rem;
             color: #eee;
+            margin: 0 5px; /* Add margin to td */
         }
 
         table tr {
@@ -98,6 +117,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         table tr:hover {
             background-color: rgba(187, 194, 209, 0.17);
             transition: all 0.3s ease;
+        }
+
+        table tr:hover td:first-child {
+            border-top-left-radius: 7px;
+            border-bottom-left-radius: 7px;
+        }
+
+        table tr:hover td:last-child {
+            border-top-right-radius: 7px;
+            border-bottom-right-radius: 7px;
         }
 
         .button a {
@@ -194,27 +223,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container">
             <h1>Inventory</h1>
             <div class="table-wrapper">
-                <div class="button">
-                    <a href="insertProduct.php">Add Product</a>
+                <div class="flex-container">
+                    <h5>List of Products</h5>
+                    <div class="button">
+                        <a href="insertProduct.php">Add Product</a>
+                    </div>
                 </div>
+                <hr>
                 <table>
                     <thead>
                         <tr align="left">
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Stock Level</th>
-                            <th>Unit Price (₱)</th>
-                            <th>Actions</th>
+                            <th>&nbsp;Product</th>
+                            <th>&nbsp;Category</th>
+                            <th>&nbsp;Stock Level</th>
+                            <th>&nbsp;Unit Price (₱)</th>
+                            <th>&nbsp;Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($products as $product) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($product['productName']); ?></td>
-                                <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                <td><?php echo htmlspecialchars($product['stockLevel']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
-                                <td>
+                                <td>&nbsp;<?php echo htmlspecialchars($product['productName']); ?></td>
+                                <td>&nbsp;<?php echo htmlspecialchars($product['productCategory']); ?></td>
+                                <td>&nbsp;<?php echo htmlspecialchars($product['stockLevel']); ?></td>
+                                <td>&nbsp;₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
+                                <td>&nbsp;
                                     <form method="post" style="display:inline;">
                                         <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
                                         <button type="submit" name="edit_product" class="btn btn-primary btn-action">Edit</button>

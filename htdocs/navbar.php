@@ -320,10 +320,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
         document.addEventListener('DOMContentLoaded', function() {
             const currentPage = "<?php echo $current_page; ?>";
             const pageNames = {
-                'sell.php': 'Record Sale',
+                'addSale.php': 'Add Sale',
                 'dashboard.php': 'Dashboard',
                 'inventory.php': 'Inventory',
-                'revenue.php': 'Revenue',
+                'sales.php': 'Sales',
                 'credit.php': 'Credit'
             };
 
