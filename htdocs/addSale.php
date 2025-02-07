@@ -82,182 +82,152 @@ if (isset($_POST['record_sale'])) {
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
-            background-color: #000; /* Changed to black */
+            background-color: #ffffff;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #fff; /* Changed to white for better contrast */
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group select {
-            width: 100%;
             padding: 10px;
-            font-size: 14px;
-            border-radius: 5px;
             border: 1px solid #ddd;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s ease;
         }
 
-        .form-group input[type="text"]:focus,
-        .form-group input[type="number"]:focus,
-        .form-group select:focus {
-            border-color: #4CAF50;
-            outline: none;
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
         }
 
-        .form-group input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
+        .btn-primary {
+            background-color: #007bff;
             border: none;
-            padding: 12px 20px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
         }
 
-        .form-group input[type="submit"]:hover {
-            background-color: #45a049;
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
 
         .btn-back {
             display: inline-block;
-            background-color: #f44336;
+            background-color: #6c757d;
             color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
             margin-top: 20px;
             text-align: center;
-            width: auto;
-            min-width: 150px;
+            transition: background-color 0.3s ease;
         }
 
         .btn-back:hover {
-            background-color: #d32f2f;
+            background-color: #5a6268;
         }
 
         .alert {
-            margin: 20px 0;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .content {
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+            margin-bottom: 20px;
         }
 
-        h1 {
-            color: #fff;
+        .alert-success {
+            background-color: #28a745;
+        }
+
+        .alert-danger {
+            background-color: #dc3545;
+        }
+
+        .alert .fa-times {
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-container h1 {
+                font-size: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .alert {
+                width: 100%;
+            }
         }
     </style>
-    <script>
-        function updateStockLevel() {
-            var itemId = document.getElementById("item_id").value;
-            var stockLevel = document.getElementById("stock_level");
-            var quantityInput = document.getElementById("quantity");
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "getStockLevel.php?item_id=" + itemId, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var stock = xhr.responseText;
-                    stockLevel.innerText = "Current Stock: " + stock;
-                    quantityInput.max = stock; // Set the max attribute of the quantity input
-                }
-            };
-            xhr.send();
-        }
-    </script>
 </head>
 
+<body>
 <?php include 'navbar.php'; ?>
 <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- Selection box for different products -->
 
-<body>
-    <div class="content main-content">
-        <h1>Record a Sale</h1>
+    <!-- product dropdown, multiple selection, and stock -->
 
-        <?php if ($message): ?>
-            <div class="alert <?php echo $alert_class; ?>" id="alert">
-                <div class="alert-message">
-                    <span class="start-icon"><?php echo $alert_class === 'alert-success' ? '✔' : '❌'; ?></span>
-                    <span><?php echo $message; ?></span>
-                    <span class="fa-times" onclick="closeAlert()">×</span>
-                </div>
-            </div>
-            <script>
-                // Show the alert
-                document.getElementById("alert").style.display = "block";
+    <!-- Total Price Display -->
 
-                // Hide alert after 5 seconds
-                setTimeout(function() {
-                    document.getElementById("alert").style.opacity = "0";
-                }, 4000); // Alert disappears after 4 seconds
-            </script>
-        <?php endif; ?>
+    <!-- Validatation, and Double Check, Displays list of products selected with its quantity -->
 
-        <div class="form-container">
-            <form method="POST">
-                <div class="form-group">
-                    <label for="item_id">Item:</label>
-                    <select name="item_id" id="item_id" required onchange="updateStockLevel()">
-                        <option value="" disabled selected>Select an item</option>
-                        <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                            <option value="<?php echo $row['productId']; ?>"><?php echo htmlspecialchars($row['productName']); ?></option>
-                        <?php endwhile; ?>
-                    </select>
-                    <p id="stock_level" style="color: #fff;">Current Stock: </p> <!-- Changed to white for better contrast -->
-                </div>
+    <!-- Input customer's Cash amount and calculates it to total price -->
 
-                <div class="form-group">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" min="1" required>
-                </div>
-
-                <div class="form-group">
-                    <input type="submit" name="record_sale" value="Record Sale">
-                </div>
-            </form>
-        </div>
-
-        <?php if ($accountLevel == 'Admin'): ?>
-            <a href="inventory_admin.php" class="btn-back">Back to Dashboard</a>
-        <?php elseif ($accountLevel == 'nonAdmin'): ?>
-            <a href="inventory_employee.php" class="btn-back">Back to Dashboard</a>
-        <?php endif; ?>
-    </div>
-
-    <script>
-        function closeAlert() {
-            document.getElementById("alert").style.display = "none";
-        }
-    </script>
+    <!-- Submit button to record the sale -->
 </body>
 </html>

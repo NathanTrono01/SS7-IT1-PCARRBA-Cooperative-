@@ -124,12 +124,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         table th {
             padding: 7.5px;
-            background-color: rgba(0, 0, 0, 0.52);
-            color:rgba(247, 247, 248, 0.9);
+            background-color: #0c0c0f;
+            color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
             margin: 0 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
         }
@@ -378,10 +379,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td>&nbsp;
                                     <form method="post" style="display:inline;">
                                         <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                        <button type="submit" name="edit_product" class="btn btn-primary btn-action">
+                                        <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn btn-primary btn-action">
                                             <span>Edit</span>
                                             <img src="images/white-pencil.png" alt="Edit">
-                                        </button>
+                                        </a>
                                     </form>
                                     <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
                                         <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">

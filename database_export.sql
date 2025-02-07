@@ -125,7 +125,7 @@ CREATE TABLE `products` (
   `reorderLevel` int(11) NOT NULL,
   `costPrice` decimal(10,2) NOT NULL,
   PRIMARY KEY (`productId`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (6,'Coke','Drinks',20.00,50,10,15.00);
+INSERT INTO `products` VALUES (6,'Coke','Drinks',20.00,50,10,15.00),(15,'Youngs Town Sardines','Beverages',1.00,1,1,1.00),(16,'Test','Condiments',1.00,1,1,1.00);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -209,4 +209,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-05 12:03:14
+-- Dump completed on 2025-02-07  8:58:14
