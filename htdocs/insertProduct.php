@@ -2,9 +2,13 @@
 session_start();
 include('db.php');
 
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Check if user is logged in
 if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 
@@ -23,12 +27,13 @@ $categories = [
 
 // Add new item to inventory
 if (isset($_POST['add_item'])) {
-    $productName = $_POST['item_name'];
-    $category = $_POST['category'];
+    $productName = $_POST['productName'];
+    $category = $_POST['product_category'];
     $newCategory = $_POST['new_category'];
     $stockLevel = $_POST['quantity'];
     $costPrice = $_POST['cost_price'];
     $unitPrice = $_POST['unit_price'];
+    $reorderLevel = $_POST['reorder_level'];
 
     // Use new category if provided
     if (!empty($newCategory)) {
@@ -39,11 +44,15 @@ if (isset($_POST['add_item'])) {
     $check_sql = "SELECT * FROM products WHERE productName = '$productName'";
     $result = mysqli_query($conn, $check_sql);
 
+    if (!$result) {
+        die("Query failed: " . mysqli_error($conn));
+    }
+
     if (mysqli_num_rows($result) > 0) {
         // Item exists, update the quantity and prices
         $row = mysqli_fetch_assoc($result);
         $new_quantity = $row['stockLevel'] + $stockLevel;
-        $update_sql = "UPDATE products SET stockLevel = '$new_quantity', category = '$category', costPrice = '$costPrice', unitPrice = '$unitPrice' WHERE productName = '$productName'";
+        $update_sql = "UPDATE products SET stockLevel = '$new_quantity', productCategory = '$category', costPrice = '$costPrice', unitPrice = '$unitPrice', reorderLevel = '$reorderLevel' WHERE productName = '$productName'";
 
         if (mysqli_query($conn, $update_sql)) {
             $message = "Item quantity and prices updated successfully!";
@@ -54,7 +63,7 @@ if (isset($_POST['add_item'])) {
         }
     } else {
         // Item does not exist, add new item to the inventory
-        $insert_sql = "INSERT INTO products (productName, category, stockLevel, costPrice, unitPrice) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice')";
+        $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel')";
 
         if (mysqli_query($conn, $insert_sql)) {
             $message = "Item added successfully!";
@@ -79,112 +88,151 @@ if (isset($_POST['add_item'])) {
     <style>
         .form-container {
             background-color: #ffffff;
-            padding: 30px;
-            margin-top: 20px;
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 95%;
+            max-width: 1200px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            color: black;
+            padding: 10px;
+            border: 1px solid #ddd;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
 
         .btn-back {
             display: inline-block;
-            background-color: #f44336;
+            background-color: #6c757d;
             color: white;
-            padding: 12px 25px;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
             margin-top: 20px;
             text-align: center;
-            width: auto;
-            min-width: 150px;
+            transition: background-color 0.3s ease;
         }
 
         .btn-back:hover {
-            background-color: #d32f2f;
-        }
-
-        .container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .content {
-            flex: 1;
-            padding: 20px;
-            background-color: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            color: black;
+            background-color: #5a6268;
         }
 
         .alert {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
             padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            z-index: 9999;
-            transition: opacity 1s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.5s ease-out;
+            margin-bottom: 20px;
         }
 
         .alert-success {
-            background-color: rgba(7, 149, 66, 0.8);
+            background-color: #28a745;
         }
 
         .alert-danger {
-            background-color: rgba(220, 17, 1, 0.8);
-        }
-
-        .alert-message {
-            display: flex;
-            align-items: center;
-        }
-
-        .alert .start-icon {
-            margin-right: 5px;
+            background-color: #dc3545;
         }
 
         .alert .fa-times {
             cursor: pointer;
+            margin-left: auto;
         }
 
-        .form-label, .form-control {
-            color: black;
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-container h1 {
+                font-size: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .alert {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
-<?php include 'navbar.php'; ?>
-<script src="js/bootstrap.bundle.min.js"></script>
+    <?php include 'navbar.php'; ?>
+    <script src="js/bootstrap.bundle.min.js"></script>
     <div class="container main-content">
         <div class="content">
-            <h1>Add New Item to Inventory</h1>
-
             <?php if (isset($message)): ?>
                 <div class="alert <?php echo $alert_class; ?>" id="alert">
-                    <div class="alert-message">
-                        <span class="start-icon"><?php echo $alert_class === 'alert-success' ? '✔' : '❌'; ?></span>
-                        <span><?php echo $message; ?></span>
-                        <span class="fa-times" onclick="closeAlert()">×</span>
-                    </div>
+                    <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                    <span><?php echo $message; ?></span>
+                    <i class="fas fa-times" onclick="closeAlert()"></i>
                 </div>
 
                 <script>
-                    document.getElementById("alert").style.display = "block";
                     setTimeout(function() {
                         document.getElementById("alert").style.opacity = "0";
                     }, 4000);
@@ -192,51 +240,60 @@ if (isset($_POST['add_item'])) {
             <?php endif; ?>
 
             <div class="form-container">
+                <h1>Add New Item to Inventory</h1>
+
                 <form method="POST">
-                    <div class="mb-3">
-                        <label for="item_name" class="form-label">Item Name:</label>
-                        <input type="text" class="form-control" name="item_name" id="item_name" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productName" class="form-label">Item Name:</label>
+                            <input type="text" class="form-control" name="productName" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product_category" class="form-label">Category:</label>
+                            <select class="form-select" name="product_category" id="product_category" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
+                                <?php endforeach; ?>
+                                <option value="new">+ Add new</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="new_category_group" style="display: none;">
+                            <label for="new_category" class="form-label">New Category:</label>
+                            <input type="text" class="form-control" name="new_category" id="new_category">
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity" class="form-label">Quantity:</label>
+                            <input type="number" class="form-control" name="quantity" id="quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_price" class="form-label">Unit Price:</label>
+                            <input type="text" class="form-control" name="unit_price" id="unit_price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cost_price" class="form-label">Cost Price:</label>
+                            <input type="text" class="form-control" name="cost_price" id="cost_price" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reorder_level" class="form-label">Reorder Level:</label>
+                            <input type="number" class="form-control" name="reorder_level" id="reorder_level" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Category:</label>
-                        <select class="form-select" name="category" id="category" required>
-                            <option value="" disabled selected>Select a category</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
-                            <?php endforeach; ?>
-                            <br>
-                            <hr>
-                            <option value="new">+ Add new</option>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="new_category_group" style="display: none;">
-                        <label for="new_category" class="form-label">New Category:</label>
-                        <input type="text" class="form-control" name="new_category" id="new_category">
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">Quantity:</label>
-                        <input type="number" class="form-control" name="quantity" id="quantity" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="cost_price" class="form-label">Cost Price:</label>
-                        <input type="text" class="form-control" name="cost_price" id="cost_price" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="unit_price" class="form-label">Unit Price:</label>
-                        <input type="text" class="form-control" name="unit_price" id="unit_price" required>
-                    </div>
+                    <br>
                     <div class="d-grid">
                         <button type="submit" name="add_item" class="btn btn-primary">Add Item</button>
                     </div>
                 </form>
             </div>
 
-            <a href="inventory.php" class="btn btn-back">Back to Inventory</a>
+            <div class="text-center">
+                <a href="inventory.php" class="btn btn-back">Back to Inventory</a>
+            </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('category').addEventListener('change', function () {
+        document.getElementById('product_category').addEventListener('change', function() {
             var newCategoryGroup = document.getElementById('new_category_group');
             if (this.value === 'new') {
                 newCategoryGroup.style.display = 'block';

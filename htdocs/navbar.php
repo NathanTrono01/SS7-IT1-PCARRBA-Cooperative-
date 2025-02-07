@@ -1,6 +1,9 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
+<?php
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -86,6 +89,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             display: flex;
             align-items: center;
             padding: 13px 20px;
+            padding-top: 10px;
             color: rgba(255, 255, 255, 0.92);
             text-decoration: none;
             border-radius: 7.5px;
@@ -125,7 +129,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .main-content {
             margin-top: 10px;
             margin-left: 250px;
-            padding: 20px;
+            padding: 15px;
+            padding-top: 20px;
             transition: margin-left 0.3s;
         }
 
@@ -263,6 +268,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             font-size: 1.5rem;
             margin-right: 20px;
         }
+
+        .sidebar hr {
+            border: 1px solid rgb(255, 255, 255);
+            margin: 10px 20px; /* Adjusted margin for left and right gap */
+        }
     </style>
 </head>
 
@@ -289,9 +299,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </nav>
 
     <div class="sidebar">
-        <a href="addSale.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">Record Sale</a>
+        <a href="addSale.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">+ New Sale</a>
+        <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard.png' : 'dashboard.png'; ?>" alt="Dashboard">&nbsp;Dashboard
+            <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard_active.png' : 'dashboard.png'; ?>" alt="Home">&nbsp;Home
         </a>
         <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'inventory.php' ? 'cabinet_active.png' : 'cabinet.png'; ?>" alt="Inventory">&nbsp;Inventory
