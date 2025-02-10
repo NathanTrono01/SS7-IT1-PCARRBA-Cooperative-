@@ -5,14 +5,16 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Include database connection
 include 'db.php';
 
-// Fetch all sales data
-$query = "SELECT sales.saleId, products.productName, sales.quantitySold, sales.totalPrice, sales.saleDate 
-          FROM sales 
-          JOIN products ON sales.productId = products.productId";
+// Fetch summarized sales data
+$query = "SELECT saleId, dateSold, transactionType, totalPrice FROM sales ORDER BY dateSold DESC";
 $result = $conn->query($query);
+
+if (!$result) {
+    die("Database query failed: " . $conn->error);
+}
+
 $sales = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
@@ -20,12 +22,13 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Transactions</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        .table-wrapper {
+         .table-wrapper {
             background-color: #191a1f;
             width: 100%;
             margin: 25px auto;
@@ -60,7 +63,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
         .search-container input {
             padding: 8px 8px 8px 30px;
-            /* Add padding to the left for the search icon */
             width: 100%;
             max-width: 400px;
             border-radius: 5px;
@@ -92,7 +94,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             height: 16px;
             cursor: pointer;
             display: none;
-            /* Initially hidden */
         }
 
         table {
@@ -111,26 +112,27 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
         table th {
             padding: 7.5px;
-            background-color: rgba(0, 0, 0, 0.52);
+            background-color: #0c0c0f;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
             margin: 0 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
         }
 
         table th:first-child {
             border-left: 2px solid #333942;
-            border-top-left-radius: 7px;
-            border-bottom-left-radius: 7px;
+            border-top: 2px solid #333942;
+            border-bottom: 2px solid #333942;
         }
 
         table th:last-child {
             border-right: 2px solid #333942;
-            border-top-right-radius: 7px;
-            border-bottom-right-radius: 7px;
+            border-top: 2px solid #333942;
+            border-bottom: 2px solid #333942;
         }
 
         table td {
@@ -203,13 +205,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             .table-wrapper {
                 padding: 10px;
                 overflow-x: auto;
-                /* Ensures horizontal scroll on small devices */
             }
 
             table {
                 width: 100%;
                 table-layout: auto;
-                /* Makes sure the table columns adjust based on content */
             }
 
             table th,
@@ -239,28 +239,23 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             .table-wrapper {
                 padding: 10px;
                 overflow-x: auto;
-                /* Ensures horizontal scroll if the table overflows */
             }
 
             table {
                 width: 100%;
                 table-layout: auto;
-                /* Makes the table columns flexible */
             }
 
             table th,
             table td {
                 font-size: 0.85rem;
-                /* Slightly smaller font size for smaller screens */
                 padding: 6px;
             }
 
             .btn-action {
                 padding: 6px 10px;
                 font-size: 0.75rem;
-                /* Slightly smaller button size */
                 min-width: 50px;
-                /* Ensure buttons have a minimum width */
             }
 
             .btn-action span {
@@ -286,7 +281,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             .table-wrapper {
                 margin: 0;
                 padding: 10px;
-                /* Adjusted padding for smaller screens */
                 width: 100%;
             }
 
@@ -296,7 +290,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 width: 100%;
                 overflow-x: auto;
                 white-space: nowrap;
-                /* Prevent text from wrapping */
             }
 
             table th,
@@ -328,41 +321,35 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <!-- Main content -->
     <div class="main-content">
         <div class="container">
             <h1>Sales Revenue</h1>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h5>Sales Transactions</h5>
+                    <h5>Sales Transaction</h5>
                     <div class="button">
-                        <a href="addSale.php">+ New Transaction</a>
+                        <a href="addSale.php"> + New Transaction</a>
                     </div>
-                </div>
-                <div class="search-container">
-                    <img src="images/search-icon.png" alt="Search" class="search-icon">
-                    <input type="text" id="searchBar" placeholder="Search Sales" onkeyup="filterSales(); toggleClearIcon();">
-                    <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                 </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
                 <table id="salesTable">
                     <thead>
                         <tr align="left">
-                            <th>&nbsp;Sale ID</th>
-                            <th>&nbsp;Item Name</th>
-                            <th>&nbsp;Quantity Sold</th>
-                            <th>&nbsp;(₱) Total Price</th>
-                            <th>&nbsp;Date Sold</th>
+                            <th>&nbsp;Date</th>
+                            <th>&nbsp;Transaction Type</th>
+                            <th>&nbsp;Total Price (₱)</th>
+                            <th>&nbsp;Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($sales as $sale) { ?>
                             <tr>
-                                <td>&nbsp;<?php echo htmlspecialchars($sale['saleId']); ?></td>
-                                <td>&nbsp;<?php echo htmlspecialchars($sale['productName']); ?></td>
-                                <td>&nbsp;<?php echo htmlspecialchars($sale['quantitySold']); ?></td>
-                                <td>&nbsp;₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
-                                <td>&nbsp;<?php echo htmlspecialchars(date("F j, Y | g:i A", strtotime($sale['saleDate']))); ?></td>
+                                <td><?php echo htmlspecialchars($sale['dateSold']); ?></td>
+                                <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
+                                <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
+                                <td>
+                                    <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm">View Details</a>
+                                </td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -370,32 +357,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
     </div>
-
-    <script>
-        function filterSales() {
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            const rows = document.querySelectorAll('#salesTable tbody tr');
-
-            rows.forEach(row => {
-                const itemName = row.cells[1].textContent.toLowerCase();
-                row.style.display = itemName.includes(query) ? '' : 'none';
-            });
-        }
-
-        function clearSearch() {
-            document.getElementById('searchBar').value = '';
-            filterSales();
-            toggleClearIcon();
-        }
-
-        function toggleClearIcon() {
-            const searchBar = document.getElementById('searchBar');
-            const clearIcon = document.querySelector('.clear-icon');
-            clearIcon.style.display = searchBar.value ? 'block' : 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', toggleClearIcon);
-    </script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

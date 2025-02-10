@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Set session variables
             $_SESSION['username'] = $user['username'];
             $_SESSION['accountLevel'] = $user['accountLevel'];
+            $_SESSION['userId'] = $user['userId']; // Set userId in session
 
             // redirection location
             header("Location: loading.php"); // or "dashboard.php"

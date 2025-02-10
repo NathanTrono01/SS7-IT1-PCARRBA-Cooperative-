@@ -29,6 +29,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+<?php
+session_start();
+if (!isset($_SESSION['username'])) {
+    header("Location: index.php");
+    exit();
+}
+
+// Include database connection
+include 'db.php';
+
+// Fetch all products
+$query = "SELECT * FROM products";
+$result = $conn->query($query);
+$products = $result->fetch_all(MYSQLI_ASSOC);
+
+// Handle form submission for editing or deleting products
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['delete_product'])) {
+        // Delete product
+        $productId = $_POST['productId'];
+        $stmt = $conn->prepare("DELETE FROM products WHERE productId = ?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $stmt->close();
+        // Refresh the page to reflect the changes
+        header("Location: inventory.php");
+        exit();
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -71,41 +102,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
         }
 
-        .search-container input {
-            padding: 8px 8px 8px 30px;
-            /* Add padding to the left for the search icon */
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
             width: 100%;
             max-width: 400px;
+        }
+
+        .search-wrapper .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-wrapper .clear-icon {
+            position: absolute;
+            right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-wrapper input {
+            padding: 8px 8px 8px 30px;
+            /* Adjust padding to make space for the search icon */
+            width: 100%;
             border-radius: 5px;
             border: 1px solid #333942;
             background-color: rgba(33, 34, 39, 255);
             color: #f7f7f8;
         }
 
-        .search-container input::placeholder {
+        .search-wrapper input::placeholder {
             color: rgba(247, 247, 248, 0.64);
             font-weight: 200;
-        }
-
-        .search-container .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-        }
-
-        .search-container .clear-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            display: none;
-            /* Initially hidden */
         }
 
         table {
@@ -195,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn-action {
             padding: 10px 15px;
             font-size: 1rem;
-            border-radius: 5px;
+            border-radius: 10px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -213,17 +246,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: inline;
         }
 
+        .btn-edit {
+            background-color: #335fff !important;
+            color: white !important;
+        }
+
+        .btn-delete {
+            border: 1px solid #ff3d3d !important;
+            background-color: transparent !important;
+            color: #ff3d3d !important;
+        }
+
         @media (max-width: 1024px) {
             .table-wrapper {
                 padding: 10px;
                 overflow-x: auto;
-                /* Ensures horizontal scroll on small devices */
             }
 
             table {
                 width: 100%;
                 table-layout: auto;
-                /* Makes sure the table columns adjust based on content */
             }
 
             table th,
@@ -253,28 +295,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .table-wrapper {
                 padding: 10px;
                 overflow-x: auto;
-                /* Ensures horizontal scroll if the table overflows */
             }
 
             table {
                 width: 100%;
                 table-layout: auto;
-                /* Makes the table columns flexible */
             }
 
             table th,
             table td {
                 font-size: 0.85rem;
-                /* Slightly smaller font size for smaller screens */
                 padding: 6px;
             }
 
             .btn-action {
                 padding: 6px 10px;
                 font-size: 0.75rem;
-                /* Slightly smaller button size */
                 min-width: 50px;
-                /* Ensure buttons have a minimum width */
             }
 
             .btn-action span {
@@ -300,7 +337,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .table-wrapper {
                 margin: 0;
                 padding: 10px;
-                /* Adjusted padding for smaller screens */
                 width: 100%;
             }
 
@@ -310,7 +346,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 width: 100%;
                 overflow-x: auto;
                 white-space: nowrap;
-                /* Prevent text from wrapping */
             }
 
             table th,
@@ -354,9 +389,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
                 <div class="search-container">
-                    <img src="images/search-icon.png" alt="Search" class="search-icon">
-                    <input type="text" id="searchBar" placeholder="Search Product/s" onkeyup="filterProducts(); toggleClearIcon();">
-                    <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                    <div class="search-wrapper">
+                        <img src="images/search-icon.png" alt="Search" class="search-icon">
+                        <input type="text" id="searchBar" placeholder="Search Product/s" onkeyup="filterProducts(); toggleClearIcon();">
+                        <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                    </div>
                 </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
                 <table id="productTable">
@@ -365,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <th>&nbsp;Product</th>
                             <th>&nbsp;Category</th>
                             <th>&nbsp;Stock</th>
-                            <th>&nbsp;(₱) Price</th>
+                            <th>&nbsp;Price (₱)</th>
                             <th>&nbsp;Actions</th>
                         </tr>
                     </thead>
@@ -379,14 +416,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <td>&nbsp;
                                     <form method="post" style="display:inline;">
                                         <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                        <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn btn-primary btn-action">
+                                        <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn btn-action btn-edit">
                                             <span>Edit</span>
                                             <img src="images/white-pencil.png" alt="Edit">
                                         </a>
                                     </form>
                                     <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
                                         <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                        <button type="submit" name="delete_product" class="btn btn-danger btn-action">
+                                        <button type="submit" name="delete_product" class="btn btn-action btn-delete">
                                             <span>Delete</span>
                                             <img src="images/delete.png" alt="Delete">
                                         </button>
@@ -421,6 +458,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const searchBar = document.getElementById('searchBar');
             const clearIcon = document.querySelector('.clear-icon');
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        }
+
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this item?');
         }
 
         document.addEventListener('DOMContentLoaded', toggleClearIcon);

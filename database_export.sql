@@ -16,6 +16,31 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `audit_logs`
+--
+
+DROP TABLE IF EXISTS `audit_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `audit_logs` (
+  `logId` int(11) NOT NULL AUTO_INCREMENT,
+  `action` varchar(40) NOT NULL,
+  `details` varchar(40) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`logId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `audit_logs`
+--
+
+LOCK TABLES `audit_logs` WRITE;
+/*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `creditor`
 --
 
@@ -23,11 +48,11 @@ DROP TABLE IF EXISTS `creditor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creditor` (
-  `customerId` int(11) NOT NULL AUTO_INCREMENT,
+  `creditorId` int(11) NOT NULL AUTO_INCREMENT,
   `customerName` varchar(100) NOT NULL,
   `phoneNumber` varchar(15) DEFAULT NULL,
   `totalCredit` decimal(10,2) DEFAULT 0.00,
-  PRIMARY KEY (`customerId`)
+  PRIMARY KEY (`creditorId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -37,7 +62,6 @@ CREATE TABLE `creditor` (
 
 LOCK TABLES `creditor` WRITE;
 /*!40000 ALTER TABLE `creditor` DISABLE KEYS */;
-INSERT INTO `creditor` VALUES (6,'Juan Dela Cruz','09123456789',0.00);
 /*!40000 ALTER TABLE `creditor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,20 +74,14 @@ DROP TABLE IF EXISTS `credits`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `credits` (
   `creditId` int(11) NOT NULL AUTO_INCREMENT,
-  `customerId` int(11) NOT NULL,
-  `productId` int(11) NOT NULL,
-  `userId` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `totalAmount` decimal(10,2) NOT NULL,
-  `transactionDate` datetime NOT NULL,
-  `paymentStatus` varchar(40) DEFAULT 'Unpaid',
+  `paymentStatus` enum('Paid','Unpaid') DEFAULT 'Unpaid',
+  `creditorId` int(11) NOT NULL,
+  `saleId` int(11) NOT NULL,
   PRIMARY KEY (`creditId`),
-  KEY `credits_ibfk_1` (`customerId`),
-  KEY `credits_ibfk_2` (`productId`),
-  KEY `users_credits` (`userId`),
-  CONSTRAINT `credits_ibfk_1` FOREIGN KEY (`customerId`) REFERENCES `creditor` (`customerId`),
-  CONSTRAINT `credits_ibfk_2` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
-  CONSTRAINT `users_credits` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
+  KEY `creditor_credits` (`creditorId`),
+  KEY `sale_credits` (`saleId`),
+  CONSTRAINT `creditor_credits` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
+  CONSTRAINT `sale_credits` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -73,40 +91,7 @@ CREATE TABLE `credits` (
 
 LOCK TABLES `credits` WRITE;
 /*!40000 ALTER TABLE `credits` DISABLE KEYS */;
-INSERT INTO `credits` VALUES (6,6,6,8,3,60.00,'2025-01-30 12:00:00','Unpaid');
 /*!40000 ALTER TABLE `credits` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `inventoryLog`
---
-
-DROP TABLE IF EXISTS `inventoryLog`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `inventoryLog` (
-  `logId` int(11) NOT NULL AUTO_INCREMENT,
-  `productId` int(11) NOT NULL,
-  `userId` int(11) NOT NULL,
-  `changeType` varchar(20) NOT NULL,
-  `quantityChange` int(11) NOT NULL,
-  `logDate` datetime NOT NULL,
-  PRIMARY KEY (`logId`),
-  KEY `inventoryLog_ibfk_1` (`productId`),
-  KEY `users_inventoryLog` (`userId`),
-  CONSTRAINT `inventoryLog_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
-  CONSTRAINT `users_inventoryLog` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `inventoryLog`
---
-
-LOCK TABLES `inventoryLog` WRITE;
-/*!40000 ALTER TABLE `inventoryLog` DISABLE KEYS */;
-INSERT INTO `inventoryLog` VALUES (2,6,8,'Sale',-3,'2025-01-30 12:00:00');
-/*!40000 ALTER TABLE `inventoryLog` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -124,7 +109,10 @@ CREATE TABLE `products` (
   `stockLevel` int(11) NOT NULL,
   `reorderLevel` int(11) NOT NULL,
   `costPrice` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`productId`)
+  `userId` int(11) NOT NULL,
+  PRIMARY KEY (`productId`),
+  KEY `users_product` (`userId`),
+  CONSTRAINT `users_product` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -134,8 +122,38 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (6,'Coke','Drinks',20.00,50,10,15.00),(15,'Youngs Town Sardines','Beverages',1.00,1,1,1.00),(16,'Test','Condiments',1.00,1,1,1.00);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sale_item`
+--
+
+DROP TABLE IF EXISTS `sale_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sale_item` (
+  `sale_itemId` int(11) NOT NULL AUTO_INCREMENT,
+  `quantity` int(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `subTotal` decimal(10,2) NOT NULL,
+  `productId` int(11) NOT NULL,
+  `saleId` int(11) NOT NULL,
+  PRIMARY KEY (`sale_itemId`),
+  KEY `product_sale_item` (`productId`),
+  KEY `sale_sale_item` (`saleId`),
+  CONSTRAINT `product_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
+  CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sale_item`
+--
+
+LOCK TABLES `sale_item` WRITE;
+/*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -147,19 +165,16 @@ DROP TABLE IF EXISTS `sales`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sales` (
   `saleId` int(11) NOT NULL AUTO_INCREMENT,
-  `productId` int(11) NOT NULL,
-  `creditId` int(11) DEFAULT NULL,
-  `userId` int(11) NOT NULL,
-  `quantitySold` int(11) NOT NULL,
   `totalPrice` decimal(10,2) NOT NULL,
-  `saleDate` datetime NOT NULL,
+  `transactionType` enum('Cash','Credit') NOT NULL,
+  `dateSold` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `userId` int(11) NOT NULL,
+  `creditorId` int(11) DEFAULT NULL,
   PRIMARY KEY (`saleId`),
-  KEY `productId` (`productId`),
-  KEY `credits_sales` (`creditId`),
-  KEY `users_sales` (`userId`),
-  CONSTRAINT `credits_sales` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`),
-  CONSTRAINT `sales_ibfk_1` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
-  CONSTRAINT `users_sales` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
+  KEY `users_sale` (`userId`),
+  KEY `creditor_sale` (`creditorId`),
+  CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
+  CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -169,7 +184,6 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
-INSERT INTO `sales` VALUES (2,6,6,8,3,60.00,'2025-01-30 12:00:00');
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -187,7 +201,7 @@ CREATE TABLE `users` (
   `accountLevel` enum('Admin','nonAdmin') NOT NULL,
   PRIMARY KEY (`userId`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +210,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (8,'aling_maria','hashed_password','Admin'),(9,'testAdmin','$2y$10$2bmRhBB7cI115K7nBekwJu7rwX8d9Wa9IxXfoHEb/1HLetoGCxpQ2','Admin'),(11,'testUser','$2y$10$9eb5xVEzpsP98DAgb5tNeun6DGAJVyHrnXTjq89MO2BQEJinXwvn6','nonAdmin');
+INSERT INTO `users` VALUES (12,'testAdmin','$2y$10$slzaTkTov1.1CWsgqZxBLOnYzySj1kaLjBhkiaTGFPCpN64.Nol9O','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -209,4 +223,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-07  8:58:14
+-- Dump completed on 2025-02-09  9:14:21

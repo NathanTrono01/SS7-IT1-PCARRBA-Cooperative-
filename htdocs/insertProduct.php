@@ -12,6 +12,14 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+// Check if userId is set in the session
+if (!isset($_SESSION['userId'])) {
+    die("User ID is not set in the session.");
+}
+
+// Get the userId from the session
+$userId = $_SESSION['userId'];
+
 // Define categories for the dropdown
 $categories = [
     'Beverages',
@@ -52,7 +60,7 @@ if (isset($_POST['add_item'])) {
         // Item exists, update the quantity and prices
         $row = mysqli_fetch_assoc($result);
         $new_quantity = $row['stockLevel'] + $stockLevel;
-        $update_sql = "UPDATE products SET stockLevel = '$new_quantity', productCategory = '$category', costPrice = '$costPrice', unitPrice = '$unitPrice', reorderLevel = '$reorderLevel' WHERE productName = '$productName'";
+        $update_sql = "UPDATE products SET stockLevel = '$new_quantity', productCategory = '$category', costPrice = '$costPrice', unitPrice = '$unitPrice', reorderLevel = '$reorderLevel', userId = '$userId' WHERE productName = '$productName'";
 
         if (mysqli_query($conn, $update_sql)) {
             $message = "Item quantity and prices updated successfully!";
@@ -63,7 +71,7 @@ if (isset($_POST['add_item'])) {
         }
     } else {
         // Item does not exist, add new item to the inventory
-        $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel')";
+        $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel, userId) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel', '$userId')";
 
         if (mysqli_query($conn, $insert_sql)) {
             $message = "Item added successfully!";
@@ -275,7 +283,7 @@ if (isset($_POST['add_item'])) {
                             <input type="text" class="form-control" name="cost_price" id="cost_price" required>
                         </div>
                         <div class="form-group">
-                            <label for="reorder_level" class="form-label">Reorder Level:</label>
+                            <label for="reorder_level" class="form-label">Stock Level Alert:</label>
                             <input type="number" class="form-control" name="reorder_level" id="reorder_level" required>
                         </div>
                     </div>
