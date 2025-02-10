@@ -24,8 +24,8 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Record a Sale</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <title>Record a Credit</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
@@ -59,22 +59,13 @@ if (!$result) {
         .form-control {
             border-radius: 8px;
             padding: 10px;
-            border: 1px solid rgba(208,217,251,.12);
-            /* Change border color */
-            background-color:rgba(208,217,251,.08);
-            /* Change background color */
-            color: #f7f7f8;
-            /* Change text color */
-            transition: border-color 0.3s ease, background-color 0.3s ease;
+            border: 1px solid #ddd;
+            transition: border-color 0.3s ease;
         }
 
         .form-control:focus {
-            border-color: #ff5733;
-            /* Change border color on focus */
-            background-color: #3a3d42;
-            /* Change background color on focus */
-            box-shadow: 0 0 5px rgba(255, 87, 51, 0.25);
-            /* Change box shadow on focus */
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
         }
 
         .btn-primary {
@@ -251,20 +242,6 @@ if (!$result) {
                 total += quantity * price;
             });
             document.getElementById('totalPrice').textContent = total.toFixed(2);
-            calculateChange();
-        }
-
-        function calculateChange() {
-            const total = parseFloat(document.getElementById('totalPrice').textContent) || 0;
-            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
-            const change = amountPaid - total;
-            const changeElement = document.getElementById('change');
-            if (isNaN(change) || amountPaid === 0) {
-                changeElement.style.display = 'none';
-            } else {
-                changeElement.style.display = 'inline';
-                changeElement.textContent = change.toFixed(2);
-            }
         }
 
         function filterProducts() {
@@ -308,15 +285,15 @@ if (!$result) {
             calculateTotal();
         }
 
-        function confirmProcessSale(event) {
-            if (!confirm('Are you sure you want to process this sale?')) {
+        function confirmProcessCredit(event) {
+            if (!confirm('Are you sure you want to process this credit?')) {
                 event.preventDefault();
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
-            document.querySelector('form').addEventListener('submit', confirmProcessSale);
+            document.querySelector('form').addEventListener('submit', confirmProcessCredit);
         });
     </script>
 </head>
@@ -327,10 +304,10 @@ if (!$result) {
 
     <div class="main-content">
         <div class="form-container">
-            <h1>Record a Sale</h1>
-            <form method="POST" action="process_sale.php">
+            <h1>Record a Credit</h1>
+            <form method="POST" action="process_credit.php">
                 <div class="mb-3">
-                    <label for="productSearch" class="form-label">Select Product: <span class="required">*</span></label>
+                    <label for="productSearch" class="form-label">Search Products: <span class="required">*</span></label>
                     <input type="text" id="productSearch" class="form-control" placeholder="Search by product name">
                     <div class="product-list">
                         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -343,20 +320,21 @@ if (!$result) {
 
                 <div class="selected-products"></div>
                 <div class="mb-3">
-                    <h1><label class="form-label">Total Price: <span id="totalPrice">0.00</span> PHP</label></h1>
+                   <h1><label class="form-label">Total Price: <span id="totalPrice">0.00</span> PHP</label></h1>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Amount Paid: <span class="required">*</span></label>
-                    <input type="number" id="amountPaid" name="amountPaid" step="0.01" class="form-control" oninput="calculateChange()" required>
-                    <br>
-                    <h3>
-                        <p>Change: <span id="change" style="display: none;">N/A</span> PHP</p>
-                    </h3>
+                    <label class="form-label">Customer Name: <span class="required">*</span></label>
+                    <input type="text" id="customerName" name="customerName" class="form-control" required>
                 </div>
 
-                <input type="hidden" name="transactionType" value="Cash">
-                <input type="submit" name="submit" value="Process Sale" class="btn-success w-100">
+                <div class="mb-3">
+                    <label class="form-label">Due Date: <span class="required">*</span></label>
+                    <input type="date" id="dueDate" name="dueDate" class="form-control" required>
+                </div>
+
+                <input type="hidden" name="transactionType" value="Credit">
+                <input type="submit" name="submit" value="Process Credit" class="btn-success w-100">
             </form>
         </div>
     </div>

@@ -167,12 +167,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
     <?php include 'navbar.php'; ?>
     <div class="container-fluid h-100 d-flex align-items-center justify-content-center">
         <div class="main-content">
-            <h1>Sale Details</h1>
-            <p><strong>Sale ID:</strong> <?php echo htmlspecialchars($saleDetails[0]['saleId']); ?></p>
-            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($dateSold); ?></p>
-            <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($saleDetails[0]['transactionType']); ?></p>
-            <p><strong>Total Price: </strong> ₱ <?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
-            <h3>Items Sold:</h3>
+            <h1>Items Sold:</h1>
             <div class="table-wrapper">
                 <table class="table table-dark table-striped">
                     <thead>
@@ -193,6 +188,11 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
                     </tbody>
                 </table>
             </div>
+            <h1>Sale Details</h1>
+            <p><strong>Sale ID:</strong> <?php echo htmlspecialchars($saleDetails[0]['saleId']); ?></p>
+            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($dateSold); ?></p>
+            <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($saleDetails[0]['transactionType']); ?></p>
+            <p><strong>Total Price: </strong> ₱ <?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
             <a href="sales.php" class="btn btn-secondary mt-3">Back to Sales</a>
         </div>
     </div>

@@ -26,7 +26,7 @@ CREATE TABLE `audit_logs` (
   `logId` int(11) NOT NULL AUTO_INCREMENT,
   `action` varchar(40) NOT NULL,
   `details` varchar(40) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`logId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -51,7 +51,8 @@ CREATE TABLE `creditor` (
   `creditorId` int(11) NOT NULL AUTO_INCREMENT,
   `customerName` varchar(100) NOT NULL,
   `phoneNumber` varchar(15) DEFAULT NULL,
-  `totalCredit` decimal(10,2) DEFAULT 0.00,
+  `amountPaid` decimal(10,2) DEFAULT NULL,
+  `creditBalance` decimal(10,2) NOT NULL,
   PRIMARY KEY (`creditorId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -75,13 +76,15 @@ DROP TABLE IF EXISTS `credits`;
 CREATE TABLE `credits` (
   `creditId` int(11) NOT NULL AUTO_INCREMENT,
   `paymentStatus` enum('Paid','Unpaid') DEFAULT 'Unpaid',
+  `lastUpdated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `transactionDate` timestamp NOT NULL DEFAULT current_timestamp(),
   `creditorId` int(11) NOT NULL,
-  `saleId` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
   PRIMARY KEY (`creditId`),
   KEY `creditor_credits` (`creditorId`),
-  KEY `sale_credits` (`saleId`),
+  KEY `users_credits` (`userId`),
   CONSTRAINT `creditor_credits` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
-  CONSTRAINT `sale_credits` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
+  CONSTRAINT `users_credits` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -113,7 +116,7 @@ CREATE TABLE `products` (
   PRIMARY KEY (`productId`),
   KEY `users_product` (`userId`),
   CONSTRAINT `users_product` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -122,7 +125,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (19,'test','Beverages',1.00,57,1,1.00,12);
+INSERT INTO `products` VALUES (21,'Youngs Town Sardines','Canned Goods',18.00,0,5,15.00,13);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -140,12 +143,15 @@ CREATE TABLE `sale_item` (
   `subTotal` decimal(10,2) NOT NULL,
   `productId` int(11) NOT NULL,
   `saleId` int(11) NOT NULL,
+  `creditId` int(11) DEFAULT NULL,
   PRIMARY KEY (`sale_itemId`),
   KEY `product_sale_item` (`productId`),
   KEY `sale_sale_item` (`saleId`),
+  KEY `credits_sale_item` (`creditId`),
+  CONSTRAINT `credits_sale_item` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`),
   CONSTRAINT `product_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,7 +160,7 @@ CREATE TABLE `sale_item` (
 
 LOCK TABLES `sale_item` WRITE;
 /*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
-INSERT INTO `sale_item` VALUES (6,3,1.00,3.00,19,8);
+INSERT INTO `sale_item` VALUES (16,1,18.00,18.00,21,16,NULL),(17,1,18.00,18.00,21,17,NULL),(18,1,18.00,18.00,21,17,NULL),(19,1,18.00,18.00,21,18,NULL),(20,1,18.00,18.00,21,19,NULL),(21,1,18.00,18.00,21,19,NULL),(22,1,18.00,18.00,21,19,NULL),(23,1,18.00,18.00,21,19,NULL),(24,1,18.00,18.00,21,20,NULL);
 /*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -169,7 +175,7 @@ CREATE TABLE `sales` (
   `saleId` int(11) NOT NULL AUTO_INCREMENT,
   `totalPrice` decimal(10,2) NOT NULL,
   `transactionType` enum('Cash','Credit') NOT NULL,
-  `dateSold` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `dateSold` timestamp NOT NULL DEFAULT current_timestamp(),
   `userId` int(11) NOT NULL,
   `creditorId` int(11) DEFAULT NULL,
   PRIMARY KEY (`saleId`),
@@ -177,7 +183,7 @@ CREATE TABLE `sales` (
   KEY `creditor_sale` (`creditorId`),
   CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,6 +192,7 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
+INSERT INTO `sales` VALUES (16,18.00,'Cash','2025-02-10 16:20:17',13,NULL),(17,36.00,'Cash','2025-02-10 16:26:26',13,NULL),(18,18.00,'Cash','2025-02-10 16:47:06',13,NULL),(19,72.00,'Cash','2025-02-10 17:01:54',13,NULL),(20,18.00,'Cash','2025-02-10 17:02:25',13,NULL);
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -203,7 +210,7 @@ CREATE TABLE `users` (
   `accountLevel` enum('Admin','nonAdmin') NOT NULL,
   PRIMARY KEY (`userId`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,7 +219,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (12,'testAdmin','$2y$10$slzaTkTov1.1CWsgqZxBLOnYzySj1kaLjBhkiaTGFPCpN64.Nol9O','Admin');
+INSERT INTO `users` VALUES (13,'testAdmin','$2y$10$w./D5UBDtEYCq3.pvZ44L.taOgTMBr2xDzKxy2CZC12rQnGRlDhkm','Admin');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -225,4 +232,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-10  2:46:02
+-- Dump completed on 2025-02-10  9:17:22

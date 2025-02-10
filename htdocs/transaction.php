@@ -5,27 +5,17 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+// Include database connection
 include 'db.php';
-
-// Fetch summarized sales data
-$query = "SELECT saleId, dateSold, transactionType, totalPrice FROM sales ORDER BY dateSold DESC";
-$result = $conn->query($query);
-
-if (!$result) {
-    die("Database query failed: " . $conn->error);
-}
-
-$sales = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Transactions</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>Inventory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .flex-container {
@@ -114,8 +104,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
+            width: 20%; /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -128,16 +117,19 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
+            width: 150px; /* Fixed width for the Actions column */
         }
 
         table td {
-            padding: 5px 10px;
-            /* Add padding to the sides of the td elements */
+            padding: 5px 10px; /* Add padding to the sides of the td elements */
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
+            width: 20%; /* Set each column to take up 20% of the table width */
+        }
+
+        table td:last-child {
+            width: 150px; /* Fixed width for the Actions column */
         }
 
         table tr {
@@ -211,7 +203,27 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             color: #ff3d3d !important;
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px; /* Increased margin to bring it further down */
+        }
+
+        .button-container a {
+            margin: 5px;
+        }
+
         @media (max-width: 1024px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
 
             table {
                 width: 100%;
@@ -241,6 +253,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         @media (max-width: 768px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
 
             table {
                 width: 100%;
@@ -278,6 +294,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 font-size: 0.8em;
             }
 
+            .table-wrapper {
+                margin: 0;
+                width: 100%;
+            }
 
             table {
                 font-size: 0.8rem;
@@ -309,7 +329,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 width: 15px;
                 height: 15px;
             }
-
         }
     </style>
 </head>
@@ -318,44 +337,13 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
+    <!-- Main content -->
     <div class="main-content">
-        <div class="container">
-            <div class="table-wrapper">
-                <div class="header-container">
-                    <h2>Sales Transaction</h2>
-                    <div class="button">
-                        <a href="addSale.php">New Sale</a>
-                    </div>
-                </div>
-                <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
-                <table id="salesTable">
-                    <thead>
-                        <tr align="left">
-                            <th>Date</th>
-                            <th>Transaction Type</th>
-                            <th>Total Amount (₱)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($sales as $sale) { 
-                            $dateSold = !empty($sale['dateSold']) ? date("M d, Y -- g:i A", strtotime($sale['dateSold'])) : 'N/A';
-                        ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($dateSold); ?></td>
-                                <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
-                                <td>
-                                    <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm btn-action">
-                                        <span>View Details</span>
-                                        <img src="images/open.png" alt="View Details">
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Centered buttons with text -->
+        <div class="button-container">
+            <h2>Select Transaction Type</h2>
+            <a href="addSale.php" class="btn btn-primary">Record a Sale</a>
+            <a href="addCredit.php" class="btn btn-primary">Record a Credit</a>
         </div>
     </div>
 </body>

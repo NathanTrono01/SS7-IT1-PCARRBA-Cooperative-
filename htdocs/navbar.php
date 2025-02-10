@@ -305,7 +305,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </nav>
 
     <div class="sidebar">
-        <a href="addSale.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">+ New Sale</a>
+        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">+ New Transaction</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard_active.png' : 'dashboard.png'; ?>" alt="Home">&nbsp;Home
@@ -337,7 +337,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         document.addEventListener('DOMContentLoaded', function() {
             const currentPage = "<?php echo $current_page; ?>";
             const pageNames = {
-                'addSale.php': 'Add Sale',
                 'dashboard.php': 'Dashboard',
                 'inventory.php': 'Inventory',
                 'sales.php': 'Sales',
