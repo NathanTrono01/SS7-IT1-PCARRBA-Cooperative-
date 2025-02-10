@@ -113,7 +113,7 @@ CREATE TABLE `products` (
   PRIMARY KEY (`productId`),
   KEY `users_product` (`userId`),
   CONSTRAINT `users_product` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -122,6 +122,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (19,'test','Beverages',1.00,57,1,1.00,12);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +145,7 @@ CREATE TABLE `sale_item` (
   KEY `sale_sale_item` (`saleId`),
   CONSTRAINT `product_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,6 +154,7 @@ CREATE TABLE `sale_item` (
 
 LOCK TABLES `sale_item` WRITE;
 /*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
+INSERT INTO `sale_item` VALUES (6,3,1.00,3.00,19,8);
 /*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,7 +177,7 @@ CREATE TABLE `sales` (
   KEY `creditor_sale` (`creditorId`),
   CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,4 +225,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-09  9:14:21
+-- Dump completed on 2025-02-10  2:46:02

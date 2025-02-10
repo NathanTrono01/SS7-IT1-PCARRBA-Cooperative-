@@ -39,6 +39,9 @@ if (empty($saleDetails)) {
     echo "<p>Sale record not found.</p>";
     exit();
 }
+
+// Format the dateSold
+$dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtotime($saleDetails[0]['dateSold'])) : 'N/A';
 ?>
 
 <!DOCTYPE html>
@@ -166,24 +169,24 @@ if (empty($saleDetails)) {
         <div class="main-content">
             <h1>Sale Details</h1>
             <p><strong>Sale ID:</strong> <?php echo htmlspecialchars($saleDetails[0]['saleId']); ?></p>
-            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($saleDetails[0]['dateSold']); ?></p>
+            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($dateSold); ?></p>
             <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($saleDetails[0]['transactionType']); ?></p>
-            <p><strong>Total Price:</strong> ₱<?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
+            <p><strong>Total Price: </strong> ₱ <?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
             <h3>Items Sold:</h3>
             <div class="table-wrapper">
                 <table class="table table-dark table-striped">
                     <thead>
                         <tr>
-                            <th>Product</th>
                             <th>Quantity</th>
-                            <th>Subtotal (₱)</th>
+                            <th>Product</th>
+                            <th>Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($saleDetails as $item) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($item['productName']); ?></td>
                                 <td><?php echo htmlspecialchars($item['quantity']); ?></td>
+                                <td><?php echo htmlspecialchars($item['productName']); ?></td>
                                 <td>₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
                             </tr>
                         <?php } ?>
@@ -193,7 +196,7 @@ if (empty($saleDetails)) {
             <a href="sales.php" class="btn btn-secondary mt-3">Back to Sales</a>
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

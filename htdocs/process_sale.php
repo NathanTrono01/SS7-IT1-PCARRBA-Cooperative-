@@ -8,6 +8,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 include 'db.php';
+include 'datetime.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productIds = $_POST['productId'];
@@ -17,16 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amountPaid = $_POST['amountPaid'] ?? 0;
     $userId = $_SESSION['userId'];
 
+
     // Calculate total price
     $totalPrice = 0;
     foreach ($productIds as $index => $productId) {
         $totalPrice += $quantities[$index] * $prices[$index];
     }
 
+    $dateSold = getCurrentDateTime();
+
     // Insert sale into the `sale` table
-    $saleSql = "INSERT INTO sales (totalPrice, transactionType, dateSold, userId) VALUES (?, ?, NOW(), ?)";
+    $saleSql = "INSERT INTO sales (totalPrice, transactionType, dateSold, userId) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($saleSql);
-    $stmt->bind_param("dsi", $totalPrice, $transactionType, $userId);
+    $stmt->bind_param("dssi", $totalPrice, $transactionType, $dateSold, $userId);
     $stmt->execute();
     $saleId = $stmt->insert_id;
 

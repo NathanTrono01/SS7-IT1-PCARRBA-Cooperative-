@@ -8,39 +8,13 @@ if (!isset($_SESSION['username'])) {
 // Include database connection
 include 'db.php';
 
-// Fetch all products
-$query = "SELECT * FROM products";
-$result = $conn->query($query);
-$products = $result->fetch_all(MYSQLI_ASSOC);
-
-// Handle form submission for editing or deleting products
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['delete_product'])) {
-        // Delete product
-        $productId = $_POST['productId'];
-        $stmt = $conn->prepare("DELETE FROM products WHERE productId = ?");
-        $stmt->bind_param("i", $productId);
-        $stmt->execute();
-        $stmt->close();
-        // Refresh the page to reflect the changes
-        header("Location: inventory.php");
-        exit();
-    }
-}
-?>
-
-<?php
-session_start();
-if (!isset($_SESSION['username'])) {
-    header("Location: index.php");
-    exit();
-}
-
-// Include database connection
-include 'db.php';
-
-// Fetch all products
-$query = "SELECT * FROM products";
+// Fetch all products with sales count
+$query = "
+    SELECT p.*, COALESCE(SUM(si.quantity), 0) AS salesCount
+    FROM products p
+    LEFT JOIN sale_item si ON p.productId = si.productId
+    GROUP BY p.productId
+";
 $result = $conn->query($query);
 $products = $result->fetch_all(MYSQLI_ASSOC);
 
@@ -69,17 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        .table-wrapper {
-            background-color: #191a1f;
-            width: 100%;
-            margin: 25px auto;
-            position: relative;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
-        }
-
         .flex-container {
             display: flex;
             flex-direction: column;
@@ -88,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .search-container {
+            margin-top: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -156,16 +120,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         table th {
-            padding: 7.5px;
+            padding: 7px;
             background-color: #0c0c0f;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
-            margin: 0 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
+            width: 20%; /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -178,17 +142,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
+            width: 150px; /* Fixed width for the Actions column */
         }
 
         table td {
-            padding: 10px;
+            padding: 5px 10px; /* Add padding to the sides of the td elements */
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
+            width: 20%; /* Set each column to take up 20% of the table width */
+        }
+
+        table td:last-child {
+            width: 150px; /* Fixed width for the Actions column */
         }
 
         table tr {
-            background-color: #191a1f;
+            background-color: transparent;
         }
 
         table tr:hover {
@@ -196,12 +166,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.3s ease;
         }
 
-        table tr:hover td:first-child {
+        table tr td:first-child {
             border-top-left-radius: 7px;
             border-bottom-left-radius: 7px;
         }
 
-        table tr:hover td:last-child {
+        table tr td:last-child {
             border-top-right-radius: 7px;
             border-bottom-right-radius: 7px;
         }
@@ -226,9 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .btn-action {
-            padding: 10px 15px;
+            text-decoration: none;
+            padding: 5px 10px;
             font-size: 1rem;
-            border-radius: 10px;
+            border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -257,6 +228,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #ff3d3d !important;
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
         @media (max-width: 1024px) {
             .table-wrapper {
                 padding: 10px;
@@ -275,9 +251,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 font-size: 0.85rem;
-                min-width: 60px;
             }
 
             .btn-action span {
@@ -286,8 +261,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -311,7 +286,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .btn-action {
                 padding: 6px 10px;
                 font-size: 0.75rem;
-                min-width: 50px;
             }
 
             .btn-action span {
@@ -320,8 +294,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 15px;
+                height: 15px;
             }
         }
 
@@ -336,7 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .table-wrapper {
                 margin: 0;
-                padding: 10px;
                 width: 100%;
             }
 
@@ -350,6 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             table th,
             table td {
+                width: 100%;
                 font-size: 0.8rem;
                 padding: 5px;
             }
@@ -357,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .btn-action {
                 padding: 4px 10px;
                 font-size: 0.7rem;
-                min-width: 50px;
+                min-width: 30px;
             }
 
             .btn-action span {
@@ -366,8 +340,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 15px;
+                height: 15px;
             }
         }
     </style>
@@ -380,12 +354,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Main content -->
     <div class="main-content">
         <div class="container">
-            <h1>Product Inventory</h1>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h5>List of Products</h5>
+                    <h2>Products</h2>
                     <div class="button">
-                        <a href="insertProduct.php">+ New Product</a>
+                        <a href="insertProduct.php">Add Product</a>
                     </div>
                 </div>
                 <div class="search-container">
@@ -399,35 +372,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <table id="productTable">
                     <thead>
                         <tr align="left">
-                            <th>&nbsp;Product</th>
-                            <th>&nbsp;Category</th>
-                            <th>&nbsp;Stock</th>
-                            <th>&nbsp;Price (₱)</th>
-                            <th>&nbsp;Actions</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Stock</th>
+                            <th>Price (₱)</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($products as $product) { ?>
                             <tr>
-                                <td>&nbsp;<?php echo htmlspecialchars($product['productName']); ?></td>
-                                <td>&nbsp;<?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                <td>&nbsp;<?php echo htmlspecialchars($product['stockLevel']); ?></td>
-                                <td>&nbsp;₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
-                                <td>&nbsp;
-                                    <form method="post" style="display:inline;">
-                                        <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                        <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn btn-action btn-edit">
-                                            <span>Edit</span>
-                                            <img src="images/white-pencil.png" alt="Edit">
-                                        </a>
-                                    </form>
-                                    <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
-                                        <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                        <button type="submit" name="delete_product" class="btn btn-action btn-delete">
-                                            <span>Delete</span>
-                                            <img src="images/delete.png" alt="Delete">
-                                        </button>
-                                    </form>
+                                <td><?php echo htmlspecialchars($product['productName']); ?></td>
+                                <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
+                                <td><?php echo htmlspecialchars($product['salesCount']); ?></td>
+                                <td><?php echo htmlspecialchars($product['stockLevel']); ?></td>
+                                <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <form method="post" style="display:inline;">
+                                            <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
+                                            <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
+                                                <span>Edit</span>
+                                                <img src="images/white-pencil.png" alt="Edit">
+                                            </a>
+                                        </form>
+                                        <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
+                                            <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
+                                            <button type="submit" name="delete_product" class="btn-action btn-delete">
+                                                <span>Delete</span>
+                                                <img src="images/delete.png" alt="Delete">
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>

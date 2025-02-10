@@ -91,7 +91,7 @@ if (isset($_POST['add_item'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Item</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
@@ -117,6 +117,7 @@ if (isset($_POST['add_item'])) {
         .form-label {
             font-weight: 500;
             color: #555;
+            margin-bottom: 10px;
         }
 
         .form-control {
@@ -147,8 +148,8 @@ if (isset($_POST['add_item'])) {
 
         .btn-back {
             display: inline-block;
-            background-color: #6c757d;
-            color: white;
+            background-color: transparent;
+            color: black;
             padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
@@ -159,7 +160,7 @@ if (isset($_POST['add_item'])) {
         }
 
         .btn-back:hover {
-            background-color: #5a6268;
+            color: rgb(255, 0, 0);
         }
 
         .alert {
@@ -231,8 +232,11 @@ if (isset($_POST['add_item'])) {
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
+
     <div class="container main-content">
-        <div class="content">
+        <div class="form-container">
+            <h1>Add New Item to Inventory</h1>
+
             <?php if (isset($message)): ?>
                 <div class="alert <?php echo $alert_class; ?>" id="alert">
                     <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
@@ -247,55 +251,49 @@ if (isset($_POST['add_item'])) {
                 </script>
             <?php endif; ?>
 
-            <div class="form-container">
-                <h1>Add New Item to Inventory</h1>
-
-                <form method="POST">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="productName" class="form-label">Item Name:</label>
-                            <input type="text" class="form-control" name="productName" id="productName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="product_category" class="form-label">Category:</label>
-                            <select class="form-select" name="product_category" id="product_category" required>
-                                <option value="" disabled selected>Select a category</option>
-                                <?php foreach ($categories as $category): ?>
-                                    <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
-                                <?php endforeach; ?>
-                                <option value="new">+ Add new</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="new_category_group" style="display: none;">
-                            <label for="new_category" class="form-label">New Category:</label>
-                            <input type="text" class="form-control" name="new_category" id="new_category">
-                        </div>
-                        <div class="form-group">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" class="form-control" name="quantity" id="quantity" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="unit_price" class="form-label">Unit Price:</label>
-                            <input type="text" class="form-control" name="unit_price" id="unit_price" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cost_price" class="form-label">Cost Price:</label>
-                            <input type="text" class="form-control" name="cost_price" id="cost_price" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reorder_level" class="form-label">Stock Level Alert:</label>
-                            <input type="number" class="form-control" name="reorder_level" id="reorder_level" required>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="d-grid">
-                        <button type="submit" name="add_item" class="btn btn-primary">Add Item</button>
-                    </div>
-                </form>
-            </div>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="productName" class="form-label">Product Name:</label>
+                    <input type="text" class="form-control" name="productName" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="product_category" class="form-label">Category:</label>
+                    <select class="form-select form-control" name="product_category" id="product_category" required>
+                        <option value="" disabled selected>Select a category</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
+                        <?php endforeach; ?>
+                        <option value="new">+ Add new</option>
+                    </select>
+                </div>
+                <div class="form-group" id="new_category_group" style="display: none;">
+                    <label for="new_category" class="form-label">New Category:</label>
+                    <input type="text" class="form-control" name="new_category" id="new_category">
+                </div>
+                <div class="form-group">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <input type="number" class="form-control" name="quantity" id="quantity" required>
+                </div>
+                <div class="form-group">
+                    <label for="unit_price" class="form-label">Selling Price:</label>
+                    <input type="text" class="form-control" name="unit_price" id="unit_price" required>
+                </div>
+                <div class="form-group">
+                    <label for="cost_price" class="form-label">Purchase Cost:</label>
+                    <input type="text" class="form-control" name="cost_price" id="cost_price" required>
+                </div>
+                <div class="form-group">
+                    <label for="reorder_level" class="form-label">Minimum Stock Level:</label>
+                    <input type="number" class="form-control" name="reorder_level" id="reorder_level" required>
+                </div>
+                <br>
+                <div class="d-grid">
+                    <button type="submit" name="add_item" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
 
             <div class="text-center">
-                <a href="inventory.php" class="btn btn-back">Back to Inventory</a>
+                <a href="inventory.php" class="btn-back">Back to Inventory</a>
             </div>
         </div>
     </div>

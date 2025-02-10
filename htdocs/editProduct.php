@@ -85,20 +85,22 @@ if (isset($_POST['edit_item'])) {
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
-            background-color: transparent;
-            padding: 15px;
-            border-radius: 15px;
+            background-color: #ffffff;
+            padding: 20px;
+            margin-top: 10px;
+            border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            margin: auto;
+            width: 95%;
+            max-width: 1200px;
+            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .form-container h1 {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: white;
+            color: #333;
             text-align: center;
         }
 
@@ -135,8 +137,8 @@ if (isset($_POST['edit_item'])) {
 
         .btn-back {
             display: inline-block;
-            background-color: #6c757d;
-            color: white;
+            background-color: transparent;
+            color: black;
             padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
@@ -147,7 +149,7 @@ if (isset($_POST['edit_item'])) {
         }
 
         .btn-back:hover {
-            background-color: #5a6268;
+            color:rgb(255, 0, 0);
         }
 
         .alert {
@@ -185,8 +187,15 @@ if (isset($_POST['edit_item'])) {
             }
         }
 
-        .form-group {
-            margin-bottom: 15px;
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
         }
 
         @media (max-width: 768px) {
@@ -196,6 +205,10 @@ if (isset($_POST['edit_item'])) {
 
             .form-container h1 {
                 font-size: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
             }
 
             .alert {
@@ -209,7 +222,7 @@ if (isset($_POST['edit_item'])) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 100vh; padding-top: 60px;">
+    <div class="container main-content">
         <div class="form-container">
             <h1>Edit Item in Inventory</h1>
 
@@ -248,7 +261,7 @@ if (isset($_POST['edit_item'])) {
                         <input type="text" class="form-control" name="new_category" id="new_category">
                     </div>
                     <div class="form-group">
-                        <label for="quantity" class="form-label">Quantity:</label>
+                        <label for="quantity" class="form-label">Stock:</label>
                         <input type="number" class="form-control" name="quantity" id="quantity" value="<?php echo $productDetails['stockLevel']; ?>" required>
                     </div>
                     <div class="form-group">
@@ -265,7 +278,7 @@ if (isset($_POST['edit_item'])) {
                     </div>
                     <br>
                     <div class="d-grid">
-                        <button type="submit" name="edit_item" class="btn btn-primary">Edit Item</button>
+                        <button type="submit" name="edit_item" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             <?php else: ?>
@@ -275,7 +288,7 @@ if (isset($_POST['edit_item'])) {
             <?php endif; ?>
 
             <div class="text-center">
-                <a href="inventory.php" class="btn btn-back">Back to Inventory</a>
+                <a href="inventory.php" class="btn-back">Back to Inventory</a>
             </div>
         </div>
     </div>

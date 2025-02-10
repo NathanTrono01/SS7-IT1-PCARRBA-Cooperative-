@@ -28,17 +28,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-         .table-wrapper {
-            background-color: #191a1f;
-            width: 100%;
-            margin: 25px auto;
-            position: relative;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
-        }
-
         .flex-container {
             display: flex;
             flex-direction: column;
@@ -47,6 +36,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         .search-container {
+            margin-top: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,39 +51,43 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             align-items: center;
         }
 
-        .search-container input {
-            padding: 8px 8px 8px 30px;
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
             width: 100%;
             max-width: 400px;
+        }
+
+        .search-wrapper .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-wrapper .clear-icon {
+            position: absolute;
+            right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-wrapper input {
+            padding: 8px 8px 8px 30px;
+            /* Adjust padding to make space for the search icon */
+            width: 100%;
             border-radius: 5px;
             border: 1px solid #333942;
             background-color: rgba(33, 34, 39, 255);
             color: #f7f7f8;
         }
 
-        .search-container input::placeholder {
+        .search-wrapper input::placeholder {
             color: rgba(247, 247, 248, 0.64);
             font-weight: 200;
-        }
-
-        .search-container .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-        }
-
-        .search-container .clear-icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            display: none;
         }
 
         table {
@@ -111,16 +105,17 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         table th {
-            padding: 7.5px;
+            padding: 7px;
             background-color: #0c0c0f;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
-            margin: 0 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -136,14 +131,17 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         table td {
-            padding: 10px;
+            padding: 5px 10px;
+            /* Add padding to the sides of the td elements */
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
         }
 
         table tr {
-            background-color: #191a1f;
+            background-color: transparent;
         }
 
         table tr:hover {
@@ -151,12 +149,12 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             transition: all 0.3s ease;
         }
 
-        table tr:hover td:first-child {
+        table tr td:first-child {
             border-top-left-radius: 7px;
             border-bottom-left-radius: 7px;
         }
 
-        table tr:hover td:last-child {
+        table tr td:last-child {
             border-top-right-radius: 7px;
             border-bottom-right-radius: 7px;
         }
@@ -181,7 +179,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         .btn-action {
-            padding: 10px 15px;
+            text-decoration: none;
+            padding: 5px 10px;
             font-size: 1rem;
             border-radius: 5px;
             transition: all 0.3s ease;
@@ -201,11 +200,18 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             display: inline;
         }
 
+        .btn-edit {
+            background-color: #335fff !important;
+            color: white !important;
+        }
+
+        .btn-delete {
+            border: 1px solid #ff3d3d !important;
+            background-color: transparent !important;
+            color: #ff3d3d !important;
+        }
+
         @media (max-width: 1024px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
-            }
 
             table {
                 width: 100%;
@@ -219,9 +225,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 8px 12px;
+                padding: 6px 10px;
                 font-size: 0.85rem;
-                min-width: 60px;
             }
 
             .btn-action span {
@@ -230,16 +235,12 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
             }
         }
 
         @media (max-width: 768px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
-            }
 
             table {
                 width: 100%;
@@ -255,7 +256,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             .btn-action {
                 padding: 6px 10px;
                 font-size: 0.75rem;
-                min-width: 50px;
             }
 
             .btn-action span {
@@ -264,8 +264,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 15px;
+                height: 15px;
             }
         }
 
@@ -278,11 +278,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 font-size: 0.8em;
             }
 
-            .table-wrapper {
-                margin: 0;
-                padding: 10px;
-                width: 100%;
-            }
 
             table {
                 font-size: 0.8rem;
@@ -294,6 +289,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             table th,
             table td {
+                width: 100%;
                 font-size: 0.8rem;
                 padding: 5px;
             }
@@ -301,7 +297,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             .btn-action {
                 padding: 4px 10px;
                 font-size: 0.7rem;
-                min-width: 50px;
+                min-width: 30px;
             }
 
             .btn-action span {
@@ -310,9 +306,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             .btn-action img {
                 display: inline;
-                width: 24px;
-                height: 24px;
+                width: 15px;
+                height: 15px;
             }
+
         }
     </style>
 </head>
@@ -323,32 +320,36 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
     <div class="main-content">
         <div class="container">
-            <h1>Sales Revenue</h1>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h5>Sales Transaction</h5>
+                    <h2>Sales Transaction</h2>
                     <div class="button">
-                        <a href="addSale.php"> + New Transaction</a>
+                        <a href="addSale.php">New Sale</a>
                     </div>
                 </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
                 <table id="salesTable">
                     <thead>
                         <tr align="left">
-                            <th>&nbsp;Date</th>
-                            <th>&nbsp;Transaction Type</th>
-                            <th>&nbsp;Total Price (₱)</th>
-                            <th>&nbsp;Actions</th>
+                            <th>Date</th>
+                            <th>Total Price (₱)</th>
+                            <th>Transaction Type</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($sales as $sale) { ?>
+                        <?php foreach ($sales as $sale) { 
+                            $dateSold = !empty($sale['dateSold']) ? date("M d, Y | g:i A", strtotime($sale['dateSold'])) : 'N/A';
+                        ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($sale['dateSold']); ?></td>
-                                <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
+                                <td><?php echo htmlspecialchars($dateSold); ?></td>
                                 <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
+                                <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
                                 <td>
-                                    <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm">View Details</a>
+                                    <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm btn-action">
+                                        <span>View Details</span>
+                                        <img src="images/open.png" alt="View Details">
+                                    </a>
                                 </td>
                             </tr>
                         <?php } ?>

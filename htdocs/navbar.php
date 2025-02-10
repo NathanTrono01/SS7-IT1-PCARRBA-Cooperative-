@@ -136,6 +136,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         /* Mobile Devices (e.g., up to 768px) */
         @media (max-width: 768px) {
+            .container {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
             .sidebar {
                 width: 80%;
                 /* 80% width for mobile devices */
@@ -271,7 +276,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .sidebar hr {
             border: 1px solid rgb(255, 255, 255);
-            margin: 10px 20px; /* Adjusted margin for left and right gap */
+            margin: 10px 20px;
+            /* Adjusted margin for left and right gap */
         }
     </style>
 </head>
