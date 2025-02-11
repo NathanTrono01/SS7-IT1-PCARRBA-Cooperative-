@@ -5,154 +5,340 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-include('db.php');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Fetch total credit
-$totalCreditQuery = "SELECT SUM(totalAmount) as totalCredit FROM credits WHERE userId = ?";
-$stmt = $conn->prepare($totalCreditQuery);
-$stmt->bind_param("i", $_SESSION['userId']);
-$stmt->execute();
-$result = $stmt->get_result();
-$totalCredit = $result->fetch_assoc()['totalCredit'] ?? 0;
+include 'db.php';
 
-// Fetch credits
-$creditsQuery = "SELECT credits.creditId, creditor.customerName, credits.totalAmount, credits.transactionDate, credits.paymentStatus 
-                 FROM credits 
-                 JOIN creditor ON credits.creditorId = creditor.creditorId 
-                 WHERE credits.userId = ?";
-$stmt = $conn->prepare($creditsQuery);
-$stmt->bind_param("i", $_SESSION['userId']);
-$stmt->execute();
-$credits = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+// Fetch summarized credit data
+$query = "SELECT c.creditId, c.transactionDate, c.paymentStatus, cr.creditBalance, cr.customerName 
+          FROM credits c
+          JOIN creditor cr ON c.creditorId = cr.creditorId
+          ORDER BY c.lastUpdated DESC";
+$result = $conn->query($query);
 
-// Fetch creditors
-$creditorsQuery = "SELECT creditorId, customerName FROM creditor";
-$creditors = $conn->query($creditorsQuery)->fetch_all(MYSQLI_ASSOC);
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $creditorId = $_POST['creditorId'];
-    $totalAmount = $_POST['totalAmount'];
-    $transactionDate = date('Y-m-d H:i:s');
-    $paymentStatus = 'Unpaid';
-
-    $insertCreditQuery = "INSERT INTO credits (userId, creditorId, totalAmount, transactionDate, paymentStatus) 
-                          VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($insertCreditQuery);
-    $stmt->bind_param("iidss", $_SESSION['userId'], $creditorId, $totalAmount, $transactionDate, $paymentStatus);
-    $stmt->execute();
-
-    header("Location: credit.php");
-    exit();
+if (!$result) {
+    die("Database query failed: " . $conn->error);
 }
+
+$credits = $result->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>Credit</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credits Transaction</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        .main-content {
-            padding: 20px;
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
         }
 
-        .table-wrapper {
-            background-color: #191a1f;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.79);
-            margin-top: 20px;
+        .search-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            width: 100%;
         }
 
-        .table-wrapper h2 {
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-wrapper .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-wrapper .clear-icon {
+            position: absolute;
+            right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-wrapper input {
+            padding: 8px 8px 8px 30px;
+            /* Adjust padding to make space for the search icon */
+            width: 100%;
+            border-radius: 5px;
+            border: 1px solid #333942;
+            background-color: rgba(33, 34, 39, 255);
             color: #f7f7f8;
-            margin-bottom: 20px;
+        }
+
+        .search-wrapper input::placeholder {
+            color: rgba(247, 247, 248, 0.64);
+            font-weight: 200;
         }
 
         table {
+            font-family: Arial, Helvetica, sans-serif;
             width: 100%;
-            border-collapse: collapse;
-            color: #f7f7f8;
+            border-collapse: separate;
+            border-spacing: 0 10px;
         }
 
-        table th,
-        table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #333942;
+        table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #1f1f1f;
         }
 
         table th {
+            padding: 7px;
             background-color: #0c0c0f;
-            color: #f7f7f8;
+            color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
+            border-top: 2px solid #333942;
+            border-bottom: 2px solid #333942;
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
+        }
+
+        table th:first-child {
+            border-left: 2px solid #333942;
+            border-top: 2px solid #333942;
+            border-bottom: 2px solid #333942;
+        }
+
+        table th:last-child {
+            border-right: 2px solid #333942;
+            border-top: 2px solid #333942;
+            border-bottom: 2px solid #333942;
+            width: 150px;
+            /* Fixed width for the Actions column */
+        }
+
+        table td {
+            padding: 5px 10px;
+            /* Add padding to the sides of the td elements */
+            font-size: 1rem;
+            color: #eee;
+            margin: 0 5px;
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
+        }
+
+        table td:last-child {
+            width: 150px;
+            /* Fixed width for the Actions column */
+        }
+
+        table tr {
+            background-color: transparent;
         }
 
         table tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(187, 194, 209, 0.17);
+            transition: all 0.3s ease;
+        }
+
+        table tr td:first-child {
+            border-top-left-radius: 7px;
+            border-bottom-left-radius: 7px;
+        }
+
+        table tr td:last-child {
+            border-top-right-radius: 7px;
+            border-bottom-right-radius: 7px;
+        }
+
+        .button a {
+            background: transparent;
+            display: inline-block;
+            padding: 8px 12px;
+            background-color: rgb(255, 255, 255);
+            color: #000;
+            text-decoration: none;
+            border-radius: 7px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.26);
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .button a:hover {
+            background-color: rgba(255, 255, 255, 0.94);
+            color: #000;
+            border-radius: 7px;
         }
 
         .btn-action {
-            padding: 6px 12px;
-            font-size: 14px;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 75px;
+            text-align: center;
+            box-sizing: border-box;
         }
 
-        .btn-action.paid {
-            background-color: #28a745;
-            border: none;
-            color: white;
+        .btn-action img {
+            display: none;
         }
 
-        .btn-action.paid:hover {
-            background-color: #218838;
+        .btn-action span {
+            display: inline;
         }
 
-        .btn-action.delete {
-            background-color: #dc3545;
-            border: none;
-            color: white;
+        .btn-edit {
+            background-color: #335fff !important;
+            color: white !important;
         }
 
-        .btn-action.delete:hover {
-            background-color: #c82333;
+        .btn-delete {
+            border: 1px solid #ff3d3d !important;
+            background-color: transparent !important;
+            color: #ff3d3d !important;
         }
 
-        .form-container {
-            background-color: #1f1f1f;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
+        .action-buttons {
+            display: flex;
+            gap: 5px;
         }
 
-        .form-container label {
-            color: #f7f7f8;
-            font-weight: 500;
+        @media (max-width: 1024px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                table-layout: auto;
+            }
+
+            table th,
+            table td {
+                font-size: 0.95rem;
+                padding: 6px;
+            }
+
+            .btn-action {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 20px;
+                height: 20px;
+            }
         }
 
-        .form-container input,
-        .form-container select {
-            background-color: #191a1f;
-            border: 1px solid #333942;
-            color: #f7f7f8;
+        @media (max-width: 768px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                table-layout: auto;
+            }
+
+            table th,
+            table td {
+                font-size: 0.85rem;
+                padding: 6px;
+            }
+
+            .btn-action {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 15px;
+                height: 15px;
+            }
         }
 
-        .form-container input:focus,
-        .form-container select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
 
-        .total-credit {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f7f7f8;
-            margin-bottom: 20px;
+            h2 {
+                font-size: 0.8em;
+            }
+
+            .table-wrapper {
+                margin: 0;
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.8rem;
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            table th,
+            table td {
+                width: 100%;
+                font-size: 0.8rem;
+                padding: 5px;
+            }
+
+            .btn-action {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 15px;
+                height: 15px;
+            }
         }
     </style>
 </head>
@@ -164,88 +350,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="main-content">
         <div class="container">
             <div class="table-wrapper">
-                <h2>Credits</h2>
-                <div class="total-credit">
-                    Total Credit: ₱<?php echo number_format($totalCredit, 2); ?>
+                <div class="header-container">
+                    <h2>Credit Transaction</h2>
+                    <div class="button">
+                        <a href="addCredit.php">New Credit</a>
+                    </div>
                 </div>
-                <table>
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <img src="images/search-icon.png" alt="Search" class="search-icon">
+                        <input type="text" id="searchBar" placeholder="Search Creditor/s" onkeyup="filterCredits(); toggleClearIcon();">
+                        <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                    </div>
+                </div>
+                <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
+                <table id="creditsTable">
                     <thead>
-                        <tr>
-                            <th>Transaction Date</th>
+                        <tr align="left">
+                            <th>Date</th>
                             <th>Creditor</th>
-                            <th>Total Amount</th>
+                            <th>Total Balance</th>
                             <th>Payment Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($credits as $credit) { ?>
+                        <?php if (empty($credits)) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($credit['transactionDate']); ?></td>
-                                <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
-                                <td>₱<?php echo number_format($credit['totalAmount'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
-                                <td>
-                                    <?php if ($credit['paymentStatus'] === 'Unpaid') { ?>
-                                        <button class="btn-action paid" onclick="markAsPaid(<?php echo $credit['creditId']; ?>)">Mark as Paid</button>
-                                    <?php } ?>
-                                    <button class="btn-action delete" onclick="deleteCredit(<?php echo $credit['creditId']; ?>)">Delete</button>
-                                </td>
+                                <td colspan="5" style="text-align: center;">No credit records found. <a href="addCredit.php">Create a new credit</a>.</td>
                             </tr>
+                        <?php } else { ?>
+                            <?php foreach ($credits as $credit) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars(date("M d, Y -- g:i A", strtotime($credit['transactionDate']))); ?></td>
+                                    <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
+                                    <td>₱ <?php echo htmlspecialchars($credit['creditBalance']); ?></td>
+                                    <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
+                                    <td>
+                                        <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="btn btn-primary btn-sm btn-action">
+                                            <span>View Details</span>
+                                            <img src="images/open.png" alt="View Details">
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php } ?>
                         <?php } ?>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="form-container">
-                <h3>Add New Credit</h3>
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="creditorId" class="form-label">Creditor</label>
-                        <select class="form-control" id="creditorId" name="creditorId" required>
-                            <?php foreach ($creditors as $creditor) { ?>
-                                <option value="<?php echo $creditor['creditorId']; ?>"><?php echo htmlspecialchars($creditor['customerName']); ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="totalAmount" class="form-label">Total Amount</label>
-                        <input type="number" class="form-control" id="totalAmount" name="totalAmount" step="0.01" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add Credit</button>
-                </form>
             </div>
         </div>
     </div>
 
     <script>
-        function markAsPaid(creditId) {
-            if (confirm("Are you sure you want to mark this credit as paid?")) {
-                fetch(`mark_as_paid.php?creditId=${creditId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert("Failed to mark as paid.");
-                        }
-                    });
-            }
+        function filterCredits() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const rows = document.querySelectorAll('#creditsTable tbody tr');
+
+            rows.forEach(row => {
+                const creditorName = row.cells[1].textContent.toLowerCase();
+                row.style.display = creditorName.includes(query) ? '' : 'none';
+            });
         }
 
-        function deleteCredit(creditId) {
-            if (confirm("Are you sure you want to delete this credit?")) {
-                fetch(`delete_credit.php?creditId=${creditId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert("Failed to delete credit.");
-                        }
-                    });
-            }
+        function clearSearch() {
+            document.getElementById('searchBar').value = '';
+            filterCredits();
+            toggleClearIcon();
         }
+
+        function toggleClearIcon() {
+            const searchBar = document.getElementById('searchBar');
+            const clearIcon = document.querySelector('.clear-icon');
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', toggleClearIcon);
     </script>
 </body>
 

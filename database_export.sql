@@ -54,7 +54,7 @@ CREATE TABLE `creditor` (
   `amountPaid` decimal(10,2) DEFAULT NULL,
   `creditBalance` decimal(10,2) NOT NULL,
   PRIMARY KEY (`creditorId`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,6 +63,7 @@ CREATE TABLE `creditor` (
 
 LOCK TABLES `creditor` WRITE;
 /*!40000 ALTER TABLE `creditor` DISABLE KEYS */;
+INSERT INTO `creditor` VALUES (7,'Nathan','09127436617',NULL,180.00),(8,'Nathan','',0.00,18.00),(9,'Nathan','',0.00,18.00);
 /*!40000 ALTER TABLE `creditor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -85,7 +86,7 @@ CREATE TABLE `credits` (
   KEY `users_credits` (`userId`),
   CONSTRAINT `creditor_credits` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `users_credits` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,6 +95,7 @@ CREATE TABLE `credits` (
 
 LOCK TABLES `credits` WRITE;
 /*!40000 ALTER TABLE `credits` DISABLE KEYS */;
+INSERT INTO `credits` VALUES (7,'Unpaid','2025-02-11 08:06:28','2025-02-11 16:06:28',8,13),(8,'Unpaid','2025-02-11 08:06:44','2025-02-11 16:06:44',9,13);
 /*!40000 ALTER TABLE `credits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +127,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (21,'Youngs Town Sardines','Canned Goods',18.00,0,5,15.00,13);
+INSERT INTO `products` VALUES (21,'Youngs Town Sardines','Canned Goods',18.00,1000000,5,15.00,13);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -142,7 +144,7 @@ CREATE TABLE `sale_item` (
   `price` decimal(10,2) NOT NULL,
   `subTotal` decimal(10,2) NOT NULL,
   `productId` int(11) NOT NULL,
-  `saleId` int(11) NOT NULL,
+  `saleId` int(11) DEFAULT NULL,
   `creditId` int(11) DEFAULT NULL,
   PRIMARY KEY (`sale_itemId`),
   KEY `product_sale_item` (`productId`),
@@ -151,7 +153,7 @@ CREATE TABLE `sale_item` (
   CONSTRAINT `credits_sale_item` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`),
   CONSTRAINT `product_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +162,7 @@ CREATE TABLE `sale_item` (
 
 LOCK TABLES `sale_item` WRITE;
 /*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
-INSERT INTO `sale_item` VALUES (16,1,18.00,18.00,21,16,NULL),(17,1,18.00,18.00,21,17,NULL),(18,1,18.00,18.00,21,17,NULL),(19,1,18.00,18.00,21,18,NULL),(20,1,18.00,18.00,21,19,NULL),(21,1,18.00,18.00,21,19,NULL),(22,1,18.00,18.00,21,19,NULL),(23,1,18.00,18.00,21,19,NULL),(24,1,18.00,18.00,21,20,NULL);
+INSERT INTO `sale_item` VALUES (16,1,18.00,18.00,21,16,NULL),(17,1,18.00,18.00,21,17,NULL),(18,1,18.00,18.00,21,17,NULL),(19,1,18.00,18.00,21,18,NULL),(20,1,18.00,18.00,21,19,NULL),(21,1,18.00,18.00,21,19,NULL),(22,1,18.00,18.00,21,19,NULL),(23,1,18.00,18.00,21,19,NULL),(24,1,18.00,18.00,21,20,NULL),(25,10,18.00,180.00,21,21,NULL);
 /*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +185,7 @@ CREATE TABLE `sales` (
   KEY `creditor_sale` (`creditorId`),
   CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -192,7 +194,7 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
-INSERT INTO `sales` VALUES (16,18.00,'Cash','2025-02-10 16:20:17',13,NULL),(17,36.00,'Cash','2025-02-10 16:26:26',13,NULL),(18,18.00,'Cash','2025-02-10 16:47:06',13,NULL),(19,72.00,'Cash','2025-02-10 17:01:54',13,NULL),(20,18.00,'Cash','2025-02-10 17:02:25',13,NULL);
+INSERT INTO `sales` VALUES (16,18.00,'Cash','2025-02-10 16:20:17',13,NULL),(17,36.00,'Cash','2025-02-10 16:26:26',13,NULL),(18,18.00,'Cash','2025-02-10 16:47:06',13,NULL),(19,72.00,'Cash','2025-02-10 17:01:54',13,NULL),(20,18.00,'Cash','2025-02-10 17:02:25',13,NULL),(21,180.00,'Cash','2025-02-11 10:25:08',13,NULL);
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -232,4 +234,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-10  9:17:22
+-- Dump completed on 2025-02-11  8:09:48

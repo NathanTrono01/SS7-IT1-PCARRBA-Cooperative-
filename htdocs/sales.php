@@ -338,20 +338,26 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($sales as $sale) { 
-                            $dateSold = !empty($sale['dateSold']) ? date("M d, Y -- g:i A", strtotime($sale['dateSold'])) : 'N/A';
-                        ?>
+                        <?php if (empty($sales)) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($dateSold); ?></td>
-                                <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
-                                <td>
-                                    <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm btn-action">
-                                        <span>View Details</span>
-                                        <img src="images/open.png" alt="View Details">
-                                    </a>
-                                </td>
+                                <td colspan="5" style="text-align: center;">No sales records found. <a href="addSale.php">Create a new sale</a>.</td>
                             </tr>
+                        <?php } else { ?>
+                            <?php foreach ($sales as $sale) {
+                                $dateSold = !empty($sale['dateSold']) ? date("M d, Y -- g:i A", strtotime($sale['dateSold'])) : 'N/A';
+                            ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($dateSold); ?></td>
+                                    <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
+                                    <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
+                                    <td>
+                                        <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm btn-action">
+                                            <span>View Details</span>
+                                            <img src="images/open.png" alt="View Details">
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php } ?>
                         <?php } ?>
                     </tbody>
                 </table>

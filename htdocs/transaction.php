@@ -13,7 +13,7 @@ include 'db.php';
 <html lang="en">
 
 <head>
-    <title>Inventory</title>
+    <title>Transaction Selection</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">

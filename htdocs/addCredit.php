@@ -9,8 +9,8 @@ if (!isset($_SESSION['username'])) {
 
 include 'db.php';
 
-// Fetch all products
-$sql = "SELECT * FROM products";
+// Fetch all products with stock greater than 0
+$sql = "SELECT * FROM products WHERE stockLevel > 0";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -25,7 +25,7 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Record a Credit</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
@@ -59,13 +59,22 @@ if (!$result) {
         .form-control {
             border-radius: 8px;
             padding: 10px;
-            border: 1px solid #ddd;
-            transition: border-color 0.3s ease;
+            border: 1px solid rgba(208,217,251,.12);
+            /* Change border color */
+            background-color:rgba(208,217,251,.08);
+            /* Change background color */
+            color: #f7f7f8;
+            /* Change text color */
+            transition: border-color 0.3s ease, background-color 0.3s ease;
         }
 
         .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+            border-color: #ff5733;
+            /* Change border color on focus */
+            background-color: #3a3d42;
+            /* Change background color on focus */
+            box-shadow: 0 0 5px rgba(255, 87, 51, 0.25);
+            /* Change box shadow on focus */
         }
 
         .btn-primary {
@@ -242,6 +251,7 @@ if (!$result) {
                 total += quantity * price;
             });
             document.getElementById('totalPrice').textContent = total.toFixed(2);
+            document.getElementById('creditBalance').value = total.toFixed(2);
         }
 
         function filterProducts() {
@@ -285,7 +295,7 @@ if (!$result) {
             calculateTotal();
         }
 
-        function confirmProcessCredit(event) {
+        function confirmProcessSale(event) {
             if (!confirm('Are you sure you want to process this credit?')) {
                 event.preventDefault();
             }
@@ -293,7 +303,7 @@ if (!$result) {
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
-            document.querySelector('form').addEventListener('submit', confirmProcessCredit);
+            document.querySelector('form').addEventListener('submit', confirmProcessSale);
         });
     </script>
 </head>
@@ -307,7 +317,15 @@ if (!$result) {
             <h1>Record a Credit</h1>
             <form method="POST" action="process_credit.php">
                 <div class="mb-3">
-                    <label for="productSearch" class="form-label">Search Products: <span class="required">*</span></label>
+                    <label for="customerName" class="form-label">Customer Name: <span class="required">*</span></label>
+                    <input type="text" id="customerName" name="customerName" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number:</label>
+                    <input type="text" id="phoneNumber" name="phoneNumber" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="productSearch" class="form-label">Select Product: <span class="required">*</span></label>
                     <input type="text" id="productSearch" class="form-control" placeholder="Search by product name">
                     <div class="product-list">
                         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -320,20 +338,12 @@ if (!$result) {
 
                 <div class="selected-products"></div>
                 <div class="mb-3">
-                   <h1><label class="form-label">Total Price: <span id="totalPrice">0.00</span> PHP</label></h1>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Customer Name: <span class="required">*</span></label>
-                    <input type="text" id="customerName" name="customerName" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Due Date: <span class="required">*</span></label>
-                    <input type="date" id="dueDate" name="dueDate" class="form-control" required>
+                    <h1><label class="form-label">Total Price: <span id="totalPrice">0.00</span> PHP</label></h1>
                 </div>
 
                 <input type="hidden" name="transactionType" value="Credit">
+                <input type="hidden" name="amountPaid" value="0">
+                <input type="hidden" name="creditBalance" id="creditBalance" value="0">
                 <input type="submit" name="submit" value="Process Credit" class="btn-success w-100">
             </form>
         </div>

@@ -7,6 +7,9 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include 'db.php';
 include 'datetime.php';
 
@@ -20,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_SESSION['userId'];
 
     // Validate inputs
-    if (empty($productIds) || empty($quantities) || empty($prices) || empty($customerName) || empty($phoneNumber)) {
+    if (empty($productIds) || empty($quantities) || empty($prices) || empty($customerName)) {
         $_SESSION['message'] = "All fields are required.";
         $_SESSION['alert_class'] = "alert-danger";
-        header("Location: addSale.php");
+        header("Location: addCredit.php");
         exit();
     }
 
@@ -33,23 +36,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalPrice += $quantities[$index] * $prices[$index];
     }
 
-    $dateSold = getCurrentDateTime();
+    $dateCreated = getCurrentDateTime();
 
     // Insert creditor into the `creditor` table
-    $creditorSql = "INSERT INTO creditor (customerName, phoneNumber, creditBalance) VALUES (?, ?, ?)";
+    $creditorSql = "INSERT INTO creditor (customerName, phoneNumber, creditBalance, amountPaid) VALUES (?, ?, ?, 0)";
     $stmt = $conn->prepare($creditorSql);
     $stmt->bind_param("ssd", $customerName, $phoneNumber, $totalPrice);
     $stmt->execute();
     $creditorId = $stmt->insert_id;
 
     // Insert credit into the `credits` table
-    $creditSql = "INSERT INTO credits (creditorId, paymentStatus, dateCreated, userId) VALUES (?, 'Unpaid', ?, ?)";
+    $creditSql = "INSERT INTO credits (creditorId, paymentStatus, transactionDate, userId) VALUES (?, 'Unpaid', ?, ?)";
     $stmt = $conn->prepare($creditSql);
-    $stmt->bind_param("iss", $creditorId, $dateSold, $userId);
+    $stmt->bind_param("iss", $creditorId, $dateCreated, $userId);
     $stmt->execute();
     $creditId = $stmt->insert_id;
 
-    // Insert sale items into the `sale_item` table
+    // Insert credit items into the `sale_item` table
     foreach ($productIds as $index => $productId) {
         $quantity = $quantities[$index];
         $price = $prices[$index];

@@ -5,6 +5,9 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Include database connection
 include 'db.php';
 
@@ -129,7 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 20%; /* Set each column to take up 20% of the table width */
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -142,19 +146,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 150px; /* Fixed width for the Actions column */
+            width: 150px;
+            /* Fixed width for the Actions column */
         }
 
         table td {
-            padding: 5px 10px; /* Add padding to the sides of the td elements */
+            padding: 5px 10px;
+            /* Add padding to the sides of the td elements */
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            width: 20%; /* Set each column to take up 20% of the table width */
+            width: 20%;
+            /* Set each column to take up 20% of the table width */
         }
 
         table td:last-child {
-            width: 150px; /* Fixed width for the Actions column */
+            width: 150px;
+            /* Fixed width for the Actions column */
         }
 
         table tr {
@@ -381,32 +389,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($products as $product) { ?>
+                        <?php if (empty($products)) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($product['productName']); ?></td>
-                                <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                <td><?php echo htmlspecialchars($product['salesCount']); ?></td>
-                                <td><?php echo htmlspecialchars($product['stockLevel']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <form method="post" style="display:inline;">
-                                            <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                            <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
-                                                <span>Edit</span>
-                                                <img src="images/white-pencil.png" alt="Edit">
-                                            </a>
-                                        </form>
-                                        <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
-                                            <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                            <button type="submit" name="delete_product" class="btn-action btn-delete">
-                                                <span>Delete</span>
-                                                <img src="images/delete.png" alt="Delete">
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+                                <td colspan="5" style="text-align: center;">No products found. <a href="insertProduct.php">Stock a product</a>.</td>
                             </tr>
+                        <?php } else { ?>
+                            <?php foreach ($products as $product) { ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($product['productName']); ?></td>
+                                    <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
+                                    <td><?php echo htmlspecialchars($product['salesCount']); ?></td>
+                                    <td><?php echo htmlspecialchars($product['stockLevel']); ?></td>
+                                    <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <form method="post" style="display:inline;">
+                                                <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
+                                                <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
+                                                    <span>Edit</span>
+                                                    <img src="images/white-pencil.png" alt="Edit">
+                                                </a>
+                                            </form>
+                                            <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
+                                                <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
+                                                <button type="submit" name="delete_product" class="btn-action btn-delete">
+                                                    <span>Delete</span>
+                                                    <img src="images/delete.png" alt="Delete">
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php } ?>
                         <?php } ?>
                     </tbody>
                 </table>

@@ -305,7 +305,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </nav>
 
     <div class="sidebar">
-        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">+ New Transaction</a>
+        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">New Transaction</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard_active.png' : 'dashboard.png'; ?>" alt="Home">&nbsp;Home
