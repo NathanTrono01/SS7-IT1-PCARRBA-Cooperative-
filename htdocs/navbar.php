@@ -127,10 +127,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .main-content {
-            margin-top: 10px;
-            margin-left: 250px;
-            padding: 15px;
-            padding-top: 20px;
+            padding: 1%;
+            margin-top: 60px;
+            /* Adjusted to match the height of the topbar */
+            margin-left: 260px;
+            /* Adjusted to match the width of the sidebar */
             transition: margin-left 0.3s;
         }
 
@@ -322,9 +323,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 
     <div class="overlay" onclick="toggleSidebar()"></div>
-
-    <div class="main-content">
-    </div>
 
     <script>
         function toggleSidebar() {

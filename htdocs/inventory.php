@@ -8,6 +8,7 @@ if (!isset($_SESSION['username'])) {
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
 // Include database connection
 include 'db.php';
 
@@ -359,7 +360,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <!-- Main content -->
     <div class="main-content">
         <div class="container">
             <div class="table-wrapper">
