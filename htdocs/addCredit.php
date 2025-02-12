@@ -332,7 +332,9 @@ if (!$result) {
 
     <div class="main-content">
         <div class="form-container">
-            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+            <a href="transaction.php" class="btn-back">
+                <img src="images/back.png" alt="Back">
+            </a>
             <script>
                 document.getElementById('another-image').addEventListener('mouseover', function() {
                     document.querySelector('.btn-back').src = 'images/back-hover.png';

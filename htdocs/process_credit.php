@@ -71,8 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Redirect to credits page with success message
-    $_SESSION['message'] = "Credit recorded successfully!";
-    $_SESSION['alert_class'] = "alert-success";
     header("Location: credit.php");
     exit();
 }

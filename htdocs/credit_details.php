@@ -79,23 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        .main-content {
-            background-color: transparent;
-            padding: 20px;
-            color: #f7f7f8;
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        .main-content h1,
-        .main-content h3 {
-            color: #f7f7f8;
-        }
-
-        .main-content p {
-            color: #f7f7f8;
-        }
-
         .table-wrapper {
             background-color: #191a1f;
             width: 100%;
@@ -159,20 +142,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .main-content h1 {
+                font-size: 20px;
+            }
+
+            .table-wrapper {
+                padding: 10px;
+            }
+
+            table th, table td {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
-    <div class="c h-100 d-flex align-items-center justify-content-center">
         <div class="main-content">
+            <form method="POST" action="">
+                <div class="mb-3">
+                    <label for="amountPaid" class="form-label">Amount Paid:</label>
+                    <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" required>
+                </div>
+                <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
+                <input type="submit" value="Update Payment" class="btn btn-primary">
+            </form>
+            <hr>
             <h1>Credit Details</h1>
             <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
             <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
             <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
             <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
-            <p><strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
-            <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?></p>
             <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
             <h1>Items Taken:</h1>
             <div class="table-wrapper">
@@ -195,14 +220,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
             </div>
-            <form method="POST" action="">
-                <div class="mb-3">
-                    <label for="amountPaid" class="form-label">Amount Paid:</label>
-                    <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" required>
-                </div>
-                <input type="submit" value="Update Payment" class="btn btn-primary">
-            </form>
-            <a href="credit.php" class="btn btn-secondary mt-3">Back to Credits</a>
+            <hr>
+            <a href="credit.php" class="btn-back-wrapper">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                <span>Back</span>
+            </a>
+            <script>
+                document.getElementById('another-image').addEventListener('mouseover', function() {
+                    this.src = 'images/back-hover.png';
+                });
+
+                document.getElementById('another-image').addEventListener('mouseout', function() {
+                    this.src = 'images/back.png';
+                });
+            </script>
         </div>
     </div>
     <script src="js/bootstrap.bundle.min.js"></script>

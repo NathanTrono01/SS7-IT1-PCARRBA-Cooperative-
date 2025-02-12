@@ -305,7 +305,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </nav>
 
     <div class="sidebar">
-        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo $current_page == 'addSale.php' ? 'active' : ''; ?>">New Transaction</a>
+        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo in_array($current_page, ['addSale.php', 'addCredit.php', 'transaction.php']) ? 'active' : ''; ?>">New Transaction</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard_active.png' : 'dashboard.png'; ?>" alt="Home">&nbsp;Home
@@ -319,6 +319,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'credit.php' ? 'credits_active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
         </a>
+        <!-- <a href="reports.php" class="<?php echo $current_page == 'reports.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'reports.php' ? 'reports.png' : 'reports.png'; ?>" alt="Credits">&nbsp;Reports
+        </a> -->
     </div>
 
     <div class="overlay" onclick="toggleSidebar()"></div>
@@ -334,6 +337,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         document.addEventListener('DOMContentLoaded', function() {
             const currentPage = "<?php echo $current_page; ?>";
             const pageNames = {
+                'restock.php': 'Restock',
+                'editProduct.php': 'Product',
+                'insertProduct.php': 'Product',
+                'transaction.php': 'Transaction',
+                'addCredit.php': 'Transaction',
+                'addSale.php': 'Transaction',
                 'dashboard.php': 'Dashboard',
                 'inventory.php': 'Inventory',
                 'sales.php': 'Sales',

@@ -350,7 +350,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         <div class="container">
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h2>Sales Transaction</h2>
+                    <h2>Sales Transactions</h2>
                     <div class="button">
                         <a href="addSale.php">New Sale</a>
                     </div>

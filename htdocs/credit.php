@@ -366,7 +366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
         <div class="container">
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h2>Credit Transaction</h2>
+                    <h2>Credit Transactions</h2>
                     <div class="button">
                         <a href="addCredit.php">New Credit</a>
                     </div>
