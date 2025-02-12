@@ -1,8 +1,49 @@
 <?php
+include 'db.php';
 session_start();
+
 if (!isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
+}
+
+$error = '';
+$success = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = htmlspecialchars($_POST['username']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $accountLevel = $_POST['accountLevel'];
+
+    // Check if username is unique
+    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $error = "Username already exists.";
+        } else {
+            $stmt->close(); // Close the previous statement
+
+            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
+            if ($stmt) {
+                $stmt->bind_param("sss", $username, $password, $accountLevel);
+                if ($stmt->execute()) {
+                    $success = "Registration successful!";
+                } else {
+                    $error = "Registration failed. Please try again.";
+                }
+                $stmt->close(); // Close the statement after execution
+            } else {
+                $error = "Database error: Unable to prepare statement.";
+            }
+        }
+    } else {
+        $error = "Database error: Unable to prepare statement.";
+    }
+    $conn->close(); // Close the database connection
 }
 ?>
 <!DOCTYPE html>
@@ -16,14 +57,16 @@ if (!isset($_SESSION['username'])) {
         /* Custom Card Styling */
         .custom-card {
             width: 100%;
-            max-width: none; /* Remove max-width constraint */
+            max-width: none;
+            /* Remove max-width constraint */
             border: 1px solid #bdbebe;
             color: white;
             padding: 20px;
             box-sizing: border-box;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            margin: 20px 0; /* Adjust margin for full width */
+            margin: 20px 0;
+            /* Adjust margin for full width */
         }
 
         /* Custom Input Styling */
@@ -68,9 +111,9 @@ if (!isset($_SESSION['username'])) {
         }
 
         /* Alert Styling */
-        .alert {
+        .alert-error {
             border: 1px solid red;
-            background-color: #f8d7da;
+            background-color:rgb(255, 147, 147);
             color: red;
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
@@ -82,6 +125,10 @@ if (!isset($_SESSION['username'])) {
             border: 1px solid green;
             background-color: #d4edda;
             color: green;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            margin-top: 10px;
         }
 
         /* Loading Indicator Styling */
@@ -148,9 +195,8 @@ if (!isset($_SESSION['username'])) {
             </div>
             <br>
             <?php if ($_SESSION['accountLevel'] === 'Admin'): ?>
-                <div class="container">
-                    <h2>Admin Panel</h2>
-                    <form method="POST" action="" class="custom-card">
+                <div class="custom-card">
+                    <form method="POST" action="">
                         <div class="card-header text-center">
                             <h3>Register a User</h3>
                             <hr>
@@ -165,13 +211,14 @@ if (!isset($_SESSION['username'])) {
                         </div>
                         <div class="mb-3">
                             <label for="accountLevel" class="form-label">Account Level</label>
-                            <select name="accountLevel" class="form-select custom-input" required>
+                            <select name="accountLevel" class="custom-input" required>
                                 <option value="nonAdmin">Non-Admin</option>
                                 <option value="Admin">Admin</option>
                             </select>
+                            </select>
                         </div>
-                        <?php if (isset($error)) echo "<div class='alert'>$error</div>"; ?>
-                        <?php if (isset($success)) echo "<div class='alert alert-success'>$success</div>"; ?>
+                        <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
+                        <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
                         <button type="submit" class="custom-button" id="submitButton">Register</button>
                     </form>
                 </div>

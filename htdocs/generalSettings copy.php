@@ -1,51 +1,3 @@
-<?php
-include 'db.php';
-session_start();
-
-if (!isset($_SESSION['username']) || $_SESSION['accountLevel'] !== 'Admin') {
-    header("Location: index.php");
-    exit();
-}
-
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = htmlspecialchars($_POST['username']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $accountLevel = $_POST['accountLevel'];
-
-    // Check if username is unique
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    if ($stmt) {
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $error = "Username already exists.";
-        } else {
-            $stmt->close(); // Close the previous statement
-
-            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
-            if ($stmt) {
-                $stmt->bind_param("sss", $username, $password, $accountLevel);
-                if ($stmt->execute()) {
-                    $success = "Registration successful!";
-                } else {
-                    $error = "Registration failed. Please try again.";
-                }
-                $stmt->close(); // Close the statement after execution
-            } else {
-                $error = "Database error: Unable to prepare statement.";
-            }
-        }
-    } else {
-        $error = "Database error: Unable to prepare statement.";
-    }
-    $conn->close(); // Close the database connection
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -193,7 +145,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <body>
-
+    <div class="main-content">
+        <div class="custom-card">
+            <form method="POST" action="">
+                <div class="card-header text-center">
+                    <h3>Register a User</h3>
+                    <hr>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" name="username" class="custom-input" placeholder="Username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" class="custom-input" placeholder="Password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="accountLevel" class="form-label">Account Level</label>
+                    <select name="accountLevel" class="form-select custom-input" required>
+                        <option value="nonAdmin">Non-Admin</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                    </select>
+                </div>
+                <?php if ($error) echo "<div class='alert'>$error</div>"; ?>
+                <?php if ($success) echo "<div class='alert alert-success'>$success</div>"; ?>
+                <button type="submit" class="custom-button" id="submitButton">Register</button>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

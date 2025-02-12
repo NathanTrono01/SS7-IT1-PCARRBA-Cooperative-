@@ -85,11 +85,10 @@ if (isset($_POST['edit_item'])) {
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
-            background-color: #ffffff;
+            align-content: center;
+            background-color: transparent;
             padding: 20px;
-            margin-top: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             width: 95%;
             max-width: 1200px;
             margin-left: 10px;
@@ -100,29 +99,29 @@ if (isset($_POST['edit_item'])) {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #333;
+            color: whitesmoke;
             text-align: center;
         }
 
-        .form-label {
-            font-weight: 500;
-            color: #555;
+        .form-c {
+            color: white;
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
         }
 
-        .form-control {
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        .form-c:focus {
+            border: 3px solid;
+            border-color: #335fff;
+            color: white;
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .btn-primary {
-            background-color: #007bff;
+            color: white;
+            background-color: #335fff;
             border: none;
             padding: 10px;
             border-radius: 8px;
@@ -135,21 +134,19 @@ if (isset($_POST['edit_item'])) {
             background-color: #0056b3;
         }
 
-        .btn-back {
-            display: inline-block;
+        .btn-back img {
             background-color: transparent;
-            color: black;
-            padding: 10px 20px;
+            color: red;
+            padding: 10px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
-            margin-top: 20px;
             text-align: center;
             transition: background-color 0.3s ease;
         }
 
-        .btn-back:hover {
-            color:rgb(255, 0, 0);
+        .btn-back:hover img {
+            content: url('images/back-hover.png');
         }
 
         .alert {
@@ -193,9 +190,28 @@ if (isset($_POST['edit_item'])) {
             gap: 10px;
         }
 
+        .form-row1 {
+            width: 50%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
         .form-row .form-group {
             flex: 1;
             min-width: 200px;
+        }
+
+        .form-group input,
+        .form-group select {
+            background-color: rgba(208, 217, 251, .08);
+            margin-bottom: 10px;
+            color: white;
+            border: 1px solid rgba(208, 217, 251, .12);
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
         }
 
         @media (max-width: 768px) {
@@ -241,6 +257,52 @@ if (isset($_POST['edit_item'])) {
             <?php endif; ?>
 
             <?php if ($productDetails): ?>
+                <form method="POST">
+                <div class="form-group">
+                    <label for="productName" class="form-label">Product Name:</label><br>
+                    <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="product_category" class="form-label">Categories:</label>
+                        <select class="form-select form-c" name="product_category" id="product_category" style="width: 100%" required>
+                            <option value="" disabled selected>Select a category</option>
+                            <?php foreach ($categories as $category): ?>
+                                <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
+                            <?php endforeach; ?>
+                            <option value="new">+ Add new</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="new_category_group" style="display: none;">
+                        <label for="new_category" class="form-label">New Category:</label><br>
+                        <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="quantity" class="form-label">Quantity:</label>
+                        <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reorder_level" class="form-label">Reorder Level:</label>
+                        <input type="number" class="form-c" name="reorder_level" id="reorder_level" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cost_price" class="form-label">Purchase Cost:</label>
+                        <input type="text" class="form-c" name="cost_price" id="cost_price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit_price" class="form-label">Selling Price:</label>
+                        <input type="text" class="form-c" name="unit_price" id="unit_price" required>
+                    </div>
+                </div>
+                <br>
+                <div class="d-grid">
+                    <button type="submit" name="add_item" class="btn-primary">Add Item</button>
+                </div>
+            </form>
                 <form method="POST">
                     <div class="form-group">
                         <label for="productName" class="form-label">Item Name:</label>

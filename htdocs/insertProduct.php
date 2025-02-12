@@ -159,6 +159,12 @@ if (isset($_POST['add_item'])) {
             content: url('images/back-hover.png');
         }
 
+        .custom-input option {
+            background: rgb(17, 18, 22);
+            border-radius: 7.5px;
+            border: 1px solid rgba(208, 217, 251, .12);
+        }
+
         .alert {
             padding: 10px 20px;
             border-radius: 8px;
@@ -273,12 +279,12 @@ if (isset($_POST['add_item'])) {
                 <div class="form-row">
                     <div class="form-group">
                         <label for="product_category" class="form-label">Categories:</label>
-                        <select class="form-select form-c" name="product_category" id="product_category" style="width: 100%" required>
+                        <select class="form-c custom-input" name="product_category" id="product_category" style="width: 100%" required>
                             <option value="" disabled selected>Select a category</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
                             <?php endforeach; ?>
-                            <option value="new">+ Add new</option>
+                            <option value="new">h+ Add new</option>
                         </select>
                     </div>
                     <div class="form-group" id="new_category_group" style="display: none;">
