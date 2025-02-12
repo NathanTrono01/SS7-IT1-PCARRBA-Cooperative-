@@ -406,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                                             <span>View Details</span>
                                             <img src="images/open.png" alt="View Details">
                                         </a>
-                                        <form method="POST" action="credit.php" style="display:inline;">
+                                        <form method="POST" action="credit.php" style="display:inline;" onsubmit="return confirmDelete();">
                                             <input type="hidden" name="deleteCreditId" value="<?php echo $credit['creditId']; ?>">
                                             <button type="submit" class="btn btn-danger btn-sm btn-action">Delete</button>
                                         </form>
@@ -443,8 +443,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
         }
 
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this credit record?');
+        }
+
         document.addEventListener('DOMContentLoaded', toggleClearIcon);
     </script>
 </body>
-
-</html>
