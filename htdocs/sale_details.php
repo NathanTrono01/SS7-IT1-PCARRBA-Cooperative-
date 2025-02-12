@@ -85,8 +85,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
         table {
             font-family: Arial, Helvetica, sans-serif;
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
+            border-collapse: collapse;
         }
 
         table thead {
@@ -97,54 +96,29 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
         }
 
         table th {
-            padding: 7.5px;
+            padding: 10px;
             background-color: #0c0c0f;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
-            margin: 0 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:first-child {
-            border-left: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:last-child {
-            border-right: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
+            border: 2px solid transparent;
         }
 
         table td {
             padding: 10px;
             font-size: 1rem;
             color: #eee;
-            margin: 0 5px;
+            border: 2px solid transparent;
         }
 
         table tr {
-            background-color: #191a1f;
+            background-color: transparent;
         }
 
         table tr:hover {
             background-color: rgba(187, 194, 209, 0.17);
             transition: all 0.3s ease;
-        }
-
-        table tr:hover td:first-child {
-            border-top-left-radius: 7px;
-            border-bottom-left-radius: 7px;
-        }
-
-        table tr:hover td:last-child {
-            border-top-right-radius: 7px;
-            border-bottom-right-radius: 7px;
         }
 
         .btn-secondary {
@@ -169,7 +143,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
         <div class="main-content">
             <h1>Items Sold:</h1>
             <div class="table-wrapper">
-                <table class="table table-dark table-striped">
+                <table>
                     <thead>
                         <tr>
                             <th>Quantity</th>

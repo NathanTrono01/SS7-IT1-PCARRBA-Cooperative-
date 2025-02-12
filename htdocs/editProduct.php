@@ -121,7 +121,7 @@ if (isset($_POST['edit_item'])) {
 
         .btn-primary {
             color: white;
-            background-color: #335fff;
+            background-color:rgb(51, 255, 54);
             border: none;
             padding: 10px;
             border-radius: 8px;
@@ -131,7 +131,7 @@ if (isset($_POST['edit_item'])) {
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color:rgb(0, 255, 54);
         }
 
         .btn-back img {
@@ -174,6 +174,18 @@ if (isset($_POST['edit_item'])) {
             margin-left: auto;
         }
 
+        .form-group input,
+        .form-group select {
+            background-color: rgba(208, 217, 251, .08);
+            margin-bottom: 10px;
+            color: white;
+            border: 1px solid rgba(208, 217, 251, .12);
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateY(-100%);
@@ -202,18 +214,6 @@ if (isset($_POST['edit_item'])) {
             min-width: 200px;
         }
 
-        .form-group input,
-        .form-group select {
-            background-color: rgba(208, 217, 251, .08);
-            margin-bottom: 10px;
-            color: white;
-            border: 1px solid rgba(208, 217, 251, .12);
-            padding: 8.5px;
-            font-size: 1rem;
-            border-radius: 7.5px;
-            width: 100%;
-        }
-
         @media (max-width: 768px) {
             .form-container {
                 padding: 20px;
@@ -231,6 +231,16 @@ if (isset($_POST['edit_item'])) {
                 width: 100%;
             }
         }
+
+        .custom-input option {
+            background: rgb(17, 18, 22);
+            border-radius: 7.5px;
+            border: 1px solid rgba(208, 217, 251, .12);
+        }
+
+        /* .main-content{
+            margin-top: 50px;
+        } */
     </style>
 </head>
 
@@ -238,10 +248,11 @@ if (isset($_POST['edit_item'])) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="container main-content">
-        <div class="form-container">
-            <h1>Edit Item in Inventory</h1>
-
+    <<div class="form-container">
+        <div class="container main-content">
+            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+            <h3 class="text-center flex-grow-1 m-0">Update Product</h3>
+            <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
             <?php if (isset($message)): ?>
                 <div class="alert <?php echo $alert_class; ?>" id="alert">
                     <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
@@ -257,90 +268,51 @@ if (isset($_POST['edit_item'])) {
             <?php endif; ?>
 
             <?php if ($productDetails): ?>
-                <form method="POST">
-                <div class="form-group">
-                    <label for="productName" class="form-label">Product Name:</label><br>
-                    <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="product_category" class="form-label">Categories:</label>
-                        <select class="form-select form-c" name="product_category" id="product_category" style="width: 100%" required>
-                            <option value="" disabled selected>Select a category</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
-                            <?php endforeach; ?>
-                            <option value="new">+ Add new</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="new_category_group" style="display: none;">
-                        <label for="new_category" class="form-label">New Category:</label><br>
-                        <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="quantity" class="form-label">Quantity:</label>
-                        <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reorder_level" class="form-label">Reorder Level:</label>
-                        <input type="number" class="form-c" name="reorder_level" id="reorder_level" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="cost_price" class="form-label">Purchase Cost:</label>
-                        <input type="text" class="form-c" name="cost_price" id="cost_price" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="unit_price" class="form-label">Selling Price:</label>
-                        <input type="text" class="form-c" name="unit_price" id="unit_price" required>
-                    </div>
-                </div>
-                <br>
-                <div class="d-grid">
-                    <button type="submit" name="add_item" class="btn-primary">Add Item</button>
-                </div>
-            </form>
+
                 <form method="POST">
                     <div class="form-group">
-                        <label for="productName" class="form-label">Item Name:</label>
-                        <input type="text" class="form-control" name="productName" id="productName" value="<?php echo $productDetails['productName']; ?>" required readonly>
+                        <label for="productName" class="form-label">Product Name:</label><br>
+                        <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" value="<?php echo $productDetails['productName']; ?>" disabled readonly>
                     </div>
-                    <div class="form-group">
-                        <label for="product_category" class="form-label">Category:</label>
-                        <select class="form-select form-control" name="product_category" id="product_category" required>
-                            <option value="" disabled>Select a category</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category; ?>" <?php echo $category === $productDetails['productCategory'] ? 'selected' : ''; ?>><?php echo $category; ?></option>
-                            <?php endforeach; ?>
-                            <option value="new">+ Add new</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product_category" class="form-label">Categories:</label>
+                            <select class="form-select form-c" name="product_category" id="product_category" style="width: 100%" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo $category; ?>" <?php echo $category === $productDetails['productCategory'] ? 'selected' : ''; ?>><?php echo $category; ?></option>
+                                <?php endforeach; ?>
+                                <option value="new">+ Add new</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="new_category_group" style="display: none;">
+                            <label for="new_category" class="form-label">New Category:</label><br>
+                            <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%">
+                        </div>
                     </div>
-                    <div class="form-group" id="new_category_group" style="display: none;">
-                        <label for="new_category" class="form-label">New Category:</label>
-                        <input type="text" class="form-control" name="new_category" id="new_category">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity" class="form-label">Quantity:</label>
+                            <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" value="<?php echo $productDetails['stockLevel']; ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reorder_level" class="form-label">Reorder Level:</label>
+                            <input type="number" class="form-c" name="reorder_level" id="reorder_level" value="<?php echo $productDetails['reorderLevel']; ?>" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="quantity" class="form-label">Stock:</label>
-                        <input type="number" class="form-control" name="quantity" id="quantity" value="<?php echo $productDetails['stockLevel']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cost_price" class="form-label">Purchase Cost:</label>
-                        <input type="text" class="form-control" name="cost_price" id="cost_price" value="<?php echo $productDetails['costPrice']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="unit_price" class="form-label">Selling Price:</label>
-                        <input type="text" class="form-control" name="unit_price" id="unit_price" value="<?php echo $productDetails['unitPrice']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reorder_level" class="form-label">Minimum Stock Alert:</label>
-                        <input type="number" class="form-control" name="reorder_level" id="reorder_level" value="<?php echo $productDetails['reorderLevel']; ?>" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cost_price" class="form-label">Purchase Cost:</label>
+                            <input type="text" class="form-c" name="cost_price" id="cost_price" value="<?php echo $productDetails['costPrice']; ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_price" class="form-label">Selling Price:</label>
+                            <input type="text" class="form-c" name="unit_price" id="unit_price" value="<?php echo $productDetails['unitPrice']; ?>" required>
+                        </div>
                     </div>
                     <br>
                     <div class="d-grid">
-                        <button type="submit" name="edit_item" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" name="edit_item" class="btn-primary">Save Changes</button>
                     </div>
                 </form>
             <?php else: ?>
@@ -348,27 +320,31 @@ if (isset($_POST['edit_item'])) {
                     Item not found in the inventory. Please check the product name.
                 </div>
             <?php endif; ?>
-
-            <div class="text-center">
-                <a href="inventory.php" class="btn-back">Back to Inventory</a>
-            </div>
         </div>
-    </div>
+        </div>
 
-    <script>
-        document.getElementById('product_category').addEventListener('change', function() {
-            var newCategoryGroup = document.getElementById('new_category_group');
-            if (this.value === 'new') {
-                newCategoryGroup.style.display = 'block';
-            } else {
-                newCategoryGroup.style.display = 'none';
+        <script>
+            document.getElementById('another-image').addEventListener('mouseover', function() {
+                document.querySelector('.btn-back').src = 'images/back-hover.png';
+            });
+
+            document.getElementById('another-image').addEventListener('mouseout', function() {
+                document.querySelector('.btn-back').src = 'images/back.png';
+            });
+
+            document.getElementById('product_category').addEventListener('change', function() {
+                var newCategoryGroup = document.getElementById('new_category_group');
+                if (this.value === 'new') {
+                    newCategoryGroup.style.display = 'block';
+                } else {
+                    newCategoryGroup.style.display = 'none';
+                }
+            });
+
+            function closeAlert() {
+                document.getElementById("alert").style.display = "none";
             }
-        });
-
-        function closeAlert() {
-            document.getElementById("alert").style.display = "none";
-        }
-    </script>
+        </script>
 </body>
 
 </html>

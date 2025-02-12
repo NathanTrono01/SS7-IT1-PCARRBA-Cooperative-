@@ -22,7 +22,22 @@ if (!$result) {
 }
 
 $credits = $result->fetch_all(MYSQLI_ASSOC);
+
+// Handle delete request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
+    $deleteCreditId = $_POST['deleteCreditId'];
+    $deleteQuery = "DELETE FROM credits WHERE creditId = ?";
+    $stmt = $conn->prepare($deleteQuery);
+    $stmt->bind_param("i", $deleteCreditId);
+    if ($stmt->execute()) {
+        header("Location: credit.php");
+        exit();
+    } else {
+        echo "Error deleting record: " . $conn->error;
+    }
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -391,6 +406,10 @@ $credits = $result->fetch_all(MYSQLI_ASSOC);
                                             <span>View Details</span>
                                             <img src="images/open.png" alt="View Details">
                                         </a>
+                                        <form method="POST" action="credit.php" style="display:inline;">
+                                            <input type="hidden" name="deleteCreditId" value="<?php echo $credit['creditId']; ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm btn-action">Delete</button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php } ?>

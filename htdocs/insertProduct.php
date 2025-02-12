@@ -159,12 +159,6 @@ if (isset($_POST['add_item'])) {
             content: url('images/back-hover.png');
         }
 
-        .custom-input option {
-            background: rgb(17, 18, 22);
-            border-radius: 7.5px;
-            border: 1px solid rgba(208, 217, 251, .12);
-        }
-
         .alert {
             padding: 10px 20px;
             border-radius: 8px;
@@ -188,6 +182,18 @@ if (isset($_POST['add_item'])) {
         .alert .fa-times {
             cursor: pointer;
             margin-left: auto;
+        }
+
+        .form-group input,
+        .form-group select {
+            background-color: rgba(208, 217, 251, .08);
+            margin-bottom: 10px;
+            color: white;
+            border: 1px solid rgba(208, 217, 251, .12);
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
         }
 
         @keyframes slideIn {
@@ -218,18 +224,6 @@ if (isset($_POST['add_item'])) {
             min-width: 200px;
         }
 
-        .form-group input,
-        .form-group select {
-            background-color: rgba(208, 217, 251, .08);
-            margin-bottom: 10px;
-            color: white;
-            border: 1px solid rgba(208, 217, 251, .12);
-            padding: 8.5px;
-            font-size: 1rem;
-            border-radius: 7.5px;
-            width: 100%;
-        }
-
         @media (max-width: 768px) {
             .form-container {
                 padding: 20px;
@@ -247,12 +241,22 @@ if (isset($_POST['add_item'])) {
                 width: 100%;
             }
         }
+
+        .custom-input option {
+            background: rgb(17, 18, 22);
+            border-radius: 7.5px;
+            border: 1px solid rgba(208, 217, 251, .12);
+        }
+
+        /* .main-content{
+            margin-top: 50px;
+        } */
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
-    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>r
     <div class="form-container">
         <div class="container main-content">
             <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
@@ -274,7 +278,7 @@ if (isset($_POST['add_item'])) {
             <form method="POST">
                 <div class="form-group">
                     <label for="productName" class="form-label">Product Name:</label><br>
-                    <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" required>
+                    <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" placeholder="Enter product name" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -284,32 +288,32 @@ if (isset($_POST['add_item'])) {
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
                             <?php endforeach; ?>
-                            <option value="new">h+ Add new</option>
+                            <option value="new">+ Add new</option>
                         </select>
                     </div>
                     <div class="form-group" id="new_category_group" style="display: none;">
                         <label for="new_category" class="form-label">New Category:</label><br>
-                        <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%">
+                        <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%" placeholder="Enter new category">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="quantity" class="form-label">Quantity:</label>
-                        <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" required>
+                        <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
                     </div>
                     <div class="form-group">
                         <label for="reorder_level" class="form-label">Reorder Level:</label>
-                        <input type="number" class="form-c" name="reorder_level" id="reorder_level" required>
+                        <input type="number" class="form-c" name="reorder_level" id="reorder_level" style="width: 100%" placeholder="Enter reorder level" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="cost_price" class="form-label">Purchase Cost:</label>
-                        <input type="text" class="form-c" name="cost_price" id="cost_price" required>
+                        <input type="text" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
                     </div>
                     <div class="form-group">
                         <label for="unit_price" class="form-label">Selling Price:</label>
-                        <input type="text" class="form-c" name="unit_price" id="unit_price" required>
+                        <input type="text" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
                     </div>
                 </div>
                 <br>

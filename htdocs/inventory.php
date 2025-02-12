@@ -204,9 +204,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 7px;
         }
 
+
         .btn-action {
             text-decoration: none;
-            padding: 5px 10px;
+            padding: 6px 10px;
             font-size: 1rem;
             border-radius: 5px;
             transition: all 0.3s ease;
