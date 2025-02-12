@@ -114,8 +114,8 @@ if (isset($_POST['edit_item'])) {
 
         .btn-primary {
             color: white;
-            background-color:rgb(51, 255, 54);
-            border: none;
+            background-color:rgb(5, 255, 92);
+            border: 2px solid rgb(5, 255, 92);
             padding: 10px;
             border-radius: 8px;
             font-size: 16px;
@@ -124,7 +124,8 @@ if (isset($_POST['edit_item'])) {
         }
 
         .btn-primary:hover {
-            background-color:rgb(0, 255, 54);
+            background-color:rgba(149, 255, 151, 0.4);
+            border: 2px solid rgb(5, 255, 92);
         }
 
         .btn-back img {

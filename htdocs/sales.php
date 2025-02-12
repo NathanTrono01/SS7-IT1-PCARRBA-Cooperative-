@@ -128,8 +128,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 250px;
-            /* Adjusted width for the Actions column */
+            width: 150px;
+            /* Fixed width for the Actions column */
         }
 
         table td {
@@ -143,8 +143,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         table td:last-child {
-            width: 250px;
-            /* Adjusted width for the Actions column */
+            width: 150px;
+            /* Fixed width for the Actions column */
         }
 
         table tr {
@@ -179,7 +179,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             margin-bottom: 10px;
         }
 
-        .button:hover a {
+        .button a:hover {
             background-color: rgba(255, 255, 255, 0.94);
             color: #000;
             border-radius: 7px;
@@ -192,10 +192,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
             min-width: 60px;
-            text-align: center;
             box-sizing: border-box;
         }
 
@@ -207,12 +205,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             display: inline;
         }
 
-        .btn-restock {
-            background-color: #28a745 !important;
-            color: white !important;
-        }
-
-        .btn-edit {
+        .btn-open {
             background-color: #335fff !important;
             color: white !important;
         }
@@ -246,7 +239,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 6px 8px;
+                padding: 6px 10px;
                 font-size: 0.85rem;
             }
 
@@ -279,7 +272,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 6px 8px;
+                padding: 6px 10px;
                 font-size: 0.75rem;
             }
 
@@ -324,6 +317,12 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+
+            .btn-action {
                 padding: 4px 8px;
                 font-size: 0.7rem;
                 min-width: 30px;
@@ -359,9 +358,9 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 <table id="salesTable">
                     <thead>
                         <tr align="left">
-                            <th>Date</th>
                             <th>Transaction Type</th>
                             <th>Total Amount (₱)</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -375,11 +374,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                                 $dateSold = !empty($sale['dateSold']) ? date("M d, Y -- g:i A", strtotime($sale['dateSold'])) : 'N/A';
                             ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($dateSold); ?></td>
                                     <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
+                                    <td><?php echo htmlspecialchars($dateSold); ?></td>
                                     <td>
-                                        <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn btn-primary btn-sm btn-action">
+                                        <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn-action btn-open">
                                             <span>View Details</span>
                                             <img src="images/open.png" alt="View Details">
                                         </a>

@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .restock-button:hover {
-            background: transparent;
+            background-color: rgba(255, 255, 255, 0.06);
             border: 1.5px solid rgb(187, 188, 190);
             color: #fff;
             border-radius: 7px;
@@ -244,11 +244,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: inline;
         }
 
-        .btn-restock {
-            background-color: #28a745 !important;
-            color: white !important;
-        }
-
         .btn-edit {
             background-color: #335fff !important;
             color: white !important;
@@ -258,6 +253,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ff3d3d !important;
             background-color: transparent !important;
             color: #ff3d3d !important;
+        }
+
+        .btn-delete:hover {
+            border: 1px solid rgb(255, 0, 0) !important;
+            color:rgb(255, 0, 0) !important;
         }
 
         .action-buttons {

@@ -208,14 +208,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
         .btn-action {
             text-decoration: none;
-            padding: 5px 10px;
-            font-size: 1rem;
+            padding: 6px 8px;
+            font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 75px;
+            min-width: 60px;
             text-align: center;
             box-sizing: border-box;
         }
@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             display: inline;
         }
 
-        .btn-edit {
+        .btn-open {
             background-color: #335fff !important;
             color: white !important;
         }
@@ -345,6 +345,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 min-width: 30px;
             }
 
+            .btn-action {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+
             .btn-action span {
                 display: none;
             }
@@ -382,10 +388,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 <table id="creditsTable">
                     <thead>
                         <tr align="left">
-                            <th>Date</th>
+                            <th>Payment Status</th>
                             <th>Creditor</th>
                             <th>Total Balance</th>
-                            <th>Payment Status</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -397,18 +403,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                         <?php } else { ?>
                             <?php foreach ($credits as $credit) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars(date("M d, Y -- g:i A", strtotime($credit['transactionDate']))); ?></td>
+                                    <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
                                     <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($credit['creditBalance']); ?></td>
-                                    <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
+                                    <td><?php echo htmlspecialchars(date("M d, Y -- g:i A", strtotime($credit['transactionDate']))); ?></td>
                                     <td>
-                                        <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="btn btn-primary btn-sm btn-action">
+                                        <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="btn-action btn-open">
                                             <span>View Details</span>
                                             <img src="images/open.png" alt="View Details">
                                         </a>
                                         <form method="POST" action="credit.php" style="display:inline;" onsubmit="return confirmDelete();">
                                             <input type="hidden" name="deleteCreditId" value="<?php echo $credit['creditId']; ?>">
-                                            <button type="submit" class="btn btn-danger btn-sm btn-action">Delete</button>
+                                            <button type="submit" class="btn-action btn-delete">
+                                                <span>Delete</span>
+                                                <img src="images/delete.png" alt="Delete">
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
