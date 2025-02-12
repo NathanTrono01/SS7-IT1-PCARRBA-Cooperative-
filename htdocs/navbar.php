@@ -103,7 +103,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .sidebar a.active {
             background-color: rgba(187, 194, 209, 0.17);
-            font-size: 1.05rem;
             color: #fff;
         }
 

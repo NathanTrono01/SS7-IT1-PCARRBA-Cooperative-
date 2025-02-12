@@ -166,6 +166,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'navbar.php'; ?>
     <div class="c h-100 d-flex align-items-center justify-content-center">
         <div class="main-content">
+            <h1>Credit Details</h1>
+            <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
+            <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
+            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
+            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
+            <p><strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
+            <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?></p>
+            <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
             <h1>Items Taken:</h1>
             <div class="table-wrapper">
                 <table>
@@ -187,14 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
             </div>
-            <h1>Credit Details</h1>
-            <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
-            <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
-            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
-            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
-            <p><strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
-            <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?></p>
-            <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
             <form method="POST" action="">
                 <div class="mb-3">
                     <label for="amountPaid" class="form-label">Amount Paid:</label>

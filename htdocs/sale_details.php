@@ -134,6 +134,23 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
     </style>
 </head>
 
@@ -141,6 +158,11 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
     <?php include 'navbar.php'; ?>
     <div class="container-fluid h-100 d-flex align-items-center justify-content-center">
         <div class="main-content">
+            <h1 align="center">Sale Details</h1>
+            <p><strong>Sale ID:</strong> <?php echo htmlspecialchars($saleDetails[0]['saleId']); ?></p>
+            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($dateSold); ?></p>
+            <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($saleDetails[0]['transactionType']); ?></p>
+            <p><strong>Total Price: </strong> ₱ <?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
             <h1>Items Sold:</h1>
             <div class="table-wrapper">
                 <table>
@@ -162,15 +184,24 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
                     </tbody>
                 </table>
             </div>
-            <h1>Sale Details</h1>
-            <p><strong>Sale ID:</strong> <?php echo htmlspecialchars($saleDetails[0]['saleId']); ?></p>
-            <p><strong>Date Sold:</strong> <?php echo htmlspecialchars($dateSold); ?></p>
-            <p><strong>Transaction Type:</strong> <?php echo htmlspecialchars($saleDetails[0]['transactionType']); ?></p>
-            <p><strong>Total Price: </strong> ₱ <?php echo htmlspecialchars($saleDetails[0]['totalPrice']); ?></p>
-            <a href="sales.php" class="btn btn-secondary mt-3">Back to Sales</a>
+            <hr>
+            <a href="sales.php" class="btn-back-wrapper">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                <span>Back</span>
+            </a>
+            <script>
+                document.getElementById('another-image').addEventListener('mouseover', function() {
+                    this.src = 'images/back-hover.png';
+                });
+
+                document.getElementById('another-image').addEventListener('mouseout', function() {
+                    this.src = 'images/back.png';
+                });
+            </script>
         </div>
-    </div>
-    <script src="js/bootstrap.bundle.min.js"></script>
+    </div
+        <script src="js/bootstrap.bundle.min.js">
+    </script>
 </body>
 
 </html>

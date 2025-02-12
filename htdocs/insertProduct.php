@@ -57,13 +57,10 @@ if (isset($_POST['add_item'])) {
     }
 
     if (mysqli_num_rows($result) > 0) {
-        // Item exists, update the quantity and prices
-        $row = mysqli_fetch_assoc($result);
-        $new_quantity = $row['stockLevel'] + $stockLevel;
-        $update_sql = "UPDATE products SET stockLevel = '$new_quantity', productCategory = '$category', costPrice = '$costPrice', unitPrice = '$unitPrice', reorderLevel = '$reorderLevel', userId = '$userId' WHERE productName = '$productName'";
-
+        // Item exists, update the quantity and selling price
+        $update_sql = "UPDATE products SET stockLevel = stockLevel + '$stockLevel', unitPrice = '$unitPrice' WHERE productName = '$productName'";
         if (mysqli_query($conn, $update_sql)) {
-            $message = "Item quantity and prices updated successfully!";
+            $message = "Item updated successfully!";
             $alert_class = "alert-success";
         } else {
             $message = "Error updating item: " . mysqli_error($conn);
@@ -83,6 +80,7 @@ if (isset($_POST['add_item'])) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -126,7 +124,6 @@ if (isset($_POST['add_item'])) {
             border-color: #335fff;
             color: white;
             outline: none;
-            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .btn-primary {
@@ -244,8 +241,7 @@ if (isset($_POST['add_item'])) {
 
         .custom-input option {
             background: rgb(17, 18, 22);
-            border-radius: 7.5px;
-            border: 1px solid rgba(208, 217, 251, .12);
+            border-radius: 10px;
         }
 
         /* .main-content{
@@ -298,7 +294,7 @@ if (isset($_POST['add_item'])) {
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="quantity" class="form-label">Quantity:</label>
+                        <label for="quantity" class="form-label">Stock Quantity:</label>
                         <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
                     </div>
                     <div class="form-group">

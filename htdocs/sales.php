@@ -128,6 +128,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
+            width: 250px;
+            /* Adjusted width for the Actions column */
         }
 
         table td {
@@ -138,6 +140,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             margin: 0 5px;
             width: 20%;
             /* Set each column to take up 20% of the table width */
+        }
+
+        table td:last-child {
+            width: 250px;
+            /* Adjusted width for the Actions column */
         }
 
         table tr {
@@ -172,7 +179,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             margin-bottom: 10px;
         }
 
-        .button a:hover {
+        .button:hover a {
             background-color: rgba(255, 255, 255, 0.94);
             color: #000;
             border-radius: 7px;
@@ -180,14 +187,14 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
         .btn-action {
             text-decoration: none;
-            padding: 5px 10px;
-            font-size: 1rem;
+            padding: 6px 8px;
+            font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 75px;
+            min-width: 60px;
             text-align: center;
             box-sizing: border-box;
         }
@@ -198,6 +205,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
         .btn-action span {
             display: inline;
+        }
+
+        .btn-restock {
+            background-color: #28a745 !important;
+            color: white !important;
         }
 
         .btn-edit {
@@ -211,7 +223,16 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             color: #ff3d3d !important;
         }
 
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
         @media (max-width: 1024px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
 
             table {
                 width: 100%;
@@ -225,7 +246,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 font-size: 0.85rem;
             }
 
@@ -241,6 +262,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         }
 
         @media (max-width: 768px) {
+            .table-wrapper {
+                padding: 10px;
+                overflow-x: auto;
+            }
 
             table {
                 width: 100%;
@@ -254,7 +279,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 font-size: 0.75rem;
             }
 
@@ -278,6 +303,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 font-size: 0.8em;
             }
 
+            .table-wrapper {
+                margin: 0;
+                width: 100%;
+            }
 
             table {
                 font-size: 0.8rem;
@@ -295,7 +324,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 4px 10px;
+                padding: 4px 8px;
                 font-size: 0.7rem;
                 min-width: 30px;
             }
@@ -309,7 +338,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 width: 15px;
                 height: 15px;
             }
-
         }
     </style>
 </head>

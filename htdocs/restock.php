@@ -1,5 +1,10 @@
 <?php
 session_start();
+include('db.php');
+
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Check if user is logged in
 if (!isset($_SESSION['username'])) {
@@ -7,7 +12,13 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-include 'db.php';
+// Check if userId is set in the session
+if (!isset($_SESSION['userId'])) {
+    die("User ID is not set in the session.");
+}
+
+// Get the userId from the session
+$userId = $_SESSION['userId'];
 
 // Fetch all products
 $sql = "SELECT * FROM products";
@@ -15,6 +26,36 @@ $result = mysqli_query($conn, $sql);
 
 if (!$result) {
     die("Error fetching products: " . mysqli_error($conn));
+}
+
+if (isset($_POST['restock_items'])) {
+    $productIds = $_POST['productId'];
+    $quantities = $_POST['quantity'];
+
+    foreach ($productIds as $index => $productId) {
+        $additionalQuantity = $quantities[$index];
+
+        // Validate quantity input
+        if ($additionalQuantity < 1) {
+            $additionalQuantity = 1;
+        }
+
+        // Update the stock level
+        $update_sql = "UPDATE products SET stockLevel = stockLevel + '$additionalQuantity' WHERE productId = '$productId'";
+
+        if (!mysqli_query($conn, $update_sql)) {
+            $_SESSION['message'] = "Error restocking item: " . mysqli_error($conn);
+            $_SESSION['alert_class'] = "alert-danger";
+            break;
+        }
+    }
+
+    if (!isset($_SESSION['message'])) {
+        $_SESSION['message'] = "Items restocked successfully!";
+        $_SESSION['alert_class'] = "alert-warning";
+        header("Location: inventory.php");
+        exit();
+    }
 }
 ?>
 
@@ -24,31 +65,43 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Record a Sale</title>
+    <title>Restock Products</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
-            background-color: transparent;
-            padding: 10px;
             align-content: center;
+            background-color: transparent;
+            padding: 20px;
+            border-radius: 10px;
+            width: 95%;
+            max-width: 1200px;
+            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .form-container h1 {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #f7f7f8;
+            color: whitesmoke;
             text-align: center;
         }
 
-        .form-label {
-            font-weight: 500;
-            color: #f7f7f8;
+        .form-c {
+            color: white;
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
         }
 
-        .form-label .required {
-            color: red;
+        .form-c:focus {
+            border: 3px solid;
+            border-color: #335fff;
+            color: white;
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.7);
         }
 
         .form-control1 {
@@ -69,6 +122,7 @@ if (!$result) {
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
 
+
         .form-control1:focus {
             border: 2px solid;
             border-color: #335fff;
@@ -77,7 +131,7 @@ if (!$result) {
         }
 
         .btn-primary {
-            color: whitesmoke;
+            color: white;
             background-color: #335fff;
             border: none;
             padding: 10px;
@@ -85,6 +139,10 @@ if (!$result) {
             font-size: 16px;
             font-weight: 500;
             transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
 
         .btn-clear {
@@ -101,40 +159,6 @@ if (!$result) {
 
         .btn-clear:hover {
             background-color: rgba(255, 0, 0, 0.24);
-        }
-
-        .btn-primary:hover {
-            background-color: rgb(0, 75, 156);
-        }
-
-        .btn-back img {
-            background-color: transparent;
-            color: red;
-            padding: 10px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            text-align: center;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-back:hover img {
-            content: url('images/back-hover.png');
-        }
-
-        .btn-success {
-            color: whitesmoke;
-            background-color: #28a745;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
         }
 
         .alert {
@@ -157,9 +181,24 @@ if (!$result) {
             background-color: #dc3545;
         }
 
+        .alert-warning {
+            background-color: #ff9800;
+        }
+
         .alert .fa-times {
             cursor: pointer;
             margin-left: auto;
+        }
+
+        .form-group input {
+            background-color: rgba(208, 217, 251, .08);
+            margin-bottom: 10px;
+            color: white;
+            border: 1px solid rgba(208, 217, 251, .12);
+            padding: 8.5px;
+            font-size: 1rem;
+            border-radius: 7.5px;
+            width: 100%;
         }
 
         @keyframes slideIn {
@@ -198,18 +237,6 @@ if (!$result) {
 
             .alert {
                 width: 100%;
-            }
-
-            .selected-products {
-                max-height: 300px;
-                overflow-y: auto;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .selected-products {
-                max-height: 240px;
-                overflow-y: auto;
             }
         }
 
@@ -256,30 +283,6 @@ if (!$result) {
         }
     </style>
     <script>
-        function calculateTotal() {
-            let total = 0;
-            document.querySelectorAll('.selected-product input[name="quantity[]"]').forEach((input, index) => {
-                const quantity = parseInt(input.value) || 0;
-                const price = parseFloat(document.querySelectorAll('.selected-product input[name="price[]"]')[index].value) || 0;
-                total += quantity * price;
-            });
-            document.getElementById('totalPrice').textContent = total.toFixed(2);
-            calculateChange();
-        }
-
-        function calculateChange() {
-            const total = parseFloat(document.getElementById('totalPrice').textContent) || 0;
-            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
-            const change = amountPaid - total;
-            const changeElement = document.getElementById('change');
-            if (isNaN(change) || amountPaid === 0) {
-                changeElement.style.display = 'none';
-            } else {
-                changeElement.style.display = 'inline';
-                changeElement.textContent = change.toFixed(2);
-            }
-        }
-
         function filterProducts() {
             const query = document.getElementById('productSearch').value.toLowerCase();
             const productList = document.querySelector('.product-list');
@@ -298,15 +301,14 @@ if (!$result) {
             productList.style.display = hasResults ? 'block' : 'none';
         }
 
-        function selectProduct(productId, productName, unitPrice, stockLevel) {
+        function selectProduct(productId, productName, stockLevel) {
             const selectedProducts = document.querySelector('.selected-products');
             const productItem = document.createElement('div');
             productItem.className = 'selected-product';
             productItem.innerHTML = `
-                <label>${productName} (PHP${unitPrice} | Stock: ${stockLevel})</label>
-                <input type="number" name="quantity[]" min="1" max="${stockLevel}" value="1" class="form-control2" style="" onchange="calculateTotal()" required>
+                <label>${productName} (Stock: ${stockLevel})</label>
+                <input type="number" name="quantity[]" min="1" value="1" class="form-control2" required>
                 <input type="hidden" name="productId[]" value="${productId}">
-                <input type="hidden" name="price[]" value="${unitPrice}">
                 &nbsp;
                 <button type="button" class="btn-clear" onclick="removeProduct(this, '${productId}')">X</button>
             `;
@@ -314,25 +316,16 @@ if (!$result) {
             document.getElementById('productSearch').value = '';
             document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.add('selected');
             document.querySelector('.product-list').style.display = 'none';
-            calculateTotal();
         }
 
         function removeProduct(button, productId) {
             const productItem = button.parentElement;
             productItem.remove();
             document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.remove('selected');
-            calculateTotal();
-        }
-
-        function confirmProcessSale(event) {
-            if (!confirm('Are you sure you want to process this sale?')) {
-                event.preventDefault();
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
-            document.querySelector('form').addEventListener('submit', confirmProcessSale);
         });
     </script>
 </head>
@@ -340,9 +333,8 @@ if (!$result) {
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
-
-    <div class="main-content">
-        <div class="form-container">
+    <div class="form-container">
+        <div class="container main-content">
             <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
             <script>
                 document.getElementById('another-image').addEventListener('mouseover', function() {
@@ -353,47 +345,47 @@ if (!$result) {
                     document.querySelector('.btn-back').src = 'images/back.png';
                 });
             </script>
-            <h1>Record a Sale</h1>
-            <form method="POST" action="process_sale.php">
+            <h3 class="text-center flex-grow-1 m-0">Restock Products</h3>
+            <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
+            <?php if (isset($message)): ?>
+                <div class="alert <?php echo $alert_class; ?>" id="alert">
+                    <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                    <span><?php echo $message; ?></span>
+                    <i class="fas fa-times" onclick="closeAlert()"></i>
+                </div>
+
+                <script>
+                    setTimeout(function() {
+                        document.getElementById("alert").style.opacity = "0";
+                    }, 4000);
+                </script>
+            <?php endif; ?>
+            <form method="POST">
                 <div class="mb-3">
-                    <label for="productSearch" class="form-label">Select Product: <span class="required">*</span></label><br>
+                    <label for="productSearch" class="form-label">Select Product:</label>
+                    <br>
                     <input type="text" id="productSearch" class="form-control1" placeholder="Search by product name" style="width: 100%;">
                     <div class="product-list">
                         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                            <div class="product-item" data-product-id="<?= $row['productId'] ?>" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['unitPrice'], 2) ?>', '<?= number_format($row['stockLevel']) ?>')">
-                                <label><?= $row['productName'] ?> (<?= number_format($row['unitPrice'], 2) ?> PHP | Stock: <?= number_format($row['stockLevel']) ?>)</label>
+                            <div class="product-item" data-product-id="<?= $row['productId'] ?>" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['stockLevel']) ?>')">
+                                <label><?= $row['productName'] ?> (Stock: <?= number_format($row['stockLevel']) ?>)</label>
                             </div>
                         <?php } ?>
                     </div>
                 </div>
 
                 <div class="selected-products"></div>
-                <div class="mb-3">
-                    <h1><label class="form-label">Total Price: <span id="totalPrice">0.00</span> PHP</label></h1>
+                <div class="d-grid">
+                    <button type="submit" name="restock_items" class="btn-primary">Restock Item/s</button>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Amount Paid: <span class="required">*</span></label><br>
-                    <input type="number" id="amountPaid" name="amountPaid" step="0.01" class="form-control1" placeholder="Enter amount paid" oninput="calculateChange()" style="width: 100%;" required min="1" value="1">
-                    <br>
-                    <br>
-                    <h3>
-                        <p>Change: <span id="change" style="display: none;">N/A</span> PHP</p>
-                    </h3>
-                </div>
-
-                <input type="hidden" name="transactionType" value="Cash">
-                <input type="submit" name="submit" value="Process Sale" class="btn-success w-100">
             </form>
         </div>
     </div>
 
     <script>
-        document.getElementById('amountPaid').addEventListener('input', function() {
-            if (this.value < 1) {
-                this.value = 1;
-            }
-        });
+        function closeAlert() {
+            document.getElementById("alert").style.display = "none";
+        }
     </script>
 </body>
 

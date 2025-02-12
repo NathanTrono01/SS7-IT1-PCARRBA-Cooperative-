@@ -29,14 +29,9 @@ if (!$result) {
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .form-container {
-            background-color: #191a1f;
-            padding: 20px;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.21);
-            width: 95%;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
+            background-color: transparent;
+            padding: 10px;
+            align-content: center;
         }
 
         .form-container h1 {
@@ -56,25 +51,30 @@ if (!$result) {
             color: red;
         }
 
-        .form-control {
+        .form-control1 {
             border-radius: 8px;
             padding: 10px;
-            border: 1px solid rgba(208,217,251,.12);
-            /* Change border color */
-            background-color:rgba(208,217,251,.08);
-            /* Change background color */
+            border: 1px solid rgba(208, 217, 251, .12);
+            background-color: rgba(208, 217, 251, .08);
             color: #f7f7f8;
-            /* Change text color */
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
 
-        .form-control:focus {
-            border-color: #ff5733;
-            /* Change border color on focus */
-            background-color: #3a3d42;
-            /* Change background color on focus */
-            box-shadow: 0 0 5px rgba(255, 87, 51, 0.25);
-            /* Change box shadow on focus */
+        .form-control2 {
+            border-radius: 5px;
+            padding: 7px;
+            border: 1px solid rgba(208, 217, 251, .12);
+            background-color: rgba(208, 217, 251, .08);
+            color: #f7f7f8;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+
+        .form-control1:focus {
+            border: 2px solid;
+            border-color: #335fff;
+            color: white;
+            outline: none;
         }
 
         .btn-primary {
@@ -88,25 +88,39 @@ if (!$result) {
             transition: background-color 0.3s ease;
         }
 
+        .btn-clear {
+            color: red;
+            background-color: transparent;
+            border: 1px solid red;
+            width: 30px;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            background-color: rgba(255, 0, 0, 0.24);
+        }
+
         .btn-primary:hover {
             background-color: rgb(0, 75, 156);
         }
 
-        .btn-back {
-            display: inline-block;
-            background-color: #6c757d;
-            color: white;
-            padding: 10px 20px;
+        .btn-back img {
+            background-color: transparent;
+            color: red;
+            padding: 10px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 14px;
-            margin-top: 20px;
             text-align: center;
             transition: background-color 0.3s ease;
         }
 
-        .btn-back:hover {
-            background-color: #5a6268;
+        .btn-back:hover img {
+            content: url('images/back-hover.png');
         }
 
         .btn-success {
@@ -123,6 +137,7 @@ if (!$result) {
         .btn-success:hover {
             background-color: #218838;
         }
+
 
         .alert {
             padding: 10px 20px;
@@ -261,7 +276,7 @@ if (!$result) {
 
             document.querySelectorAll('.product-item').forEach(item => {
                 const productName = item.querySelector('label').textContent.toLowerCase();
-                if (productName.includes(query)) {
+                if (productName.includes(query) && !item.classList.contains('selected')) {
                     item.style.display = 'flex';
                     hasResults = true;
                 } else {
@@ -278,20 +293,23 @@ if (!$result) {
             productItem.className = 'selected-product';
             productItem.innerHTML = `
                 <label>${productName} (PHP${unitPrice} | Stock: ${stockLevel})</label>
-                <input type="number" name="quantity[]" min="1" max="${stockLevel}" value="1" class="form-control" onchange="calculateTotal()" required>
+                <input type="number" name="quantity[]" min="1" max="${stockLevel}" value="1" class="form-control2" onchange="calculateTotal()" required>
                 <input type="hidden" name="productId[]" value="${productId}">
                 <input type="hidden" name="price[]" value="${unitPrice}">
-                <button type="button" class="btn btn-danger" onclick="removeProduct(this)">X</button>
+                &nbsp;
+                <button type="button" class="btn-clear" onclick="removeProduct(this, '${productId}')">X</button>
             `;
             selectedProducts.appendChild(productItem);
             document.getElementById('productSearch').value = '';
+            document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.add('selected');
             document.querySelector('.product-list').style.display = 'none';
             calculateTotal();
         }
 
-        function removeProduct(button) {
+        function removeProduct(button, productId) {
             const productItem = button.parentElement;
             productItem.remove();
+            document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.remove('selected');
             calculateTotal();
         }
 
@@ -314,22 +332,32 @@ if (!$result) {
 
     <div class="main-content">
         <div class="form-container">
+            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+            <script>
+                document.getElementById('another-image').addEventListener('mouseover', function() {
+                    document.querySelector('.btn-back').src = 'images/back-hover.png';
+                });
+
+                document.getElementById('another-image').addEventListener('mouseout', function() {
+                    document.querySelector('.btn-back').src = 'images/back.png';
+                });
+            </script>
             <h1>Record a Credit</h1>
             <form method="POST" action="process_credit.php">
                 <div class="mb-3">
-                    <label for="customerName" class="form-label">Customer Name: <span class="required">*</span></label>
-                    <input type="text" id="customerName" name="customerName" class="form-control" required>
+                    <label for="customerName" class="form-label">Customer Name: <span class="required">*</span></label><br>
+                    <input type="text" id="customerName" name="customerName" class="form-control1" style="width: 100%;" required>
                 </div>
                 <div class="mb-3">
-                    <label for="phoneNumber" class="form-label">Phone Number:</label>
-                    <input type="text" id="phoneNumber" name="phoneNumber" class="form-control">
+                    <label for="phoneNumber" class="form-label">Phone Number:</label><br>
+                    <input type="text" id="phoneNumber" name="phoneNumber" class="form-control1" style="width: 100%;">
                 </div>
                 <div class="mb-3">
-                    <label for="productSearch" class="form-label">Select Product: <span class="required">*</span></label>
-                    <input type="text" id="productSearch" class="form-control" placeholder="Search by product name">
+                    <label for="productSearch" class="form-label">Select Product: <span class="required">*</span></label><br>
+                    <input type="text" id="productSearch" class="form-control1" placeholder="Search by product name" style="width: 100%;">
                     <div class="product-list">
                         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                            <div class="product-item" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['unitPrice'], 2) ?>', '<?= number_format($row['stockLevel']) ?>')">
+                            <div class="product-item" data-product-id="<?= $row['productId'] ?>" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['unitPrice'], 2) ?>', '<?= number_format($row['stockLevel']) ?>')">
                                 <label><?= $row['productName'] ?> (<?= number_format($row['unitPrice'], 2) ?> PHP | Stock: <?= number_format($row['stockLevel']) ?>)</label>
                             </div>
                         <?php } ?>

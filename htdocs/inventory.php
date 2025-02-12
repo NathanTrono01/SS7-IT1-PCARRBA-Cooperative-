@@ -8,7 +8,6 @@ if (!isset($_SESSION['username'])) {
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
 // Include database connection
 include 'db.php';
 
@@ -147,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 150px;
-            /* Fixed width for the Actions column */
+            width: 250px;
+            /* Adjusted width for the Actions column */
         }
 
         table td {
@@ -162,8 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         table td:last-child {
-            width: 150px;
-            /* Fixed width for the Actions column */
+            width: 250px;
+            /* Adjusted width for the Actions column */
         }
 
         table tr {
@@ -185,7 +184,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-bottom-right-radius: 7px;
         }
 
-        .button a {
+        .restock-button {
+            display: inline-block;
+            padding: 8px 12px;
+            background: transparent;
+            color: rgb(187, 188, 190);
+            text-decoration: none;
+            border-radius: 7px;
+            border: 0.5px solid rgba(187, 188, 190, 0.5);
+            transition: border-color 0.3s, color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .restock-button:hover {
+            background: transparent;
+            border: 1.5px solid rgb(187, 188, 190);
+            color: #fff;
+            border-radius: 7px;
+        }
+
+        .button-product {
             background: transparent;
             display: inline-block;
             padding: 8px 12px;
@@ -198,23 +216,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 10px;
         }
 
-        .button a:hover {
+        .button-product:hover {
             background-color: rgba(255, 255, 255, 0.94);
             color: #000;
             border-radius: 7px;
         }
 
-
         .btn-action {
             text-decoration: none;
-            padding: 6px 10px;
-            font-size: 1rem;
+            padding: 6px 8px;
+            font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 75px;
+            min-width: 60px;
             text-align: center;
             box-sizing: border-box;
         }
@@ -225,6 +242,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-action span {
             display: inline;
+        }
+
+        .btn-restock {
+            background-color: #28a745 !important;
+            color: white !important;
         }
 
         .btn-edit {
@@ -261,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 font-size: 0.85rem;
             }
 
@@ -294,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 6px 10px;
+                padding: 6px 8px;
                 font-size: 0.75rem;
             }
 
@@ -339,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 4px 10px;
+                padding: 4px 8px;
                 font-size: 0.7rem;
                 min-width: 30px;
             }
@@ -354,6 +376,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 height: 15px;
             }
         }
+
+        .popup-alert {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 167, 70, 0.44);
+            border: 1px solid rgb(0, 255, 60);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .popup-alert.show {
+            display: block;
+        }
+
+        .alert-warning {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(167, 99, 40, 0.44);
+            border: 1px solid rgb(255, 136, 0);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 
@@ -363,11 +419,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="main-content">
         <div class="container">
+            <?php if (isset($_SESSION['message'])): ?>
+                <div class="popup-alert show <?php echo $_SESSION['alert_class']; ?>" id="popupAlert">
+                    <span><?php echo $_SESSION['message']; ?></span>
+                </div>
+                <?php unset($_SESSION['message']);
+                unset($_SESSION['alert_class']); ?>
+                <script>
+                    setTimeout(function() {
+                        document.getElementById("popupAlert").classList.remove("show");
+                    }, 4000);
+                </script>
+            <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
                     <h2>Products</h2>
                     <div class="button">
-                        <a href="insertProduct.php">Add Product</a>
+                        <a href="restock.php" class="restock-button">Restock</a>
+                        <a href="insertProduct.php" class="button-product">Add Product</a>
                     </div>
                 </div>
                 <div class="search-container">
@@ -454,6 +523,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function confirmDelete() {
             return confirm('Are you sure you want to delete this item?');
+        }
+
+        function closeAlert() {
+            document.getElementById("alert").style.display = "none";
         }
 
         document.addEventListener('DOMContentLoaded', toggleClearIcon);
