@@ -68,6 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 font-size: .8rem;
             }
         }
+
+        .alert {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -89,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="mb-3">
                         <input type="password" name="password" class="custom-input" placeholder="Password" required>
                     </div>
-                    <?php if (isset($error)) echo "<div class='alert'>$error</div>"; ?>
+                    <?php if (isset($error)) echo "<div class='alert' id='errorAlert'>$error</div>"; ?>
                     <button type="submit" class="custom-button" id="submitButton">Login</button>
                     <div class="loading-indicator" id="loadingIndicator">•••</div>
                 </form>
@@ -116,6 +121,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }, 500);
         });
+
+        // Hide the error alert after 5 seconds
+        setTimeout(function() {
+            var errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+        }, 5000); // 5000 milliseconds = 5 seconds
     </script>
 </body>
 
