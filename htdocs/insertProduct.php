@@ -56,26 +56,33 @@ if (isset($_POST['add_item'])) {
         die("Query failed: " . mysqli_error($conn));
     }
 
-    if (mysqli_num_rows($result) > 0) {
-        // Item exists, update the quantity and selling price
-        $update_sql = "UPDATE products SET stockLevel = stockLevel + '$stockLevel', unitPrice = '$unitPrice' WHERE productName = '$productName'";
-        if (mysqli_query($conn, $update_sql)) {
-            $message = "Item updated successfully!";
-            $alert_class = "alert-success";
-        } else {
-            $message = "Error updating item: " . mysqli_error($conn);
-            $alert_class = "alert-danger";
-        }
-    } else {
-        // Item does not exist, add new item to the inventory
-        $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel, userId) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel', '$userId')";
+    // Add new item to inventory
+    if (isset($_POST['add_item'])) {
+        // ... existing code ...
 
-        if (mysqli_query($conn, $insert_sql)) {
-            $message = "Item added successfully!";
-            $alert_class = "alert-success";
+        if (mysqli_num_rows($result) > 0) {
+            // Item exists, update the quantity and selling price
+            $update_sql = "UPDATE products SET stockLevel = stockLevel + '$stockLevel', unitPrice = '$unitPrice' WHERE productName = '$productName'";
+            if (mysqli_query($conn, $update_sql)) {
+                $_SESSION['message'] = "Item updated successfully!";
+                $_SESSION['alert_class'] = "alert-success";
+            } else {
+                $_SESSION['message'] = "Error updating item: " . mysqli_error($conn);
+                $_SESSION['alert_class'] = "alert-danger";
+            }
         } else {
-            $message = "Error adding item: " . mysqli_error($conn);
-            $alert_class = "alert-danger";
+            // Item does not exist, add new item to the inventory
+            $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel, userId) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel', '$userId')";
+
+            if (mysqli_query($conn, $insert_sql)) {
+                $_SESSION['message'] = "Item added successfully!";
+                $_SESSION['alert_class'] = "alert-success";
+                header("Location: inventory.php");
+                exit();
+            } else {
+                $_SESSION['message'] = "Error adding item: " . mysqli_error($conn);
+                $_SESSION['alert_class'] = "alert-danger";
+            }
         }
     }
 }

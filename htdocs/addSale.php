@@ -392,8 +392,8 @@ if (!$result) {
 
     <script>
         document.getElementById('amountPaid').addEventListener('input', function() {
-            if (this.value < 1) {
-                this.value = 1;
+            if (this.value < 0) {
+                this.value = 0;
             }
         });
     </script>
