@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('db.php');
+include 'functions.php'; // Include the functions.php file
 
 // Enable error reporting
 error_reporting(E_ALL);
@@ -47,7 +48,7 @@ if (isset($_GET['productName'])) {
 // Edit item in inventory
 if (isset($_POST['edit_item'])) {
     $productId = $productDetails['productId'];
-    $stockLevel = $_POST['quantity'];
+    $stockLevel = $productDetails['totalStock']; // Use the existing stock level
     $costPrice = $_POST['cost_price'];
     $unitPrice = $_POST['unit_price'];
     $reorderLevel = $_POST['reorder_level'];
@@ -74,6 +75,9 @@ if (isset($_POST['edit_item'])) {
 
         $conn->commit();
 
+        // Log the action
+        logAction('Edit Product', [$productId], [$stockLevel], $_SESSION['userId'], $conn);
+
         $_SESSION['message'] = 'Product "' . $productName . '" updated successfully!';
         $_SESSION['alert_class'] = "alert-success";
         header("Location: inventory.php");
@@ -85,7 +89,6 @@ if (isset($_POST['edit_item'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -261,6 +264,27 @@ if (isset($_POST['edit_item'])) {
         /* .main-content{
             margin-top: 50px;
         } */
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .required {
+            color: red;
+        }
     </style>
 </head>
 
@@ -271,7 +295,10 @@ if (isset($_POST['edit_item'])) {
     <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
-                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+                <a href="inventory.php" class="btn-back-wrapper">
+                    <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                    <b><span>Back</span></b>
+                </a>
                 <h3 class="text-center flex-grow-1 m-0">Update Product</h3>
                 <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
                 <?php if (isset($message)): ?>
@@ -306,26 +333,31 @@ if (isset($_POST['edit_item'])) {
                                 </select>
                             </div>
                             <div class="form-group" id="new_category_group" style="display: none;">
-                                <label for="new_category" class="form-label">New Category:</label><br>
+                                <label for="new_category" class="form-label">New Category: </label><br>
                                 <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="reorder_level" class="form-label">Reorder Level:</label>
+                                <label for="quantity" class="form-label">Stock Quantity:</label>
+                                <input type="number" class="form-c text-mute" name="quantity" id="quantity" style="width: 100%" value="<?php echo htmlspecialchars($productDetails['totalStock']); ?>" placeholder="Enter quantity" disabled readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="reorder_level" class="form-label">Reorder Level: <span class="required">*</span></label>
                                 <input type="number" class="form-c" name="reorder_level" id="reorder_level" value="<?php echo htmlspecialchars($productDetails['reorderLevel']); ?>" placeholder="Enter reorder level" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="cost_price" class="form-label">Purchase Cost:</label>
+                                <label for="cost_price" class="form-label">Purchase Cost: <span class="required">*</span></label>
                                 <input type="text" class="form-c" name="cost_price" id="cost_price" value="<?php echo htmlspecialchars($productDetails['costPrice'] ?? ''); ?>" placeholder="Enter purchase cost" required>
                             </div>
                             <div class="form-group">
-                                <label for="unit_price" class="form-label">Selling Price:</label>
+                                <label for="unit_price" class="form-label">Selling Price: <span class="required">*</span></label>
                                 <input type="text" class="form-c" name="unit_price" id="unit_price" value="<?php echo htmlspecialchars($productDetails['unitPrice']); ?>" placeholder="Enter selling price" required>
                             </div>
                         </div>
+                        <input type="hidden" name="quantity" value="<?php echo htmlspecialchars($productDetails['totalStock']); ?>">
                         <br>
                         <div class="d-grid">
                             <button type="submit" name="edit_item" class="btn-primary">Save Changes</button>

@@ -205,9 +205,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'navbar.php'; ?>
     <div class="main-content fade-in">
         <div class="form-container">
-            <a href="#" class="btn-back-wrapper">
-                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
-                <span>Back</span>
+            <a href="#" class="btn-back-wrapper" onclick="window.history.back()">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                <b><span>Back</span></b>
             </a>
             <hr>
             <div class="table-wrapper">

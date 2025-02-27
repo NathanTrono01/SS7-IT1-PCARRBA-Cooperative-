@@ -403,10 +403,10 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                 <table id="logsTable" width="100%">
                     <thead>
                         <tr align="left">
+                            <th>Timestamp</th>
+                            <th>User</th>
                             <th>Action</th>
                             <th>Details</th>
-                            <th>User</th>
-                            <th>Timestamp</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -415,12 +415,16 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                                 <td colspan="4" style="text-align: center;">No logs found.</td>
                             </tr>
                         <?php } else { ?>
-                            <?php foreach ($logs as $log) { ?>
+                            <?php foreach ($logs as $log) {
+                                $date = !empty($log['timestamp'])
+                                    ? date("n/j/y", strtotime($log['timestamp'])) . "<br>" . date("g:i A", strtotime($log['timestamp']))
+                                    : 'N/A';
+                            ?>
                                 <tr>
+                                    <td><?php echo $date; ?></td>
+                                    <td><?php echo htmlspecialchars($log['username']); ?></td>
                                     <td><?php echo htmlspecialchars($log['action']); ?></td>
                                     <td><?php echo htmlspecialchars($log['details']); ?></td>
-                                    <td><?php echo htmlspecialchars($log['username']); ?></td>
-                                    <td><?php echo htmlspecialchars($log['timestamp']); ?></td>
                                 </tr>
                             <?php } ?>
                         <?php } ?>

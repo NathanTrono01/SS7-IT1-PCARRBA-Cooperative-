@@ -44,7 +44,7 @@ $total_sales_today = $total_sales_result->fetch_assoc()['total_sales_today'] ?? 
 // Fetch low stock alerts
 $low_stock_sql = "SELECT COUNT(*) AS low_stock_alerts 
                   FROM inventory 
-                  WHERE totalStock <= reorderLevel";
+                  WHERE totalStock < reorderLevel";
 $low_stock_result = $conn->query($low_stock_sql);
 $low_stock_alerts = $low_stock_result->fetch_assoc()['low_stock_alerts'] ?? 0; // Add 0 if no value
 
@@ -276,6 +276,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             align-items: flex-start;
             justify-content: space-between;
             width: 100%;
+            margin-top: 10px;
         }
 
         .restock-header {
@@ -366,6 +367,17 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
         /* Responsive Design */
         @media (max-width: 768px) {
+
+            .restock-card h4 {
+                font-size: 1rem;
+                /* Adjust the font size as needed */
+            }
+
+            .restock-card p {
+                font-size: 0.85rem;
+                /* Adjust the font size as needed */
+            }
+
             .dashboard-wrapper {
                 padding: 10px;
             }
@@ -408,7 +420,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
             /* Adjust the height as needed */
             overflow-y: auto;
             position: relative;
-            padding-right: 15px;
             /* Space for scrollbar */
         }
 
@@ -457,12 +468,13 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <h2>Low Stock Products</h2>
+                <h2>Low Alerts</h2>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
                             <div class="restock-header">
-                                <h4><img src="images/alert.png" alt="" style="width: 30px; height: 30px;">
+                                <p><img src="images/alert.png" alt="" style="width: 30px; height: 30px;"></p>
+                                <h4>
                                     <?php if ($product['quantity'] == 0) { ?>
                                         Your "<?php echo $product['productName']; ?>" is out of stock!
                                     <?php } else { ?>

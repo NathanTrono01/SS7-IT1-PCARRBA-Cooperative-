@@ -393,7 +393,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <img src="images/<?php echo $current_page == 'credit.php' ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
         </a>
         <a href="audit_logs.php" class="<?php echo $current_page == 'audit_logs.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Credits">&nbsp;Audit Logs
+            <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Audit Logs">&nbsp;Audit Logs
+        </a>
+        <a href="reports.php" class="<?php echo $current_page == 'reports.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'reports.php' ? 'reports.png' : 'reports.png'; ?>" alt="reports">&nbsp;Reports
         </a>
     </div>
 

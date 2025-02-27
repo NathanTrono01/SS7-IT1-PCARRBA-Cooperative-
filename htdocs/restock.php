@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('db.php');
+include 'functions.php';
 
 // Enable error reporting
 error_reporting(E_ALL);
@@ -81,10 +82,13 @@ if (isset($_POST['restock_items'])) {
             $_SESSION['alert_class'] = "alert-danger";
             break;
         }
+
+        // Log the restock action
+        logAction('Restock', [$productId], [$additionalQuantity], $userId, $conn);
     }
 
     if (!isset($_SESSION['message'])) {
-        $_SESSION['message'] = "Items restocked successfully!";
+        $_SESSION['message'] = "Product/s restocked successfully!";
         $_SESSION['alert_class'] = "alert-success";
         header("Location: inventory.php");
         exit();
@@ -313,6 +317,23 @@ if (isset($_POST['restock_items'])) {
         .selected-product input[type="number"] {
             width: 80px;
         }
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
     </style>
     <script>
         function filterProducts() {
@@ -379,7 +400,10 @@ if (isset($_POST['restock_items'])) {
     <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
-                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+                <a href="inventory.php" class="btn-back-wrapper">
+                    <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                    <b><span>Back</span></b>
+                </a>
                 <script>
                     document.getElementById('another-image').addEventListener('mouseover', function() {
                         document.querySelector('.btn-back').src = 'images/back-hover.png';

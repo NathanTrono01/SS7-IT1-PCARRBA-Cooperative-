@@ -1,3 +1,4 @@
+// add_sale.php
 <?php
 session_start();
 
@@ -12,6 +13,7 @@ ini_set('display_errors', 1);
 
 include 'db.php';
 include 'datetime.php';
+include 'functions.php'; // Include the file where logAction is defined
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productIds = $_POST['productId'];
@@ -36,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $saleId = $stmt->insert_id;
 
-    // Insert sale items into the `sale_item` table and update batch items
+    // Insert sale items into the `sale_item` table, update batch items, and update inventory totalStock
     foreach ($productIds as $index => $productId) {
         $quantity = $quantities[$index];
         $price = $prices[$index];
@@ -118,12 +120,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: sales.php");
             exit();
         }
-        
+
+        // Update the totalStock in the inventory table
+        $updateInventorySql = "UPDATE inventory SET totalStock = totalStock - ? WHERE productId = ?";
+        $updateInventoryStmt = $conn->prepare($updateInventorySql);
+        $updateInventoryStmt->bind_param("ii", $quantity, $productId);
+        $updateInventoryStmt->execute();
     }
 
+    // Log the sale action
     $action = "Make Sale";
-    $details = "Sold product ID: $productId, quantity: $quantity, total price: $totalPrice";
-    logAction($action, $details, $userId, $conn);
+    logAction($action, $productIds, $quantities, $userId, $conn);
 
     // Redirect to sales page with success message
     $_SESSION['message'] = "Sale recorded successfully!";

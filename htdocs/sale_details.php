@@ -166,7 +166,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
         <div class="form-container">
             <a href="sales.php" class="btn-back-wrapper">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
-                <span>Back</span>
+                <b><span>Back</span></b>
             </a>
             <hr>
             <div class="table-wrapper">

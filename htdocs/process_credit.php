@@ -12,6 +12,7 @@ ini_set('display_errors', 1);
 
 include 'db.php';
 include 'datetime.php';
+include 'functions.php'; // Include the functions.php file
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productIds = $_POST['productId'];
@@ -133,6 +134,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateInventoryStmt->bind_param("ii", $quantity, $productId);
         $updateInventoryStmt->execute();
     }
+
+    // Log the action
+    logAction('Credit', $productIds, $quantities, $userId, $conn);
 
     // Redirect to credits page with success message
     $_SESSION['message'] = "Credit recorded successfully!";

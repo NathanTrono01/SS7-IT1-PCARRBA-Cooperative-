@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('db.php');
+include 'functions.php'; // Include the functions.php file
 
 // Enable error reporting
 error_reporting(E_ALL);
@@ -73,7 +74,7 @@ if (isset($_POST['add_item'])) {
 
     if ($result->num_rows > 0) {
         // Item exists, show an alert
-        $_SESSION['message'] = "Item already exists!";
+        $_SESSION['message'] = "Product already exists! <a href='restock.php'>Restock it instead</a>";
         $_SESSION['alert_class'] = "alert-danger";
     } else {
         // Item does not exist, add new item to the inventory
@@ -107,9 +108,13 @@ if (isset($_POST['add_item'])) {
             $stmt->bind_param("iii", $totalStock, $reorderLevel, $productId);
             $stmt->execute();
 
+            // Commit the transaction
             $conn->commit();
 
-            $_SESSION['message'] = "Item added successfully!";
+            // Log the action
+            logAction('Insert Product', [$productId], [$stockLevel], $userId, $conn);
+
+            $_SESSION['message'] = "Product added successfully!";
             $_SESSION['alert_class'] = "alert-success";
             header("Location: inventory.php");
             exit();
@@ -284,6 +289,27 @@ if (isset($_POST['add_item'])) {
             background: rgb(17, 18, 22);
             border-radius: 10px;
         }
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .required {
+            color: red;
+        }
     </style>
 </head>
 
@@ -293,7 +319,10 @@ if (isset($_POST['add_item'])) {
     <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
-                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+                <a href="inventory.php" class="btn-back-wrapper">
+                    <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                    <b><span>Back</span></b>
+                </a>
                 <h3 class="text-center flex-grow-1 m-0">New Product</h3>
                 <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
                 <?php if (isset($_SESSION['message'])): ?>
@@ -312,12 +341,12 @@ if (isset($_POST['add_item'])) {
                 <?php endif; ?>
                 <form method="POST">
                     <div class="form-group">
-                        <label for="productName" class="form-label">Product Name:</label><br>
+                        <label for="productName" class="form-label">Product Name: <span class="required">*</span></label><br>
                         <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" placeholder="Enter product name" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="product_category" class="form-label">Categories:</label>
+                            <label for="product_category" class="form-label">Categories: <span class="required">*</span></label>
                             <select class="form-c custom-input" name="product_category" id="product_category" style="width: 100%" required>
                                 <option value="" disabled selected>Select a category</option>
                                 <?php foreach ($categories as $category): ?>
@@ -327,27 +356,27 @@ if (isset($_POST['add_item'])) {
                             </select>
                         </div>
                         <div class="form-group" id="new_category_group" style="display: none;">
-                            <label for="new_category" class="form-label">New Category:</label><br>
+                            <label for="new_category" class="form-label">New Category: <span class="required">*</span></label><br>
                             <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%" placeholder="Enter new category">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="quantity" class="form-label">Stock Quantity:</label>
+                            <label for="quantity" class="form-label">Stock Quantity: <span class="required">*</span></label>
                             <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
                         </div>
                         <div class="form-group">
-                            <label for="reorder_level" class="form-label">Reorder Level:</label>
+                            <label for="reorder_level" class="form-label">Reorder Level: <span class="required">*</span></label>
                             <input type="number" class="form-c" name="reorder_level" id="reorder_level" style="width: 100%" placeholder="Enter reorder level" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="cost_price" class="form-label">Purchase Cost:</label>
+                            <label for="cost_price" class="form-label">Purchase Cost: <span class="required">*</span></label>
                             <input type="text" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
                         </div>
                         <div class="form-group">
-                            <label for="unit_price" class="form-label">Selling Price:</label>
+                            <label for="unit_price" class="form-label">Selling Price: <span class="required">*</span></label>
                             <input type="text" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
                         </div>
                     </div>

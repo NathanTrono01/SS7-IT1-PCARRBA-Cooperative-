@@ -263,6 +263,23 @@ if (!$result) {
         .selected-product input[type="number"] {
             width: 80px;
         }
+
+        .btn-back-wrapper {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #f7f7f8;
+        }
+
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+        }
     </style>
     <script>
         function calculateTotal() {
@@ -354,8 +371,9 @@ if (!$result) {
 
     <div class="main-content fade-in">
         <div class="form-container">
-            <a href="transaction.php" class="btn-back">
-                <img src="images/back.png" alt="Back">
+            <a href="#" class="btn-back-wrapper" onclick="window.history.back()">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+                <b><span>Back</span></b>
             </a>
             <script>
                 document.getElementById('another-image').addEventListener('mouseover', function() {
