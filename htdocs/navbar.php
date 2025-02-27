@@ -17,13 +17,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
+            overflow-x: hidden;
+            /* Prevent horizontal scrolling */
         }
 
         body {
             display: grid;
-            grid-template-rows: 60px 1fr; /* Top bar and main content */
-            grid-template-columns: 260px 1fr; /* Sidebar and main content */
+            grid-template-rows: 60px 1fr;
+            /* Top bar and main content */
+            grid-template-columns: 260px 1fr;
+            /* Sidebar and main content */
             height: 100vh;
             overflow: hidden;
             margin: 0;
@@ -159,15 +162,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
         /* Mobile Devices (e.g., up to 768px) */
         @media (max-width: 768px) {
             body {
-                grid-template-columns: 1fr; /* Single column layout */
+                grid-template-columns: 1fr;
+                /* Single column layout */
             }
 
             .sidebar {
-                display: none; /* Hide the sidebar */
+                display: none;
+                /* Hide the sidebar */
             }
 
             .main-content {
-                grid-column: 1 / -1; /* Main content takes full width */
+                grid-column: 1 / -1;
+                /* Main content takes full width */
                 margin-left: 0;
                 padding: 0;
             }
@@ -186,7 +192,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
 
             .sidebar-open.sidebar-open-visible {
-                transform: translateX(0); /* Show sidebar when toggled */
+                transform: translateX(0);
+                /* Show sidebar when toggled */
             }
 
             .overlay {
@@ -202,22 +209,26 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
 
             .overlay-open {
-                display: block; /* Show overlay when sidebar is open */
+                display: block;
+                /* Show overlay when sidebar is open */
             }
         }
 
         /* Tablet Devices (e.g., 768px to 1024px) */
         @media (min-width: 768px) and (max-width: 1024px) {
             body {
-                grid-template-columns: 1fr; /* Single column layout */
+                grid-template-columns: 1fr;
+                /* Single column layout */
             }
 
             .sidebar {
-                display: none; /* Hide the sidebar */
+                display: none;
+                /* Hide the sidebar */
             }
 
             .main-content {
-                grid-column: 1 / -1; /* Main content takes full width */
+                grid-column: 1 / -1;
+                /* Main content takes full width */
                 margin-left: 0;
                 padding: 0;
             }
@@ -236,7 +247,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
 
             .sidebar-open.sidebar-open-visible {
-                transform: translateX(0); /* Show sidebar when toggled */
+                transform: translateX(0);
+                /* Show sidebar when toggled */
             }
 
             .overlay {
@@ -252,7 +264,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
 
             .overlay-open {
-                display: block; /* Show overlay when sidebar is open */
+                display: block;
+                /* Show overlay when sidebar is open */
             }
         }
 
@@ -330,6 +343,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
             border: 1px solid rgb(255, 255, 255);
             margin: 10px 20px;
         }
+
+        .sidebar a img {
+            width: 24px;
+            /* Adjust the width as needed */
+            height: 24px;
+            /* Adjust the height as needed */
+            margin-right: 10px;
+            /* Space between image and text */
+        }
     </style>
 </head>
 
@@ -359,7 +381,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo in_array($current_page, ['addSale.php', 'addCredit.php', 'transaction.php']) ? 'active' : ''; ?>">New Transaction</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'dashboard.php' ? 'dashboard_active.png' : 'dashboard.png'; ?>" alt="Home">&nbsp;Home
+            <img src="images/<?php echo $current_page == 'dashboard.php' ? 'DB.png' : 'DB.png'; ?>" alt="Dashboard">&nbsp;Dashboard
         </a>
         <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'inventory.php' ? 'cabinet_active.png' : 'cabinet.png'; ?>" alt="Inventory">&nbsp;Inventory
@@ -368,7 +390,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <img src="images/<?php echo $current_page == 'sales.php' ? 'barsales_active.png' : 'barsales.png'; ?>" alt="Sales">&nbsp;Sales
         </a>
         <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits_active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
+            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
+        </a>
+        <a href="audit_logs.php" class="<?php echo $current_page == 'audit_logs.php' ? 'active' : ''; ?>">
+            <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Credits">&nbsp;Audit Logs
         </a>
     </div>
 
@@ -405,7 +430,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 'dashboard.php': 'Dashboard',
                 'inventory.php': 'Inventory',
                 'sales.php': 'Sales',
-                'credit.php': 'Credit'
+                'credit.php': 'Credit',
+                'audit_logs.php': 'Audit Logs'
             };
 
             const navbarBrandMobile = document.querySelector('.navbar-brand-mobile');

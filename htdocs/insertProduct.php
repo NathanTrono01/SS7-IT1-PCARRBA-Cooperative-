@@ -42,12 +42,25 @@ if (isset($_POST['add_item'])) {
 
     // Use new category if provided
     if (!empty($newCategory)) {
-        // Insert new category into the database
-        $insert_category_sql = "INSERT INTO categories (categoryName) VALUES (?)";
-        $stmt = $conn->prepare($insert_category_sql);
+        // Check if the new category already exists
+        $check_category_sql = "SELECT categoryId FROM categories WHERE categoryName = ?";
+        $stmt = $conn->prepare($check_category_sql);
         $stmt->bind_param("s", $newCategory);
         $stmt->execute();
-        $categoryId = $stmt->insert_id;
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            // Category exists, use the existing categoryId
+            $row = $result->fetch_assoc();
+            $categoryId = $row['categoryId'];
+        } else {
+            // Insert new category into the database
+            $insert_category_sql = "INSERT INTO categories (categoryName) VALUES (?)";
+            $stmt = $conn->prepare($insert_category_sql);
+            $stmt->bind_param("s", $newCategory);
+            $stmt->execute();
+            $categoryId = $stmt->insert_id;
+        }
         $stmt->close();
     }
 
@@ -277,7 +290,7 @@ if (isset($_POST['add_item'])) {
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">

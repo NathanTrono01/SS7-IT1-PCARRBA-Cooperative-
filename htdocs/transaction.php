@@ -338,10 +338,10 @@ include 'db.php';
     <script src="js/bootstrap.bundle.min.js"></script>
 
     <!-- Main content -->
-    <div class="main-content">
+    <div class="main-content fade-in">
         <!-- Centered buttons with text -->
         <div class="button-container">
-            <h2>Select Transaction Type</h2>
+            <h2>Choose Transaction Type</h2>
             <a href="addSale.php" class="btn btn-primary">Record a Sale</a>
             <a href="addCredit.php" class="btn btn-primary">Record a Credit</a>
         </div>

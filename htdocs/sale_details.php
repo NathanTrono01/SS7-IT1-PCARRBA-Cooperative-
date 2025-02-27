@@ -54,6 +54,20 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
+        .form-container {
+            background-color: transparent;
+            padding: 10px;
+            align-content: center;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f7f7f8;
+            text-align: center;
+        }
+
         .main-content {
             background-color: transparent;
             padding: 20px;
@@ -76,8 +90,6 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             margin: 25px auto;
             position: relative;
             padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
         }
 
@@ -91,12 +103,12 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #1f1f1f;
+            background-color: transparent;
         }
 
         table th {
             padding: 10px;
-            background-color: #0c0c0f;
+            background-color: transparent;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
@@ -150,7 +162,8 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
 
 <body>
     <?php include 'navbar.php'; ?>
-        <div class="main-content">
+    <div class="main-content fade-in">
+        <div class="form-container">
             <a href="sales.php" class="btn-back-wrapper">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                 <span>Back</span>
@@ -177,23 +190,19 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
                 <table>
                     <thead>
                         <tr>
-                            <th>Quantity</th>
-                            <th>Product</th>
-                            <th>Amount</th>
+                            <th>Product Details</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($saleDetails as $item) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                                <td><?php echo htmlspecialchars($item['productName']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
+                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?> : &nbsp; ₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
                 </table>
             </div>
-        
+
             <script>
                 document.getElementById('another-image').addEventListener('mouseover', function() {
                     this.src = 'images/back-hover.png';
@@ -205,8 +214,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             </script>
         </div>
     </div>
-        <script src="js/bootstrap.bundle.min.js">
-    </script>
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

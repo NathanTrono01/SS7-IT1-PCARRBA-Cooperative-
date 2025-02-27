@@ -86,9 +86,20 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             color: #f7f7f8;
         }
 
-        .search-wrapper input::placeholder {
+        .search-wrapper input:focus {
+            outline: none;
+            border: 2px solid #335fff;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 30px;
+            top: 8px;
+            /* Adjust this value to align with the input's border */
+            transform: translateY(0);
+            pointer-events: none;
+            transition: all 0.3s ease;
             color: rgba(247, 247, 248, 0.64);
-            font-weight: 200;
         }
 
         .table-wrapper {
@@ -100,6 +111,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 10px;
+            table-layout: fixed;
+            /* Ensure even spacing of columns */
         }
 
         table thead {
@@ -109,28 +122,25 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             background-color: #1f1f1f;
         }
 
+        table tbody tr:nth-child(odd) {
+            background-color: #272930;
+            /* Darker background for odd rows */
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: rgb(17, 18, 22);
+            /* Lighter background for even rows */
+        }
+
         table th {
             padding: 7px;
-            background-color: #0c0c0f;
+            background-color: rgb(17, 18, 22);
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:first-child {
-            border-left: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:last-child {
-            border-right: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
+            padding-bottom: 25px;
         }
 
         table td {
@@ -139,9 +149,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            white-space: nowrap;
+            white-space: normal;
             overflow: hidden;
             text-overflow: ellipsis;
+            word-wrap: break-word;
         }
 
         table tr {
@@ -153,15 +164,15 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             transition: all 0.3s ease;
         }
 
-        table tr td:first-child {
-            border-top-left-radius: 7px;
-            border-bottom-left-radius: 7px;
+        /* table tr td:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
         }
 
         table tr td:last-child {
-            border-top-right-radius: 7px;
-            border-bottom-right-radius: 7px;
-        }
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        } */
 
         .button a {
             background: transparent;
@@ -224,16 +235,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 overflow-x: auto;
             }
 
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
             table th,
             table td {
                 font-size: 0.95rem;
-                padding: 6px;
             }
+
 
             .btn-action {
                 padding: 6px 10px;
@@ -259,13 +265,11 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             table {
                 width: 100%;
-                table-layout: auto;
             }
 
             table th,
             table td {
                 font-size: 0.85rem;
-                padding: 6px;
             }
 
             .btn-action {
@@ -301,17 +305,14 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             table {
                 font-size: 0.8rem;
-                display: block;
                 width: 100%;
-                overflow-x: auto;
-                white-space: nowrap;
+                overflow-x: hidden;
+                white-space: wrap;
             }
 
             table th,
             table td {
-                width: 100%;
                 font-size: 0.8rem;
-                padding: 5px;
             }
 
             .btn-action {
@@ -364,6 +365,23 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             z-index: 1000;
             display: none;
         }
+
+        .view-details {
+            padding: 7px;
+            border-radius: 5px;
+            color: #335fff;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .view-details:hover {
+            background-color: rgba(255, 255, 255, 0.07);
+            color: rgb(82, 139, 255);
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.5s;
+        }
     </style>
 </head>
 
@@ -371,7 +389,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="container">
             <?php if (isset($_SESSION['message'])): ?>
                 <div class="alert-success show <?php echo $_SESSION['alert_class']; ?>" id="alert-success">
@@ -387,7 +405,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h2>Sales Transactions</h2>
+                    <h2>Sales</h2>
                     <div class="button">
                         <a href="addSale.php">New Sale</a>
                     </div>
@@ -400,38 +418,38 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                     </div>
                 </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
-                <table id="salesTable">
+                <table id="salesTable" width="100%">
                     <thead>
                         <tr align="left">
-                            <th>Type</th>
-                            <th>Amount (₱)</th>
                             <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($sales)) { ?>
                             <tr>
-                                <td colspan="5" style="text-align: center;">No sales records found. <a href="addSale.php">Create a new sale</a>.</td>
+                                <td colspan="4" style="text-align: center;">No sales records found. <a href="addSale.php">Create a new sale</a>.</td>
                             </tr>
                         <?php } else { ?>
                             <?php foreach ($sales as $sale) {
-                                $dateSold = !empty($sale['dateSold']) ? date("M d, Y -- g:i A", strtotime($sale['dateSold'])) : 'N/A';
+                                $dateSold = !empty($sale['dateSold'])
+                                    ? date("n/j/y", strtotime($sale['dateSold'])) . "<br>" . date("g:i A", strtotime($sale['dateSold']))
+                                    : 'N/A';
                             ?>
                                 <tr>
+                                    <td><?php echo $dateSold; ?></td>
                                     <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
-                                    <td><?php echo htmlspecialchars($dateSold); ?></td>
                                     <td>
                                         <?php if ($sale['transactionType'] === 'Credit') { ?>
-                                            <a href="credit_details.php?creditId=<?php echo $sale['creditId']; ?>" class="btn-action btn-open">
+                                            <a href="credit_details.php?creditId=<?php echo $sale['creditId']; ?>" class="view-details">
                                                 <span>View Details</span>
-                                                <img src="images/open.png" alt="View Details">
                                             </a>
                                         <?php } else { ?>
-                                            <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn-action btn-open">
+                                            <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="view-details">
                                                 <span>View Details</span>
-                                                <img src="images/open.png" alt="View Details">
                                             </a>
                                         <?php } ?>
                                     </td>

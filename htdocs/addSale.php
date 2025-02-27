@@ -13,6 +13,7 @@ include 'db.php';
 $sql = "SELECT p.productId, p.productName, p.unitPrice, COALESCE(SUM(b.quantity), 0) AS stockLevel 
         FROM products p 
         LEFT JOIN batchItem b ON p.productId = b.productId 
+        WHERE b.quantity > 0 
         GROUP BY p.productId, p.productName, p.unitPrice";
 $result = mysqli_query($conn, $sql);
 
@@ -369,7 +370,7 @@ if (!$result) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="form-container">
             <a href="transaction.php" class="btn-back">
                 <img src="images/back.png" alt="Back">

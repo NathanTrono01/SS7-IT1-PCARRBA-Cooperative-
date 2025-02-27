@@ -74,16 +74,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
+        // Inside the loop where you update batch items
         while ($batchRow = $batchResult->fetch_assoc()) {
             $batchId = $batchRow['batchId'];
             $batchQuantity = $batchRow['quantity'];
 
             if ($batchQuantity >= $remainingQuantity) {
                 $newBatchQuantity = $batchQuantity - $remainingQuantity;
+
+                // Update the batch quantity
                 $updateBatchSql = "UPDATE batchItem SET quantity = ? WHERE batchId = ?";
                 $updateBatchStmt = $conn->prepare($updateBatchSql);
                 $updateBatchStmt->bind_param("ii", $newBatchQuantity, $batchId);
                 $updateBatchStmt->execute();
+
+                // If the new quantity is 0, delete the batch item
+                if ($newBatchQuantity == 0) {
+                    $deleteBatchSql = "DELETE FROM batchItem WHERE batchId = ?";
+                    $deleteBatchStmt = $conn->prepare($deleteBatchSql);
+                    $deleteBatchStmt->bind_param("i", $batchId);
+                    $deleteBatchStmt->execute();
+                }
 
                 // Insert credit item for the batch
                 $saleItemSql = "INSERT INTO sale_item (quantity, price, subTotal, productId, creditId, batchId) VALUES (?, ?, ?, ?, ?, ?)";
@@ -95,10 +106,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             } else {
                 $remainingQuantity -= $batchQuantity;
+
+                // Set the batch quantity to 0 and delete the batch item
                 $updateBatchSql = "UPDATE batchItem SET quantity = 0 WHERE batchId = ?";
                 $updateBatchStmt = $conn->prepare($updateBatchSql);
                 $updateBatchStmt->bind_param("i", $batchId);
                 $updateBatchStmt->execute();
+
+                // Delete the batch item
+                $deleteBatchSql = "DELETE FROM batchItem WHERE batchId = ?";
+                $deleteBatchStmt = $conn->prepare($deleteBatchSql);
+                $deleteBatchStmt->bind_param("i", $batchId);
+                $deleteBatchStmt->execute();
 
                 // Insert credit item for the batch
                 $saleItemSql = "INSERT INTO sale_item (quantity, price, subTotal, productId, creditId, batchId) VALUES (?, ?, ?, ?, ?, ?)";
@@ -108,13 +127,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // If there are remaining quantities that couldn't be fulfilled by the batches
-        if ($remainingQuantity > 0) {
-            $_SESSION['message'] = "Error: Not enough stock for product ID $productId.";
-            $_SESSION['alert_class'] = "alert-danger";
-            header("Location: addCredit.php");
-            exit();
-        }
+        // Update the total stock in the inventory
+        $updateInventorySql = "UPDATE inventory SET totalStock = totalStock - ? WHERE productId = ?";
+        $updateInventoryStmt = $conn->prepare($updateInventorySql);
+        $updateInventoryStmt->bind_param("ii", $quantity, $productId);
+        $updateInventoryStmt->execute();
     }
 
     // Redirect to credits page with success message
@@ -123,4 +140,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: credit.php");
     exit();
 }
-?>

@@ -5,56 +5,30 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Include database connection
 include 'db.php';
 
-// Fetch all products with total stock level and category name
-$query = "
-    SELECT 
-        p.productId, 
-        p.productName, 
-        c.categoryName AS productCategory, 
-        p.unitPrice, 
-        COALESCE(SUM(b.quantity), 0) AS totalStock,
-        p.unit
-    FROM 
-        products p
-    LEFT JOIN 
-        batchItem b ON p.productId = b.productId
-    LEFT JOIN 
-        categories c ON p.categoryId = c.categoryId
-    GROUP BY 
-        p.productId, p.productName, c.categoryName, p.unitPrice, p.unit
-";
+// Fetch audit logs
+$query = "SELECT a.logId, a.action, a.details, a.timestamp, u.username 
+          FROM audit_logs a 
+          JOIN users u ON a.userId = u.userId 
+          ORDER BY a.timestamp DESC";
 $result = $conn->query($query);
-$products = $result->fetch_all(MYSQLI_ASSOC);
 
-// Handle form submission for editing or deleting products
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['delete_product'])) {
-        // Delete product
-        $productId = $_POST['productId'];
-        $stmt = $conn->prepare("DELETE FROM products WHERE productId = ?");
-        $stmt->bind_param("i", $productId);
-        $stmt->execute();
-        $stmt->close();
-        // Refresh the page to reflect the changes
-        header("Location: inventory.php");
-        exit();
-    }
+if (!$result) {
+    die("Database query failed: " . $conn->error);
 }
+
+$logs = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>Inventory</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
         .flex-container {
@@ -106,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .search-wrapper input {
             padding: 8px 8px 8px 30px;
-            /* Adjust padding to make space for the search icon */
             width: 100%;
             border-radius: 5px;
             border: 1px solid #333942;
@@ -119,6 +92,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 2px solid #335fff;
         }
 
+        .floating-label {
+            position: absolute;
+            left: 30px;
+            top: 8px;
+            transform: translateY(0);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            color: rgba(247, 247, 248, 0.64);
+        }
+
         .table-wrapper {
             overflow-x: auto;
         }
@@ -128,8 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 10px;
-            table-layout: auto;
-            /* Ensure even spacing of columns */
+            table-layout: fixed;
         }
 
         table thead {
@@ -141,12 +123,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         table tbody tr:nth-child(odd) {
             background-color: #272930;
-            /* Darker background for odd rows */
         }
 
         table tbody tr:nth-child(even) {
             background-color: rgb(17, 18, 22);
-            /* Lighter background for even rows */
         }
 
         table th {
@@ -162,7 +142,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         table td {
             padding: 5px 10px;
-            /* Add padding to the sides of the td elements */
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
@@ -181,36 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.3s ease;
         }
 
-        /* table tr td:first-child {
-            border-top-left-radius: 5px;
-            border-bottom-left-radius: 5px;
-        }
-
-        table tr td:last-child {
-            border-top-right-radius: 5px;
-            border-bottom-right-radius: 5px;
-        } */
-
-        .restock-button {
-            display: inline-block;
-            padding: 8px 12px;
-            background: transparent;
-            color: rgb(187, 188, 190);
-            text-decoration: none;
-            border-radius: 7px;
-            border: 0.5px solid rgba(187, 188, 190, 0.5);
-            transition: border-color 0.3s, color 0.3s;
-            margin-bottom: 10px;
-        }
-
-        .restock-button:hover {
-            background-color: rgba(255, 255, 255, 0.06);
-            border: 1.5px solid rgb(187, 188, 190);
-            color: #fff;
-            border-radius: 7px;
-        }
-
-        .button-product {
+        .button a {
             background: transparent;
             display: inline-block;
             padding: 8px 12px;
@@ -223,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 10px;
         }
 
-        .button-product:hover {
+        .button a:hover {
             background-color: rgba(255, 255, 255, 0.94);
             color: #000;
             border-radius: 7px;
@@ -231,15 +181,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-action {
             text-decoration: none;
-            padding: 6px 8px;
+            padding: 8px 8px;
             font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
             min-width: 60px;
-            text-align: center;
             box-sizing: border-box;
         }
 
@@ -251,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: inline;
         }
 
-        .btn-edit {
+        .btn-open {
             background-color: #335fff !important;
             color: white !important;
         }
@@ -260,11 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ff3d3d !important;
             background-color: transparent !important;
             color: #ff3d3d !important;
-        }
-
-        .btn-delete:hover {
-            border: 1px solid rgb(255, 0, 0) !important;
-            color: rgb(255, 0, 0) !important;
         }
 
         .action-buttons {
@@ -278,15 +221,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 overflow-x: auto;
             }
 
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
             table th,
             table td {
                 font-size: 0.95rem;
-                padding: 6px;
             }
 
             .btn-action {
@@ -313,13 +250,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             table {
                 width: 100%;
-                table-layout: auto;
             }
 
             table th,
             table td {
                 font-size: 0.85rem;
-                padding: 6px;
             }
 
             .btn-action {
@@ -351,19 +286,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .table-wrapper {
                 margin: 0;
                 width: 100%;
-                overflow-x: auto;
             }
 
             table {
                 font-size: 0.8rem;
                 width: 100%;
                 overflow-x: hidden;
-                white-space: nowrap;
+                white-space: wrap;
             }
 
             table th,
             table td {
-                width: 100%;
                 font-size: 0.8rem;
             }
 
@@ -384,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        .popup-alert {
+        .alert-success {
             position: fixed;
             margin-top: 10px;
             left: 50%;
@@ -399,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: none;
         }
 
-        .popup-alert.show {
+        .alert-success.show {
             display: block;
         }
 
@@ -417,6 +350,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             z-index: 1000;
             display: none;
         }
+
+        .view-details {
+            padding: 7px;
+            border-radius: 5px;
+            color: #335fff;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .view-details:hover {
+            background-color: rgba(255, 255, 255, 0.07);
+            color: rgb(82, 139, 255);
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.5s;
+        }
     </style>
 </head>
 
@@ -427,73 +377,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="main-content fade-in">
         <div class="container">
             <?php if (isset($_SESSION['message'])): ?>
-                <div class="popup-alert show <?php echo $_SESSION['alert_class']; ?>" id="popupAlert">
+                <div class="alert-success show <?php echo $_SESSION['alert_class']; ?>" id="alert-success">
                     <span><?php echo $_SESSION['message']; ?></span>
                 </div>
                 <?php unset($_SESSION['message']);
                 unset($_SESSION['alert_class']); ?>
                 <script>
                     setTimeout(function() {
-                        document.getElementById("popupAlert").classList.remove("show");
+                        document.getElementById("alert-success").classList.remove("show");
                     }, 4000);
                 </script>
             <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h2>Products</h2>
-                    <div class="button">
-                        <a href="restock.php" class="restock-button">Restock</a>
-                        <a href="insertProduct.php" class="button-product">Add Product</a>
-                    </div>
+                    <h2>Audit Logs</h2>
                 </div>
                 <div class="search-container">
                     <div class="search-wrapper">
                         <img src="images/search-icon.png" alt="Search" class="search-icon">
-                        <input type="text" id="searchBar" placeholder="Search Product/s" onkeyup="filterProducts(); toggleClearIcon();">
+                        <input type="text" id="searchBar" placeholder="Search Logs" onkeyup="filterLogs(); toggleClearIcon();">
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                 </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
-                <table id="productTable">
+                <table id="logsTable" width="100%">
                     <thead>
                         <tr align="left">
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Stock</th>
-                            <th>Price (₱)</th>
-                            <th>Actions</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>User</th>
+                            <th>Timestamp</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (empty($products)) { ?>
+                        <?php if (empty($logs)) { ?>
                             <tr>
-                                <td colspan="5" style="text-align: center;">No products found. <a href="insertProduct.php">Stock a product</a>.</td>
+                                <td colspan="4" style="text-align: center;">No logs found.</td>
                             </tr>
                         <?php } else { ?>
-                            <?php foreach ($products as $product) { ?>
+                            <?php foreach ($logs as $log) { ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($product['productName']); ?></td>
-                                    <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                    <td><?php echo $product['totalStock'] == 0 ? 'Out of Stock' : htmlspecialchars($product['totalStock']) . (isset($product['unit']) ? ' ' . htmlspecialchars($product['unit']) : ''); ?></td>
-                                    <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <form method="post" style="display:inline;">
-                                                <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                                <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
-                                                    <span>Edit</span>
-                                                    <img src="images/white-pencil.png" alt="Edit">
-                                                </a>
-                                            </form>
-                                            <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
-                                                <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                                <button type="submit" name="delete_product" class="btn-action btn-delete">
-                                                    <span>Delete</span>
-                                                    <img src="images/delete.png" alt="Delete">
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+                                    <td><?php echo htmlspecialchars($log['action']); ?></td>
+                                    <td><?php echo htmlspecialchars($log['details']); ?></td>
+                                    <td><?php echo htmlspecialchars($log['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($log['timestamp']); ?></td>
                                 </tr>
                             <?php } ?>
                         <?php } ?>
@@ -502,22 +429,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-    </div>
 
     <script>
-        function filterProducts() {
+        function filterLogs() {
             const query = document.getElementById('searchBar').value.toLowerCase();
-            const rows = document.querySelectorAll('#productTable tbody tr');
+            const rows = document.querySelectorAll('#logsTable tbody tr');
 
             rows.forEach(row => {
-                const productName = row.cells[0].textContent.toLowerCase();
-                row.style.display = productName.includes(query) ? '' : 'none';
+                const action = row.cells[0].textContent.toLowerCase();
+                const details = row.cells[1].textContent.toLowerCase();
+                const user = row.cells[2].textContent.toLowerCase();
+                const timestamp = row.cells[3].textContent.toLowerCase();
+
+                if (action.includes(query) || details.includes(query) || user.includes(query) || timestamp.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             });
         }
 
         function clearSearch() {
             document.getElementById('searchBar').value = '';
-            filterProducts();
+            filterLogs();
             toggleClearIcon();
         }
 
@@ -526,18 +460,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const clearIcon = document.querySelector('.clear-icon');
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
         }
-
-        function confirmDelete() {
-            return confirm('Are you sure you want to delete this item?');
-        }
-
-        function closeAlert() {
-            document.getElementById("alert").style.display = "none";
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            toggleClearIcon();
-        });
     </script>
 </body>
 

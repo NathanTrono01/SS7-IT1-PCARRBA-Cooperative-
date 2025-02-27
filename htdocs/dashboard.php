@@ -43,18 +43,16 @@ $total_sales_today = $total_sales_result->fetch_assoc()['total_sales_today'] ?? 
 
 // Fetch low stock alerts
 $low_stock_sql = "SELECT COUNT(*) AS low_stock_alerts 
-                  FROM inventory i 
-                  JOIN batchItem b ON i.productId = b.productId 
-                  WHERE b.quantity < i.reorderLevel";
+                  FROM inventory 
+                  WHERE totalStock <= reorderLevel";
 $low_stock_result = $conn->query($low_stock_sql);
 $low_stock_alerts = $low_stock_result->fetch_assoc()['low_stock_alerts'] ?? 0; // Add 0 if no value
 
-// Fetch low stock products
-$low_stock_products_sql = "SELECT p.productName, b.quantity, i.reorderLevel 
+// Fetch low stock products including out-of-stock products
+$low_stock_products_sql = "SELECT p.productName, i.totalStock AS quantity, i.reorderLevel 
                            FROM inventory i 
-                           JOIN batchItem b ON i.productId = b.productId 
                            JOIN products p ON i.productId = p.productId 
-                           WHERE b.quantity < i.reorderLevel";
+                           WHERE i.totalStock <= i.reorderLevel OR i.totalStock = 0";
 $low_stock_products_result = $conn->query($low_stock_products_sql);
 
 $low_stock_products = [];
@@ -300,7 +298,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         .view-product {
-            padding: 4px;
+            padding: 7px;
             border-radius: 7px;
             color: rgb(43, 114, 255);
             text-decoration: none;
@@ -419,19 +417,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
             /* Hide scrollbar */
         }
 
-        .scrollable-restocks::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            /* Adjust height as needed */
-            background: linear-gradient(to bottom, rgba(17, 18, 22, 0), rgb(17, 18, 22, 1));
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
         .scrollable-restocks.no-blur::after {
             opacity: 0;
         }
@@ -444,14 +429,14 @@ while ($row = $product_stock_result->fetch_assoc()) {
     <script src="js/flatpickr.js"></script>
     <script src="js/chart.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="dashboard-wrapper">
             <h1>Overview</h1>
             <div class="status-cards">
                 <div class="card1 total-inventory">
                     <i class="fas fa-boxes"></i>
-                    <h2>Total Product/s</h2>
-                    <p><?php echo $total_inventory ?: 'No Stock'; ?></p>
+                    <h2>Total Stock</h2>
+                    <p><?php echo $total_inventory ?: 'Out of Stock'; ?></p>
                 </div>
                 <div class="card1 total-sales">
                     <i class="fas fa-dollar-sign"></i>
@@ -477,13 +462,17 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
                             <div class="restock-header">
-                                <h4><?php echo $product['productName']; ?></h4>
-                                <p>Quantity: <?php echo $product['quantity']; ?></p>
-                                <p>Reorder Level: <?php echo $product['reorderLevel']; ?></p>
-                                <a href="restock.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">Restock</a>
+                                <h4><img src="images/alert.png" alt="" style="width: 30px; height: 30px;">
+                                    <?php if ($product['quantity'] == 0) { ?>
+                                        Your "<?php echo $product['productName']; ?>" is out of stock!
+                                    <?php } else { ?>
+                                        Your "<?php echo $product['productName']; ?>" is low stock!
+                                    <?php } ?>
+                                </h4>
+                                <p>Current Stock: <?php echo $product['quantity']; ?></p>
                             </div>
                             <div class="restock-footer">
-                                <button class="dismiss-btn" onclick="dismissLowStock(this)">×</button>
+                                <a href="restock.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">Restock</a>
                             </div>
                         </div>
                     <?php } ?>

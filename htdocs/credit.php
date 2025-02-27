@@ -106,9 +106,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             color: #f7f7f8;
         }
 
-        .search-wrapper input::placeholder {
+        .search-wrapper input:focus {
+            outline: none;
+            border: 2px solid #335fff;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 30px;
+            top: 8px;
+            /* Adjust this value to align with the input's border */
+            transform: translateY(0);
+            pointer-events: none;
+            transition: all 0.3s ease;
             color: rgba(247, 247, 248, 0.64);
-            font-weight: 200;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
         }
 
         table {
@@ -116,6 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0 10px;
+            table-layout: fixed;
+            /* Ensure even spacing of columns */
         }
 
         table thead {
@@ -125,32 +142,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             background-color: #1f1f1f;
         }
 
+        table tbody tr:nth-child(odd) {
+            background-color: #272930;
+            /* Darker background for odd rows */
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: rgb(17, 18, 22);
+            /* Lighter background for even rows */
+        }
+
         table th {
             padding: 7px;
-            background-color: #0c0c0f;
+            background-color: rgb(17, 18, 22);
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
-        }
-
-        table th:first-child {
-            border-left: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:last-child {
-            border-right: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-            width: 150px;
-            /* Fixed width for the Actions column */
+            padding-bottom: 25px;
         }
 
         table td {
@@ -159,13 +169,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
-        }
-
-        table td:last-child {
-            width: 150px;
-            /* Fixed width for the Actions column */
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
         }
 
         table tr {
@@ -177,15 +184,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             transition: all 0.3s ease;
         }
 
-        table tr td:first-child {
-            border-top-left-radius: 7px;
-            border-bottom-left-radius: 7px;
+        /* table tr td:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
         }
 
         table tr td:last-child {
-            border-top-right-radius: 7px;
-            border-bottom-right-radius: 7px;
-        }
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        } */
 
         .button a {
             background: transparent;
@@ -208,15 +215,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
         .btn-action {
             text-decoration: none;
-            padding: 6px 8px;
+            padding: 8px 8px;
             font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
             min-width: 60px;
-            text-align: center;
             box-sizing: border-box;
         }
 
@@ -228,15 +233,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             display: inline;
         }
 
-        .btn-open {
-            background-color: #335fff !important;
-            color: white !important;
+        .btn-delete {
+            margin-left: 5px;
+            border: none;
+            background: transparent;
+            padding: 5px;
+            border-radius: 5px;
+            color: rgb(255, 51, 51);
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 5px;
         }
 
-        .btn-delete {
-            border: 1px solid #ff3d3d !important;
-            background-color: transparent !important;
-            color: #ff3d3d !important;
+        .btn-delete:hover {
+            background-color: rgba(255, 255, 255, 0.07);
+            color: rgb(255, 82, 82);
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.5s;
         }
 
         .action-buttons {
@@ -250,15 +264,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 overflow-x: auto;
             }
 
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
             table th,
             table td {
                 font-size: 0.95rem;
-                padding: 6px;
             }
 
             .btn-action {
@@ -285,18 +293,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
             table {
                 width: 100%;
-                table-layout: auto;
             }
 
             table th,
             table td {
                 font-size: 0.85rem;
-                padding: 6px;
             }
 
             .btn-action {
-                padding: 6px 10px;
-                font-size: 0.75rem;
+                padding: 7px 7px;
+                font-size: 0.7rem;
+                min-width: 30px;
             }
 
             .btn-action span {
@@ -305,8 +312,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
             .btn-action img {
                 display: inline;
-                width: 15px;
-                height: 15px;
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -326,23 +333,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
             table {
                 font-size: 0.8rem;
-                display: block;
                 width: 100%;
-                overflow-x: auto;
-                white-space: nowrap;
+                overflow-x: hidden;
+                white-space: wrap;
             }
 
             table th,
             table td {
-                width: 100%;
-                font-size: 0.8rem;
-                padding: 5px;
-            }
 
-            .btn-action {
-                padding: 4px 10px;
-                font-size: 0.7rem;
-                min-width: 30px;
+                font-size: 0.8rem;
             }
 
             .btn-action {
@@ -395,6 +394,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             z-index: 1000;
             display: none;
         }
+
+        .view-details {
+            padding: 7px;
+            border-radius: 5px;
+            color: #335fff;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .view-details:hover {
+            background-color: rgba(255, 255, 255, 0.07);
+            color: rgb(82, 139, 255);
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.5s;
+        }
     </style>
 </head>
 
@@ -402,9 +418,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="container">
-        <?php if (isset($_SESSION['message'])): ?>
+            <?php if (isset($_SESSION['message'])): ?>
                 <div class="alert-success show <?php echo $_SESSION['alert_class']; ?>" id="alert-success">
                     <span><?php echo $_SESSION['message']; ?></span>
                 </div>
@@ -418,7 +434,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
-                    <h2>Credit Transactions</h2>
+                    <h2>Credit</h2>
                     <div class="button">
                         <a href="addCredit.php">New Credit</a>
                     </div>
@@ -434,10 +450,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 <table id="creditsTable">
                     <thead>
                         <tr align="left">
+                            <th>Date</th>
                             <th>Status</th>
                             <th>Creditor</th>
                             <th>Balance</th>
-                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -447,24 +463,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                                 <td colspan="5" style="text-align: center;">No credit records found. <a href="addCredit.php">Create a new credit</a>.</td>
                             </tr>
                         <?php } else { ?>
-                            <?php foreach ($credits as $credit) { ?>
+                            <?php foreach ($credits as $credit) {
+                                $date = !empty($credit['transactionDate'])
+                                    ? date("n/j/y", strtotime($credit['transactionDate'])) . "<br>" . date("g:i A", strtotime($credit['transactionDate']))
+                                    : 'N/A';
+                            ?>
                                 <tr>
+                                    <td><?php echo $date ?></td>
                                     <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
                                     <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($credit['creditBalance']); ?></td>
-                                    <td><?php echo htmlspecialchars(date("M d, Y -- g:i A", strtotime($credit['transactionDate']))); ?></td>
                                     <td>
-                                        <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="btn-action btn-open">
+                                        <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="view-details">
                                             <span>View Details</span>
-                                            <img src="images/open.png" alt="View Details">
                                         </a>
-                                        <form method="POST" action="credit.php" style="display:inline;" onsubmit="return confirmDelete();">
-                                            <input type="hidden" name="deleteCreditId" value="<?php echo $credit['creditId']; ?>">
-                                            <button type="submit" class="btn-action btn-delete">
-                                                <span>Delete</span>
-                                                <img src="images/delete.png" alt="Delete">
-                                            </button>
-                                        </form>
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -496,10 +508,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             const searchBar = document.getElementById('searchBar');
             const clearIcon = document.querySelector('.clear-icon');
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
-        }
-
-        function confirmDelete() {
-            return confirm('Are you sure you want to delete this credit record?');
         }
 
         document.addEventListener('DOMContentLoaded', toggleClearIcon);

@@ -352,7 +352,7 @@ if (!$result) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="form-container">
             <a href="transaction.php" class="btn-back">
                 <img src="images/back.png" alt="Back">

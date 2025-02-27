@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 
-<body>
+<body class="fade-in"> 
     <div class="d-flex flex-column justify-content-center align-items-center min-vh-100 px-3">
         <div class="main-title mb-4">
             <h3>PCARBA Sari-Sari Store Inventory System</h3>

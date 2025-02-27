@@ -17,7 +17,7 @@ if (!isset($_SESSION['username'])) {
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <body>
-<div class="main-content">
+<div class="main-content fade-in">
         <div class="container">
         </div>
     </div>

@@ -95,6 +95,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
+        .form-container {
+            background-color: transparent;
+            padding: 10px;
+            align-content: center;
+        }
+
+        .form-container h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f7f7f8;
+            text-align: center;
+        }
+
         .main-content {
             background-color: transparent;
             padding: 20px;
@@ -117,8 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 25px auto;
             position: relative;
             padding: 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
         }
 
@@ -132,12 +144,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: sticky;
             top: 0;
             z-index: 10;
-            background-color: #1f1f1f;
+            background-color: transparent;
         }
 
         table th {
             padding: 10px;
-            background-color: #0c0c0f;
+            background-color: transparent;
             color: rgba(247, 247, 248, 0.9);
             font-weight: bold;
             text-transform: uppercase;
@@ -191,80 +203,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <?php include 'navbar.php'; ?>
-    <div class="main-content">
-        <a href="credit.php" class="btn-back-wrapper">
-            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
-            <span>Back</span>
-        </a>
-        <hr>
-        <div class="table-wrapper">
-            <h1 align="center">Credit Details</h1>
-            <table>
-                <tr>
-                    <td>
-                        <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
-                    </td>
-                    <td>
-                        <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
-                    </td>
-                    <td>
-                        <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
-                    </td>
-                </tr>
-            </table>
+    <div class="main-content fade-in">
+        <div class="form-container">
+            <a href="#" class="btn-back-wrapper">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+                <span>Back</span>
+            </a>
             <hr>
-            <h3>Product Taken:</h3>
-            <table>
-                <thead>
+            <div class="table-wrapper">
+                <h1 align="center">Credit Details</h1>
+                <table>
                     <tr>
-                        <th>Quantity</th>
-                        <th>Product</th>
-                        <th>Amount</th>
+                        <td>
+                            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
+                        </td>
+                        <td>
+                            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($creditDetails as $item) { ?>
+                    <tr>
+                        <td>
+                            <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
+                        </td>
+                        <td>
+                            <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
+                        </td>
+                    </tr>
+                </table>
+                <hr>
+                <h3>Bought on Credit:</h3>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                            <td><?php echo htmlspecialchars($item['productName']); ?></td>
-                            <td>₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
+                            <th>PRODUCT DETAILS</th>
                         </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
-        <hr>
-        <?php if ($creditDetails[0]['paymentStatus'] !== 'Paid') { ?>
-        <form method="POST" action="">
-            <div class="mb-3">
-                <label for="amountPaid" class="form-label">Payment Amount:</label>
-                <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" placeholder="Enter customer's payment" required>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($creditDetails as $item) { ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?> : &nbsp; ₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
             </div>
-            <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
-            <input type="submit" value="Update Payment" class="btn btn-primary">
-        </form>
-        <?php } ?>
-    </div>
-    <script>
-        document.getElementById('another-image').addEventListener('mouseover', function() {
-            this.src = 'images/back-hover.png';
-        });
+            <hr>
+            <?php if ($creditDetails[0]['paymentStatus'] !== 'Paid') { ?>
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <label for="amountPaid" class="form-label">Payment Amount:</label>
+                        <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" placeholder="Enter customer's payment" required>
+                    </div>
+                    <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
+                    <input type="submit" value="Update Payment" class="btn btn-primary">
+                </form>
+            <?php } ?>
+        </div>
+        <script>
+            document.getElementById('another-image').addEventListener('mouseover', function() {
+                this.src = 'images/back-hover.png';
+            });
 
-        document.getElementById('another-image').addEventListener('mouseout', function() {
-            this.src = 'images/back.png';
-        });
-    </script>
-    <script src="js/bootstrap.bundle.min.js"></script>
+            document.getElementById('another-image').addEventListener('mouseout', function() {
+                this.src = 'images/back.png';
+            });
+        </script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+    </div>
 </body>
 
 </html>

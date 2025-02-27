@@ -268,7 +268,7 @@ if (isset($_POST['edit_item'])) {
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
 
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">

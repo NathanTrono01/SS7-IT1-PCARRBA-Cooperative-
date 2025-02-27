@@ -187,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <body>
-    <div class="main-content">
+    <div class="main-content fade-in">
         <div class="container">
             <div class="container">
                 <h2>General Settings</h2>

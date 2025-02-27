@@ -65,10 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($batchQuantity >= $remainingQuantity) {
                 $newBatchQuantity = $batchQuantity - $remainingQuantity;
+
+                // Update the batch quantity
                 $updateBatchSql = "UPDATE batchItem SET quantity = ? WHERE batchId = ?";
                 $updateBatchStmt = $conn->prepare($updateBatchSql);
                 $updateBatchStmt->bind_param("ii", $newBatchQuantity, $batchId);
                 $updateBatchStmt->execute();
+
+                // If the new quantity is 0, delete the batch item
+                if ($newBatchQuantity == 0) {
+                    $deleteBatchSql = "DELETE FROM batchItem WHERE batchId = ?";
+                    $deleteBatchStmt = $conn->prepare($deleteBatchSql);
+                    $deleteBatchStmt->bind_param("i", $batchId);
+                    $deleteBatchStmt->execute();
+                }
 
                 // Insert sale item for the batch
                 $saleItemSql = "INSERT INTO sale_item (quantity, price, subTotal, productId, saleId, creditId, batchId) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -80,10 +90,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             } else {
                 $remainingQuantity -= $batchQuantity;
+
+                // Set the batch quantity to 0 and delete the batch item
                 $updateBatchSql = "UPDATE batchItem SET quantity = 0 WHERE batchId = ?";
                 $updateBatchStmt = $conn->prepare($updateBatchSql);
                 $updateBatchStmt->bind_param("i", $batchId);
                 $updateBatchStmt->execute();
+
+                // Delete the batch item
+                $deleteBatchSql = "DELETE FROM batchItem WHERE batchId = ?";
+                $deleteBatchStmt = $conn->prepare($deleteBatchSql);
+                $deleteBatchStmt->bind_param("i", $batchId);
+                $deleteBatchStmt->execute();
 
                 // Insert sale item for the batch
                 $saleItemSql = "INSERT INTO sale_item (quantity, price, subTotal, productId, saleId, creditId, batchId) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -100,7 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: sales.php");
             exit();
         }
+        
     }
+
+    $action = "Make Sale";
+    $details = "Sold product ID: $productId, quantity: $quantity, total price: $totalPrice";
+    logAction($action, $details, $userId, $conn);
 
     // Redirect to sales page with success message
     $_SESSION['message'] = "Sale recorded successfully!";
