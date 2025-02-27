@@ -361,6 +361,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 height: 15px;
             }
         }
+
+        .alert-success {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 167, 70, 0.44);
+            border: 1px solid rgb(0, 255, 60);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .alert-success.show {
+            display: block;
+        }
+
+        .alert-warning {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(167, 99, 40, 0.44);
+            border: 1px solid rgb(255, 136, 0);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 
@@ -370,6 +404,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
     <div class="main-content">
         <div class="container">
+        <?php if (isset($_SESSION['message'])): ?>
+                <div class="alert-success show <?php echo $_SESSION['alert_class']; ?>" id="alert-success">
+                    <span><?php echo $_SESSION['message']; ?></span>
+                </div>
+                <?php unset($_SESSION['message']);
+                unset($_SESSION['alert_class']); ?>
+                <script>
+                    setTimeout(function() {
+                        document.getElementById("alert-success").classList.remove("show");
+                    }, 4000);
+                </script>
+            <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
                     <h2>Credit Transactions</h2>
@@ -388,9 +434,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 <table id="creditsTable">
                     <thead>
                         <tr align="left">
-                            <th>Payment Status</th>
+                            <th>Status</th>
                             <th>Creditor</th>
-                            <th>Total Balance</th>
+                            <th>Balance</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>

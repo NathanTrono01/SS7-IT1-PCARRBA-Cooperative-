@@ -9,6 +9,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 include 'db.php';
+include 'datetime.php';
 
 if (!isset($_GET['creditId'])) {
     header("Location: credits.php");
@@ -19,7 +20,7 @@ $creditId = $_GET['creditId'];
 
 // Fetch credit details
 $query = "SELECT c.creditId, c.transactionDate, c.paymentStatus, cr.customerName, cr.phoneNumber, cr.creditBalance, cr.amountPaid,
-                 p.productName, si.quantity, si.subTotal, cr.creditorId
+                 p.productName, si.quantity, si.subTotal, cr.creditorId, c.userId, c.lastUpdated
           FROM credits c
           JOIN sale_item si ON c.creditId = si.creditId
           JOIN products p ON si.productId = p.productId
@@ -47,6 +48,10 @@ $transactionDate = !empty($creditDetails[0]['transactionDate']) ? date("M d, Y -
 // Handle form submission for updating amount paid
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amountPaid = $_POST['amountPaid'];
+    if ($amountPaid > $creditDetails[0]['creditBalance']) {
+        echo "<p>Amount paid cannot exceed the credit balance.</p>";
+        exit();
+    }
     $newAmountPaid = $creditDetails[0]['amountPaid'] + $amountPaid;
     $newCreditBalance = $creditDetails[0]['creditBalance'] - $amountPaid;
     $paymentStatus = $newCreditBalance <= 0 ? 'Paid' : 'Unpaid';
@@ -57,16 +62,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("dii", $newAmountPaid, $newCreditBalance, $creditDetails[0]['creditorId']);
     $stmt->execute();
 
-    // Update credit's payment status
-    $updateCreditSql = "UPDATE credits SET paymentStatus = ? WHERE creditId = ?";
+    // Update credit's payment status and lastUpdated
+    $dateUpdated = getCurrentDateTime();
+    $updateCreditSql = "UPDATE credits SET paymentStatus = ?, lastUpdated = ? WHERE creditId = ?";
     $stmt = $conn->prepare($updateCreditSql);
-    $stmt->bind_param("si", $paymentStatus, $creditId);
+    $stmt->bind_param("ssi", $paymentStatus, $dateUpdated, $creditId);
     $stmt->execute();
+
+    // If payment status is 'Paid', insert into sales table
+    if ($paymentStatus === 'Paid') {
+        $userId = $creditDetails[0]['userId'];
+        $insertSaleSql = "INSERT INTO sales (dateSold, transactionType, totalPrice, userId, creditId) VALUES (?, 'Credit', ?, ?, ?)";
+        $stmt = $conn->prepare($insertSaleSql);
+        $stmt->bind_param("sdii", $dateUpdated, $newAmountPaid, $userId, $creditId);
+        $stmt->execute();
+    }
 
     // Redirect to the same page to reflect changes
     header("Location: credit_details.php?creditId=$creditId");
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -79,6 +95,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
+        .main-content {
+            background-color: transparent;
+            padding: 20px;
+            color: #f7f7f8;
+            width: 100%;
+        }
+
+        .main-content h1,
+        .main-content h3 {
+            color: #f7f7f8;
+        }
+
+        .main-content p {
+            color: #f7f7f8;
+        }
+
         .table-wrapper {
             background-color: #191a1f;
             width: 100%;
@@ -124,11 +156,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: transparent;
         }
 
-        table tr:hover {
-            background-color: rgba(187, 194, 209, 0.17);
-            transition: all 0.3s ease;
-        }
-
         .btn-secondary {
             background-color: #6c757d;
             border: none;
@@ -159,83 +186,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 25px;
             height: 25px;
         }
-
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 10px;
-            }
-
-            .main-content h1 {
-                font-size: 20px;
-            }
-
-            .table-wrapper {
-                padding: 10px;
-            }
-
-            table th, table td {
-                font-size: 0.9rem;
-                padding: 8px;
-            }
-        }
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
-        <div class="main-content">
-            <form method="POST" action="">
-                <div class="mb-3">
-                    <label for="amountPaid" class="form-label">Amount Paid:</label>
-                    <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" required>
-                </div>
-                <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
-                <input type="submit" value="Update Payment" class="btn btn-primary">
-            </form>
+    <div class="main-content">
+        <a href="credit.php" class="btn-back-wrapper">
+            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
+            <span>Back</span>
+        </a>
+        <hr>
+        <div class="table-wrapper">
+            <h1 align="center">Credit Details</h1>
+            <table>
+                <tr>
+                    <td>
+                        <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
+                    </td>
+                    <td>
+                        <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
+                    </td>
+                    <td>
+                        <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
+                    </td>
+                </tr>
+            </table>
             <hr>
-            <h1>Credit Details</h1>
-            <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
-            <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
-            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
-            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
-            <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
-            <h1>Items Taken:</h1>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
+            <h3>Product Taken:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($creditDetails as $item) { ?>
                         <tr>
-                            <th>Quantity</th>
-                            <th>Product</th>
-                            <th>Amount</th>
+                            <td><?php echo htmlspecialchars($item['quantity']); ?></td>
+                            <td><?php echo htmlspecialchars($item['productName']); ?></td>
+                            <td>₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($creditDetails as $item) { ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                                <td><?php echo htmlspecialchars($item['productName']); ?></td>
-                                <td>₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-            <hr>
-            <a href="credit.php" class="btn-back-wrapper">
-                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
-                <span>Back</span>
-            </a>
-            <script>
-                document.getElementById('another-image').addEventListener('mouseover', function() {
-                    this.src = 'images/back-hover.png';
-                });
-
-                document.getElementById('another-image').addEventListener('mouseout', function() {
-                    this.src = 'images/back.png';
-                });
-            </script>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
+        <hr>
+        <?php if ($creditDetails[0]['paymentStatus'] !== 'Paid') { ?>
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label for="amountPaid" class="form-label">Payment Amount:</label>
+                <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" placeholder="Enter customer's payment" required>
+            </div>
+            <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
+            <input type="submit" value="Update Payment" class="btn btn-primary">
+        </form>
+        <?php } ?>
     </div>
+    <script>
+        document.getElementById('another-image').addEventListener('mouseover', function() {
+            this.src = 'images/back-hover.png';
+        });
+
+        document.getElementById('another-image').addEventListener('mouseout', function() {
+            this.src = 'images/back.png';
+        });
+    </script>
     <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 

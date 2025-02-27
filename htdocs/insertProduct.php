@@ -20,23 +20,20 @@ if (!isset($_SESSION['userId'])) {
 // Get the userId from the session
 $userId = $_SESSION['userId'];
 
-// Define categories for the dropdown
-$categories = [
-    'Beverages',
-    'Snacks',
-    'Canned Goods',
-    'Personal Care',
-    'Household Items',
-    'Condiments',
-    'Dairy Products',
-    'Frozen Foods',
-    'Bakery Items'
-];
+// Fetch categories from the database
+$categories = [];
+$category_sql = "SELECT categoryId, categoryName FROM categories";
+$result = $conn->query($category_sql);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row;
+    }
+}
 
 // Add new item to inventory
 if (isset($_POST['add_item'])) {
     $productName = $_POST['productName'];
-    $category = $_POST['product_category'];
+    $categoryId = $_POST['product_category'];
     $newCategory = $_POST['new_category'];
     $stockLevel = $_POST['quantity'];
     $costPrice = $_POST['cost_price'];
@@ -45,49 +42,73 @@ if (isset($_POST['add_item'])) {
 
     // Use new category if provided
     if (!empty($newCategory)) {
-        $category = $newCategory;
+        // Insert new category into the database
+        $insert_category_sql = "INSERT INTO categories (categoryName) VALUES (?)";
+        $stmt = $conn->prepare($insert_category_sql);
+        $stmt->bind_param("s", $newCategory);
+        $stmt->execute();
+        $categoryId = $stmt->insert_id;
+        $stmt->close();
     }
 
     // Check if the item already exists in the inventory
-    $check_sql = "SELECT * FROM products WHERE productName = '$productName'";
-    $result = mysqli_query($conn, $check_sql);
+    $check_sql = "SELECT * FROM products WHERE productName = ?";
+    $stmt = $conn->prepare($check_sql);
+    $stmt->bind_param("s", $productName);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (!$result) {
-        die("Query failed: " . mysqli_error($conn));
-    }
+    if ($result->num_rows > 0) {
+        // Item exists, show an alert
+        $_SESSION['message'] = "Item already exists!";
+        $_SESSION['alert_class'] = "alert-danger";
+    } else {
+        // Item does not exist, add new item to the inventory
+        $conn->begin_transaction();
+        try {
+            // Insert new product
+            $insert_sql = "INSERT INTO products (productName, productCategory, unitPrice, categoryId) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($insert_sql);
+            $stmt->bind_param("ssdi", $productName, $categoryId, $unitPrice, $categoryId);
+            $stmt->execute();
+            $productId = $stmt->insert_id;
 
-    // Add new item to inventory
-    if (isset($_POST['add_item'])) {
-        // ... existing code ...
+            // Insert batch item
+            $insert_batch_sql = "INSERT INTO batchItem (quantity, costPrice, productId, userId) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($insert_batch_sql);
+            $stmt->bind_param("idii", $stockLevel, $costPrice, $productId, $userId);
+            $stmt->execute();
 
-        if (mysqli_num_rows($result) > 0) {
-            // Item exists, update the quantity and selling price
-            $update_sql = "UPDATE products SET stockLevel = stockLevel + '$stockLevel', unitPrice = '$unitPrice' WHERE productName = '$productName'";
-            if (mysqli_query($conn, $update_sql)) {
-                $_SESSION['message'] = "Item updated successfully!";
-                $_SESSION['alert_class'] = "alert-success";
-            } else {
-                $_SESSION['message'] = "Error updating item: " . mysqli_error($conn);
-                $_SESSION['alert_class'] = "alert-danger";
-            }
-        } else {
-            // Item does not exist, add new item to the inventory
-            $insert_sql = "INSERT INTO products (productName, productCategory, stockLevel, costPrice, unitPrice, reorderLevel, userId) VALUES ('$productName', '$category', '$stockLevel', '$costPrice', '$unitPrice', '$reorderLevel', '$userId')";
+            // Calculate total stock
+            $total_stock_sql = "SELECT SUM(quantity) AS totalStock FROM batchItem WHERE productId = ?";
+            $stmt = $conn->prepare($total_stock_sql);
+            $stmt->bind_param("i", $productId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $totalStock = $row['totalStock'];
 
-            if (mysqli_query($conn, $insert_sql)) {
-                $_SESSION['message'] = "Item added successfully!";
-                $_SESSION['alert_class'] = "alert-success";
-                header("Location: inventory.php");
-                exit();
-            } else {
-                $_SESSION['message'] = "Error adding item: " . mysqli_error($conn);
-                $_SESSION['alert_class'] = "alert-danger";
-            }
+            // Insert inventory
+            $insert_inventory_sql = "INSERT INTO inventory (totalStock, reorderLevel, productId) VALUES (?, ?, ?)";
+            $stmt = $conn->prepare($insert_inventory_sql);
+            $stmt->bind_param("iii", $totalStock, $reorderLevel, $productId);
+            $stmt->execute();
+
+            $conn->commit();
+
+            $_SESSION['message'] = "Item added successfully!";
+            $_SESSION['alert_class'] = "alert-success";
+            header("Location: inventory.php");
+            exit();
+        } catch (Exception $e) {
+            $conn->rollback();
+            $_SESSION['message'] = "Error adding item: " . $e->getMessage();
+            $_SESSION['alert_class'] = "alert-danger";
         }
     }
+    $stmt->close();
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -250,82 +271,82 @@ if (isset($_POST['add_item'])) {
             background: rgb(17, 18, 22);
             border-radius: 10px;
         }
-
-        /* .main-content{
-            margin-top: 50px;
-        } */
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
-    <script src="js/bootstrap.bundle.min.js"></script>r
-    <div class="form-container">
-        <div class="container main-content">
-            <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
-            <h3 class="text-center flex-grow-1 m-0">New Product</h3>
-            <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
-            <?php if (isset($message)): ?>
-                <div class="alert <?php echo $alert_class; ?>" id="alert">
-                    <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
-                    <span><?php echo $message; ?></span>
-                    <i class="fas fa-times" onclick="closeAlert()"></i>
-                </div>
-
-                <script>
-                    setTimeout(function() {
-                        document.getElementById("alert").style.opacity = "0";
-                    }, 4000);
-                </script>
-            <?php endif; ?>
-            <form method="POST">
-                <div class="form-group">
-                    <label for="productName" class="form-label">Product Name:</label><br>
-                    <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" placeholder="Enter product name" required>
-                </div>
-                <div class="form-row">
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <div class="main-content">
+        <div class="form-container">
+            <div class="container">
+                <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
+                <h3 class="text-center flex-grow-1 m-0">New Product</h3>
+                <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
+                <?php if (isset($_SESSION['message'])): ?>
+                    <div class="alert <?php echo $_SESSION['alert_class']; ?>" id="alert">
+                        <i class="fas <?php echo $_SESSION['alert_class'] === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                        <span><?php echo $_SESSION['message']; ?></span>
+                        <i class="fas fa-times" onclick="closeAlert()"></i>
+                    </div>
+                    <?php unset($_SESSION['message']);
+                    unset($_SESSION['alert_class']); ?>
+                    <script>
+                        setTimeout(function() {
+                            document.getElementById("alert").style.opacity = "0";
+                        }, 4000);
+                    </script>
+                <?php endif; ?>
+                <form method="POST">
                     <div class="form-group">
-                        <label for="product_category" class="form-label">Categories:</label>
-                        <select class="form-c custom-input" name="product_category" id="product_category" style="width: 100%" required>
-                            <option value="" disabled selected>Select a category</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo $category; ?>"><?php echo $category; ?></option>
-                            <?php endforeach; ?>
-                            <option value="new">+ Add new</option>
-                        </select>
+                        <label for="productName" class="form-label">Product Name:</label><br>
+                        <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" placeholder="Enter product name" required>
                     </div>
-                    <div class="form-group" id="new_category_group" style="display: none;">
-                        <label for="new_category" class="form-label">New Category:</label><br>
-                        <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%" placeholder="Enter new category">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="product_category" class="form-label">Categories:</label>
+                            <select class="form-c custom-input" name="product_category" id="product_category" style="width: 100%" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo $category['categoryId']; ?>"><?php echo $category['categoryName']; ?></option>
+                                <?php endforeach; ?>
+                                <option value="new">+ Add new</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="new_category_group" style="display: none;">
+                            <label for="new_category" class="form-label">New Category:</label><br>
+                            <input type="text" class="form-c" name="new_category" id="new_category" style="width: 100%" placeholder="Enter new category">
+                        </div>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="quantity" class="form-label">Stock Quantity:</label>
-                        <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity" class="form-label">Stock Quantity:</label>
+                            <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reorder_level" class="form-label">Reorder Level:</label>
+                            <input type="number" class="form-c" name="reorder_level" id="reorder_level" style="width: 100%" placeholder="Enter reorder level" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="reorder_level" class="form-label">Reorder Level:</label>
-                        <input type="number" class="form-c" name="reorder_level" id="reorder_level" style="width: 100%" placeholder="Enter reorder level" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cost_price" class="form-label">Purchase Cost:</label>
+                            <input type="text" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="unit_price" class="form-label">Selling Price:</label>
+                            <input type="text" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
+                        </div>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="cost_price" class="form-label">Purchase Cost:</label>
-                        <input type="text" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
+                    <br>
+                    <div class="d-grid">
+                        <button type="submit" name="add_item" class="btn-primary">Add Item</button>
                     </div>
-                    <div class="form-group">
-                        <label for="unit_price" class="form-label">Selling Price:</label>
-                        <input type="text" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
-                    </div>
-                </div>
-                <br>
-                <div class="d-grid">
-                    <button type="submit" name="add_item" class="btn-primary">Add Item</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
+
 
     <script>
         document.getElementById('another-image').addEventListener('mouseover', function() {

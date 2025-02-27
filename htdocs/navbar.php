@@ -1,9 +1,6 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
-<?php
-$current_page = basename($_SERVER['PHP_SELF']);
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,18 +11,37 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        body {
+            display: grid;
+            grid-template-rows: 60px 1fr; /* Top bar and main content */
+            grid-template-columns: 260px 1fr; /* Sidebar and main content */
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
         .navbar-fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: fixed;
-            top: 0;
-            width: 100%;
             height: 60px;
             padding: 0 20px;
             background-color: rgb(17, 18, 22);
             border-bottom: 0.25px solid rgba(187, 188, 190, 0.25);
-            z-index: 1030;
+            z-index: 1000;
         }
 
         .navbar1 {
@@ -67,16 +83,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .sidebar {
             position: fixed;
-            top: 56px;
+            top: 60px;
             left: 0;
-            height: 100vh;
+            bottom: 0;
             width: 260px;
             background-color: rgb(17, 18, 22);
             padding-top: 20px;
-            z-index: 1020;
             border-right: 0.25px solid rgba(187, 188, 190, 0.25);
             overflow-y: auto;
             transition: transform 0.3s ease-in-out;
+            z-index: 999;
         }
 
         .sidebar-collapsed {
@@ -126,33 +142,51 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .main-content {
-            padding: 1%;
-            margin-top: 60px;
-            /* Adjusted to match the height of the topbar */
-            margin-left: 260px;
-            /* Adjusted to match the width of the sidebar */
+            grid-row: 2 / -1;
+            grid-column: 2 / -1;
+            padding: 24px 24px;
+            overflow-y: auto;
             transition: margin-left 0.3s;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            padding: 0;
+            margin: 0 auto;
         }
 
         /* Mobile Devices (e.g., up to 768px) */
         @media (max-width: 768px) {
-            .container {
-                padding-right: 0;
-                padding-left: 0;
+            body {
+                grid-template-columns: 1fr; /* Single column layout */
             }
 
             .sidebar {
-                width: 80%;
-                /* 80% width for mobile devices */
-                transform: translateX(-100%);
-            }
-
-            .sidebar-open {
-                transform: translateX(0);
+                display: none; /* Hide the sidebar */
             }
 
             .main-content {
+                grid-column: 1 / -1; /* Main content takes full width */
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .sidebar-open {
+                display: block;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 80%;
+                height: calc(100% - 60px);
+                background-color: rgb(17, 18, 22);
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar-open.sidebar-open-visible {
+                transform: translateX(0); /* Show sidebar when toggled */
             }
 
             .overlay {
@@ -162,29 +196,47 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(92, 92, 92, 0.06);
+                background: rgba(0, 0, 0, 0.34);
                 backdrop-filter: blur(1px);
-                z-index: 1010;
+                z-index: 101;
             }
 
             .overlay-open {
-                display: block;
+                display: block; /* Show overlay when sidebar is open */
             }
         }
 
         /* Tablet Devices (e.g., 768px to 1024px) */
-        @media (max-width: 1023px) and (min-width: 766px) {
-            .sidebar {
-                width: 40%;
-                transform: translateX(-100%);
+        @media (min-width: 768px) and (max-width: 1024px) {
+            body {
+                grid-template-columns: 1fr; /* Single column layout */
             }
 
-            .sidebar-open {
-                transform: translateX(0);
+            .sidebar {
+                display: none; /* Hide the sidebar */
             }
 
             .main-content {
+                grid-column: 1 / -1; /* Main content takes full width */
                 margin-left: 0;
+                padding: 0;
+            }
+
+            .sidebar-open {
+                display: block;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 40%;
+                height: calc(100% - 60px);
+                background-color: rgb(17, 18, 22);
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+
+            .sidebar-open.sidebar-open-visible {
+                transform: translateX(0); /* Show sidebar when toggled */
             }
 
             .overlay {
@@ -196,11 +248,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 height: 100%;
                 background: rgba(0, 0, 0, 0.10);
                 backdrop-filter: blur(1px);
-                z-index: 1010;
+                z-index: 101;
             }
 
             .overlay-open {
-                display: block;
+                display: block; /* Show overlay when sidebar is open */
             }
         }
 
@@ -225,7 +277,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
         }
 
-        @media (min-width: 769px) {
+        @media (min-width: 1025px) {
             .sidebar {
                 display: block !important;
                 transform: translateX(0) !important;
@@ -277,7 +329,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .sidebar hr {
             border: 1px solid rgb(255, 255, 255);
             margin: 10px 20px;
-            /* Adjusted margin for left and right gap */
         }
     </style>
 </head>
@@ -304,7 +355,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </div>
     </nav>
 
-    <div class="sidebar">
+    <div class="sidebar sidebar-open">
         <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo in_array($current_page, ['addSale.php', 'addCredit.php', 'transaction.php']) ? 'active' : ''; ?>">New Transaction</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
@@ -319,19 +370,27 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'credit.php' ? 'credits_active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
         </a>
-        <!-- <a href="reports.php" class="<?php echo $current_page == 'reports.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'reports.php' ? 'reports.png' : 'reports.png'; ?>" alt="Credits">&nbsp;Reports
-        </a> -->
     </div>
 
     <div class="overlay" onclick="toggleSidebar()"></div>
 
     <script>
         function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
+            const sidebar = document.querySelector('.sidebar-open');
             const overlay = document.querySelector('.overlay');
-            sidebar.classList.toggle('sidebar-open');
+            const body = document.body;
+
+            sidebar.classList.toggle('sidebar-open-visible');
             overlay.classList.toggle('overlay-open');
+
+            // Adjust grid layout for tablets
+            if (window.innerWidth >= 768 && window.innerWidth <= 1024) {
+                if (sidebar.classList.contains('sidebar-open-visible')) {
+                    body.style.gridTemplateColumns = '40% 1fr'; /* Show sidebar */
+                } else {
+                    body.style.gridTemplateColumns = '1fr'; /* Hide sidebar */
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {

@@ -9,8 +9,11 @@ if (!isset($_SESSION['username'])) {
 
 include 'db.php';
 
-// Fetch all products
-$sql = "SELECT * FROM products";
+// Fetch all products with their stock levels
+$sql = "SELECT p.productId, p.productName, p.unitPrice, COALESCE(SUM(b.quantity), 0) AS stockLevel 
+        FROM products p 
+        LEFT JOIN batchItem b ON p.productId = b.productId 
+        GROUP BY p.productId, p.productName, p.unitPrice";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -135,6 +138,11 @@ if (!$result) {
 
         .btn-success:hover {
             background-color: #218838;
+        }
+
+        .btn-success:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
 
         .alert {
@@ -265,6 +273,7 @@ if (!$result) {
             });
             document.getElementById('totalPrice').textContent = total.toFixed(2);
             calculateChange();
+            validateAmountPaid();
         }
 
         function calculateChange() {
@@ -277,6 +286,17 @@ if (!$result) {
             } else {
                 changeElement.style.display = 'inline';
                 changeElement.textContent = change.toFixed(2);
+            }
+        }
+
+        function validateAmountPaid() {
+            const total = parseFloat(document.getElementById('totalPrice').textContent) || 0;
+            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            const processSaleButton = document.querySelector('input[name="submit"]');
+            if (amountPaid >= total) {
+                processSaleButton.disabled = false;
+            } else {
+                processSaleButton.disabled = true;
             }
         }
 
@@ -325,6 +345,13 @@ if (!$result) {
         }
 
         function confirmProcessSale(event) {
+            const total = parseFloat(document.getElementById('totalPrice').textContent) || 0;
+            const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            if (amountPaid < total) {
+                alert('Amount Paid must be greater than or equal to Total Price.');
+                event.preventDefault();
+                return;
+            }
             if (!confirm('Are you sure you want to process this sale?')) {
                 event.preventDefault();
             }
@@ -333,6 +360,7 @@ if (!$result) {
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
             document.querySelector('form').addEventListener('submit', confirmProcessSale);
+            document.getElementById('amountPaid').addEventListener('input', validateAmountPaid);
         });
     </script>
 </head>
@@ -385,7 +413,7 @@ if (!$result) {
                 </div>
 
                 <input type="hidden" name="transactionType" value="Cash">
-                <input type="submit" name="submit" value="Process Sale" class="btn-success w-100">
+                <input type="submit" name="submit" value="Process Sale" class="btn-success w-100" disabled>
             </form>
         </div>
     </div>

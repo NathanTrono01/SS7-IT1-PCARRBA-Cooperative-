@@ -8,7 +8,7 @@ if (!isset($_SESSION['username'])) {
 include 'db.php';
 
 // Fetch summarized sales data
-$query = "SELECT saleId, dateSold, transactionType, totalPrice FROM sales ORDER BY dateSold DESC";
+$query = "SELECT saleId, dateSold, transactionType, totalPrice, creditId FROM sales ORDER BY dateSold DESC";
 $result = $conn->query($query);
 
 if (!$result) {
@@ -17,6 +17,7 @@ if (!$result) {
 
 $sales = $result->fetch_all(MYSQLI_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -90,6 +91,10 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             font-weight: 200;
         }
 
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
         table {
             font-family: Arial, Helvetica, sans-serif;
             width: 100%;
@@ -114,8 +119,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -128,8 +131,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 150px;
-            /* Fixed width for the Actions column */
         }
 
         table td {
@@ -138,13 +139,9 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
-        }
-
-        table td:last-child {
-            width: 150px;
-            /* Fixed width for the Actions column */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         table tr {
@@ -187,7 +184,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
         .btn-action {
             text-decoration: none;
-            padding: 6px 8px;
+            padding: 8px 8px;
             font-size: 0.9rem;
             border-radius: 5px;
             transition: all 0.3s ease;
@@ -272,8 +269,9 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 6px 10px;
-                font-size: 0.75rem;
+                padding: 7px 7px;
+                font-size: 0.7rem;
+                min-width: 30px;
             }
 
             .btn-action span {
@@ -282,8 +280,8 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
             .btn-action img {
                 display: inline;
-                width: 15px;
-                height: 15px;
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -317,12 +315,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             }
 
             .btn-action {
-                padding: 4px 10px;
-                font-size: 0.7rem;
-                min-width: 30px;
-            }
-
-            .btn-action {
                 padding: 4px 8px;
                 font-size: 0.7rem;
                 min-width: 30px;
@@ -338,6 +330,40 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 height: 15px;
             }
         }
+
+        .alert-success {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 167, 70, 0.44);
+            border: 1px solid rgb(0, 255, 60);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .alert-success.show {
+            display: block;
+        }
+
+        .alert-warning {
+            position: fixed;
+            margin-top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(167, 99, 40, 0.44);
+            border: 1px solid rgb(255, 136, 0);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
     </style>
 </head>
 
@@ -347,6 +373,18 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
     <div class="main-content">
         <div class="container">
+            <?php if (isset($_SESSION['message'])): ?>
+                <div class="alert-success show <?php echo $_SESSION['alert_class']; ?>" id="alert-success">
+                    <span><?php echo $_SESSION['message']; ?></span>
+                </div>
+                <?php unset($_SESSION['message']);
+                unset($_SESSION['alert_class']); ?>
+                <script>
+                    setTimeout(function() {
+                        document.getElementById("alert-success").classList.remove("show");
+                    }, 4000);
+                </script>
+            <?php endif; ?>
             <div class="table-wrapper">
                 <div class="header-container">
                     <h2>Sales Transactions</h2>
@@ -354,12 +392,19 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                         <a href="addSale.php">New Sale</a>
                     </div>
                 </div>
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <img src="images/search-icon.png" alt="Search" class="search-icon">
+                        <input type="text" id="searchBar" placeholder="Search Sales" onkeyup="filterSales(); toggleClearIcon();">
+                        <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                    </div>
+                </div>
                 <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
                 <table id="salesTable">
                     <thead>
                         <tr align="left">
-                            <th>Transaction Type</th>
-                            <th>Total Amount (₱)</th>
+                            <th>Type</th>
+                            <th>Amount (₱)</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
@@ -378,10 +423,17 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                                     <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
                                     <td><?php echo htmlspecialchars($dateSold); ?></td>
                                     <td>
-                                        <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn-action btn-open">
-                                            <span>View Details</span>
-                                            <img src="images/open.png" alt="View Details">
-                                        </a>
+                                        <?php if ($sale['transactionType'] === 'Credit') { ?>
+                                            <a href="credit_details.php?creditId=<?php echo $sale['creditId']; ?>" class="btn-action btn-open">
+                                                <span>View Details</span>
+                                                <img src="images/open.png" alt="View Details">
+                                            </a>
+                                        <?php } else { ?>
+                                            <a href="sale_details.php?saleId=<?php echo $sale['saleId']; ?>" class="btn-action btn-open">
+                                                <span>View Details</span>
+                                                <img src="images/open.png" alt="View Details">
+                                            </a>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -391,6 +443,30 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             </div>
         </div>
     </div>
+
+    <script>
+        function filterSales() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const rows = document.querySelectorAll('#salesTable tbody tr');
+
+            rows.forEach(row => {
+                const transactionType = row.cells[0].textContent.toLowerCase();
+                row.style.display = transactionType.includes(query) ? '' : 'none';
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('searchBar').value = '';
+            filterSales();
+            toggleClearIcon();
+        }
+
+        function toggleClearIcon() {
+            const searchBar = document.getElementById('searchBar');
+            const clearIcon = document.querySelector('.clear-icon');
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        }
+    </script>
 </body>
 
 </html>

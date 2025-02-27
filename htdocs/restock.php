@@ -20,8 +20,11 @@ if (!isset($_SESSION['userId'])) {
 // Get the userId from the session
 $userId = $_SESSION['userId'];
 
-// Fetch all products
-$sql = "SELECT * FROM products";
+// Fetch all products with their stock levels
+$sql = "SELECT p.productId, p.productName, COALESCE(SUM(b.quantity), 0) AS stockLevel 
+        FROM products p 
+        LEFT JOIN batchItem b ON p.productId = b.productId 
+        GROUP BY p.productId, p.productName";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -31,20 +34,24 @@ if (!$result) {
 if (isset($_POST['restock_items'])) {
     $productIds = $_POST['productId'];
     $quantities = $_POST['quantity'];
+    $costPrices = $_POST['cost_price'];
 
     foreach ($productIds as $index => $productId) {
         $additionalQuantity = $quantities[$index];
+        $costPrice = $costPrices[$index];
 
         // Validate quantity input
         if ($additionalQuantity < 1) {
             $additionalQuantity = 1;
         }
 
-        // Update the stock level
-        $update_sql = "UPDATE products SET stockLevel = stockLevel + '$additionalQuantity' WHERE productId = '$productId'";
+        // Insert new batch item
+        $insert_batch_sql = "INSERT INTO batchItem (quantity, costPrice, productId, userId) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($insert_batch_sql);
+        $stmt->bind_param("idii", $additionalQuantity, $costPrice, $productId, $userId);
 
-        if (!mysqli_query($conn, $update_sql)) {
-            $_SESSION['message'] = "Error restocking item: " . mysqli_error($conn);
+        if (!$stmt->execute()) {
+            $_SESSION['message'] = "Error restocking item: " . $stmt->error;
             $_SESSION['alert_class'] = "alert-danger";
             break;
         }
@@ -52,7 +59,7 @@ if (isset($_POST['restock_items'])) {
 
     if (!isset($_SESSION['message'])) {
         $_SESSION['message'] = "Items restocked successfully!";
-        $_SESSION['alert_class'] = "alert-warning";
+        $_SESSION['alert_class'] = "alert-success";
         header("Location: inventory.php");
         exit();
     }
@@ -121,7 +128,6 @@ if (isset($_POST['restock_items'])) {
             color: #f7f7f8;
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
-
 
         .form-control1:focus {
             border: 2px solid;
@@ -310,6 +316,8 @@ if (isset($_POST['restock_items'])) {
                 <input type="number" name="quantity[]" min="1" value="1" class="form-control2" required>
                 <input type="hidden" name="productId[]" value="${productId}">
                 &nbsp;
+                <input type="text" name="cost_price[]" placeholder="Enter cost price" class="form-control2" required>
+                &nbsp;
                 <button type="button" class="btn-clear" onclick="removeProduct(this, '${productId}')">X</button>
             `;
             selectedProducts.appendChild(productItem);
@@ -333,8 +341,9 @@ if (isset($_POST['restock_items'])) {
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <div class="form-container">
-        <div class="container main-content">
+    <div class="main-content">
+        <div class="form-container">
+        <div class="container">
             <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image" onclick="window.history.back()">
             <script>
                 document.getElementById('another-image').addEventListener('mouseover', function() {
@@ -347,10 +356,10 @@ if (isset($_POST['restock_items'])) {
             </script>
             <h3 class="text-center flex-grow-1 m-0">Restock Products</h3>
             <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
-            <?php if (isset($message)): ?>
-                <div class="alert <?php echo $alert_class; ?>" id="alert">
-                    <i class="fas <?php echo $alert_class === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
-                    <span><?php echo $message; ?></span>
+            <?php if (isset($_SESSION['message'])): ?>
+                <div class="alert <?php echo $_SESSION['alert_class']; ?>" id="alert">
+                    <i class="fas <?php echo $_SESSION['alert_class'] === 'alert-success' ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                    <span><?php echo $_SESSION['message']; ?></span>
                     <i class="fas fa-times" onclick="closeAlert()"></i>
                 </div>
 
@@ -367,8 +376,8 @@ if (isset($_POST['restock_items'])) {
                     <input type="text" id="productSearch" class="form-control1" placeholder="Search by product name" style="width: 100%;">
                     <div class="product-list">
                         <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                            <div class="product-item" data-product-id="<?= $row['productId'] ?>" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['stockLevel']) ?>')">
-                                <label><?= $row['productName'] ?> (Stock: <?= number_format($row['stockLevel']) ?>)</label>
+                            <div class="product-item" data-product-id="<?= $row['productId'] ?>" onclick="selectProduct('<?= $row['productId'] ?>', '<?= $row['productName'] ?>', '<?= number_format($row['stockLevel'] ?? 0) ?>')">
+                                <label><?= $row['productName'] ?> (Stock: <?= number_format($row['stockLevel'] ?? 0) ?>)</label>
                             </div>
                         <?php } ?>
                     </div>
@@ -381,6 +390,8 @@ if (isset($_POST['restock_items'])) {
             </form>
         </div>
     </div>
+    </div>
+    
 
     <script>
         function closeAlert() {

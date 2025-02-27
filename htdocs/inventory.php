@@ -11,12 +11,22 @@ ini_set('display_errors', 1);
 // Include database connection
 include 'db.php';
 
-// Fetch all products with sales count
+// Fetch all products with total stock level and category name
 $query = "
-    SELECT p.*, COALESCE(SUM(si.quantity), 0) AS salesCount
-    FROM products p
-    LEFT JOIN sale_item si ON p.productId = si.productId
-    GROUP BY p.productId
+    SELECT 
+        p.productId, 
+        p.productName, 
+        c.categoryName AS productCategory, 
+        p.unitPrice, 
+        COALESCE(SUM(b.quantity), 0) AS totalStock
+    FROM 
+        products p
+    LEFT JOIN 
+        batchItem b ON p.productId = b.productId
+    LEFT JOIN 
+        categories c ON p.categoryId = c.categoryId
+    GROUP BY 
+        p.productId, p.productName, c.categoryName, p.unitPrice
 ";
 $result = $conn->query($query);
 $products = $result->fetch_all(MYSQLI_ASSOC);
@@ -106,6 +116,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .search-wrapper input::placeholder {
             color: rgba(247, 247, 248, 0.64);
             font-weight: 200;
+            transition: all 0.3s ease;
+        }
+
+        .search-wrapper input:focus::placeholder {
+            transform: translateY(-20px);
+            font-size: 0.75rem;
+            color: rgba(247, 247, 248, 0.64);
+        }
+
+        .search-wrapper input:focus+.floating-label,
+        .search-wrapper input:not(:placeholder-shown)+.floating-label {
+            transform: translateY(-26px);
+            font-size: 0.75rem;
+            color: rgba(247, 247, 248, 0.64);
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 30px;
+            top: 8px;
+            /* Adjust this value to align with the input's border */
+            transform: translateY(0);
+            pointer-events: none;
+            transition: all 0.3s ease;
+            color: rgba(247, 247, 248, 0.64);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
         }
 
         table {
@@ -132,8 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
         }
 
         table th:first-child {
@@ -146,8 +183,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-right: 2px solid #333942;
             border-top: 2px solid #333942;
             border-bottom: 2px solid #333942;
-            width: 250px;
-            /* Adjusted width for the Actions column */
         }
 
         table td {
@@ -156,13 +191,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 1rem;
             color: #eee;
             margin: 0 5px;
-            width: 20%;
-            /* Set each column to take up 20% of the table width */
-        }
-
-        table td:last-child {
-            width: 250px;
-            /* Adjusted width for the Actions column */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         table tr {
@@ -257,7 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .btn-delete:hover {
             border: 1px solid rgb(255, 0, 0) !important;
-            color:rgb(255, 0, 0) !important;
+            color: rgb(255, 0, 0) !important;
         }
 
         .action-buttons {
@@ -283,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 6px 8px;
+                padding: 6px 10px;
                 font-size: 0.85rem;
             }
 
@@ -316,8 +347,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             .btn-action {
-                padding: 6px 8px;
-                font-size: 0.75rem;
+                padding: 7px 7px;
+                font-size: 0.7rem;
+                min-width: 30px;
             }
 
             .btn-action span {
@@ -326,8 +358,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             .btn-action img {
                 display: inline;
-                width: 15px;
-                height: 15px;
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -343,6 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .table-wrapper {
                 margin: 0;
                 width: 100%;
+                overflow-x: auto;
             }
 
             table {
@@ -452,7 +485,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <tr align="left">
                             <th>Name</th>
                             <th>Category</th>
-                            <th>Sales</th>
                             <th>Stock</th>
                             <th>Price (₱)</th>
                             <th>Actions</th>
@@ -468,8 +500,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <tr>
                                     <td><?php echo htmlspecialchars($product['productName']); ?></td>
                                     <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                    <td><?php echo htmlspecialchars($product['salesCount']); ?></td>
-                                    <td><?php echo htmlspecialchars($product['stockLevel']); ?></td>
+                                    <td><?php echo htmlspecialchars($product['totalStock']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
                                     <td>
                                         <div class="action-buttons">
@@ -496,6 +527,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </table>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -529,7 +561,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById("alert").style.display = "none";
         }
 
-        document.addEventListener('DOMContentLoaded', toggleClearIcon);
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleClearIcon();
+        });
     </script>
 </body>
 

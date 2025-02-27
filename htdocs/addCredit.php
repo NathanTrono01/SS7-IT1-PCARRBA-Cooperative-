@@ -10,7 +10,11 @@ if (!isset($_SESSION['username'])) {
 include 'db.php';
 
 // Fetch all products with stock greater than 0
-$sql = "SELECT * FROM products WHERE stockLevel > 0";
+$sql = "SELECT p.productId, p.productName, p.unitPrice, COALESCE(SUM(b.quantity), 0) AS stockLevel 
+        FROM products p 
+        LEFT JOIN batchItem b ON p.productId = b.productId 
+        WHERE b.quantity > 0 
+        GROUP BY p.productId, p.productName, p.unitPrice";
 $result = mysqli_query($conn, $sql);
 
 if (!$result) {
@@ -68,7 +72,6 @@ if (!$result) {
             color: #f7f7f8;
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
-
 
         .form-control1:focus {
             border: 2px solid;
@@ -138,6 +141,10 @@ if (!$result) {
             background-color: #218838;
         }
 
+        .btn-success:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
 
         .alert {
             padding: 10px 20px;
@@ -267,6 +274,7 @@ if (!$result) {
             });
             document.getElementById('totalPrice').textContent = total.toFixed(2);
             document.getElementById('creditBalance').value = total.toFixed(2);
+            checkFormValidity();
         }
 
         function filterProducts() {
@@ -319,9 +327,23 @@ if (!$result) {
             }
         }
 
+        function checkFormValidity() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const selectedProducts = document.querySelectorAll('.selected-product').length;
+            const processButton = document.querySelector('input[type="submit"]');
+
+            if (customerName && selectedProducts > 0) {
+                processButton.disabled = false;
+            } else {
+                processButton.disabled = true;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('productSearch').addEventListener('input', filterProducts);
+            document.getElementById('customerName').addEventListener('input', checkFormValidity);
             document.querySelector('form').addEventListener('submit', confirmProcessSale);
+            checkFormValidity();
         });
     </script>
 </head>
@@ -374,7 +396,7 @@ if (!$result) {
                 <input type="hidden" name="transactionType" value="Credit">
                 <input type="hidden" name="amountPaid" value="0">
                 <input type="hidden" name="creditBalance" id="creditBalance" value="0">
-                <input type="submit" name="submit" value="Process Credit" class="btn-success w-100">
+                <input type="submit" name="submit" value="Process Credit" class="btn-success w-100" disabled>
             </form>
         </div>
     </div>
