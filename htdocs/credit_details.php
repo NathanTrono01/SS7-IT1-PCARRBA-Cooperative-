@@ -45,7 +45,8 @@ if (empty($creditDetails)) {
 // Format the transactionDate
 $transactionDate = !empty($creditDetails[0]['transactionDate']) ? date("M d, Y -- g:i A", strtotime($creditDetails[0]['transactionDate'])) : 'N/A';
 
-// Handle form submission for updating amount paid
+// Handle form submission for updating amount 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amountPaid = $_POST['amountPaid'];
     if ($amountPaid > $creditDetails[0]['creditBalance']) {

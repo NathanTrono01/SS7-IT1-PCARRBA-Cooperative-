@@ -31,7 +31,7 @@ CREATE TABLE `audit_logs` (
   PRIMARY KEY (`logId`),
   KEY `users_audit_logs` (`userId`),
   CONSTRAINT `users_audit_logs` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `audit_logs` (
 
 LOCK TABLES `audit_logs` WRITE;
 /*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
-INSERT INTO `audit_logs` VALUES (3,'Make Sale','Sold 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:25:41'),(5,'Restock','Restocked 1 Youngs Town Sardines (pcs) with a total cost of 10 PHP',23,'2025-02-27 10:31:45'),(6,'Insert Product','Performed action: Insert Product on 10 Pancit Canton (pcs) with a cost of 10 PHP each',23,'2025-02-27 10:35:35'),(7,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:43:57'),(8,'Edit Product','Edited product: 2 Youngs Town Sardines (pcs) with a new cost price of 10.00 PHP',23,'2025-02-27 11:08:30'),(9,'Restock','Restocked 1 Youngs Town Sardines (pcs)',23,'2025-02-27 11:12:12');
+INSERT INTO `audit_logs` VALUES (3,'Make Sale','Sold 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:25:41'),(5,'Restock','Restocked 1 Youngs Town Sardines (pcs) with a total cost of 10 PHP',23,'2025-02-27 10:31:45'),(6,'Insert Product','Performed action: Insert Product on 10 Pancit Canton (pcs) with a cost of 10 PHP each',23,'2025-02-27 10:35:35'),(7,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:43:57'),(8,'Edit Product','Edited product: 2 Youngs Town Sardines (pcs) with a new cost price of 10.00 PHP',23,'2025-02-27 11:08:30'),(9,'Restock','Restocked 1 Youngs Town Sardines (pcs)',23,'2025-02-27 11:12:12'),(10,'Make Sale','Performed action: Make Sale on 2 Youngs Town Sardines (pcs)',23,'2025-02-27 20:01:01');
 /*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -72,7 +72,7 @@ CREATE TABLE `batchItem` (
 
 LOCK TABLES `batchItem` WRITE;
 /*!40000 ALTER TABLE `batchItem` DISABLE KEYS */;
-INSERT INTO `batchItem` VALUES (30,2,10.00,'2025-02-27 11:08:30',42,23),(31,2,10.00,'2025-02-27 11:08:30',42,23),(32,10,10.00,'2025-02-27 10:35:35',43,23),(33,1,30.00,'2025-02-27 11:12:12',42,23);
+INSERT INTO `batchItem` VALUES (31,2,10.00,'2025-02-27 11:08:30',42,23),(32,10,10.00,'2025-02-27 10:35:35',43,23),(33,1,30.00,'2025-02-27 11:12:12',42,23);
 /*!40000 ALTER TABLE `batchItem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -123,7 +123,7 @@ CREATE TABLE `creditor` (
 
 LOCK TABLES `creditor` WRITE;
 /*!40000 ALTER TABLE `creditor` DISABLE KEYS */;
-INSERT INTO `creditor` VALUES (33,'Nathan','',0.00,15.00),(34,'Nathan','',0.00,15.00);
+INSERT INTO `creditor` VALUES (33,'Nathan','',15.00,0.00),(34,'Nathan','',15.00,0.00);
 /*!40000 ALTER TABLE `creditor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -155,7 +155,7 @@ CREATE TABLE `credits` (
 
 LOCK TABLES `credits` WRITE;
 /*!40000 ALTER TABLE `credits` DISABLE KEYS */;
-INSERT INTO `credits` VALUES (32,'Unpaid','2025-02-27 09:33:35','2025-02-27 17:33:35',33,23),(33,'Unpaid','2025-02-27 10:43:57','2025-02-27 18:43:57',34,23);
+INSERT INTO `credits` VALUES (32,'Paid','2025-02-27 20:44:05','2025-02-27 17:33:35',33,23),(33,'Paid','2025-02-27 20:43:59','2025-02-27 18:43:57',34,23);
 /*!40000 ALTER TABLE `credits` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +183,7 @@ CREATE TABLE `inventory` (
 
 LOCK TABLES `inventory` WRITE;
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-INSERT INTO `inventory` VALUES (19,5,3,42),(20,10,5,43);
+INSERT INTO `inventory` VALUES (19,3,3,42),(20,10,5,43);
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,7 +242,7 @@ CREATE TABLE `sale_item` (
   CONSTRAINT `credits_sale_item` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`) ON DELETE CASCADE,
   CONSTRAINT `products_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -251,7 +251,7 @@ CREATE TABLE `sale_item` (
 
 LOCK TABLES `sale_item` WRITE;
 /*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
-INSERT INTO `sale_item` VALUES (75,1,15.00,15.00,53,NULL,24,42),(76,1,15.00,15.00,NULL,32,25,42),(77,1,15.00,15.00,54,NULL,26,42),(78,1,15.00,15.00,55,NULL,27,42),(79,1,15.00,15.00,56,NULL,28,42),(80,1,15.00,15.00,57,NULL,28,42),(81,1,15.00,15.00,58,NULL,29,42),(82,1,15.00,15.00,NULL,33,29,42);
+INSERT INTO `sale_item` VALUES (75,1,15.00,15.00,53,NULL,24,42),(76,1,15.00,15.00,NULL,32,25,42),(77,1,15.00,15.00,54,NULL,26,42),(78,1,15.00,15.00,55,NULL,27,42),(79,1,15.00,15.00,56,NULL,28,42),(80,1,15.00,15.00,57,NULL,28,42),(81,1,15.00,15.00,58,NULL,29,42),(82,1,15.00,15.00,NULL,33,29,42),(83,2,15.00,30.00,59,NULL,30,42);
 /*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,7 +277,7 @@ CREATE TABLE `sales` (
   CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `credits_sales` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`),
   CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +286,7 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
-INSERT INTO `sales` VALUES (53,15.00,'Cash','2025-02-23 17:14:39',23,NULL,NULL),(54,15.00,'Cash','2025-02-25 17:38:03',23,NULL,NULL),(55,15.00,'Cash','2025-02-26 17:39:14',23,NULL,NULL),(56,15.00,'Cash','2025-02-27 17:48:28',23,NULL,NULL),(57,15.00,'Cash','2025-02-27 18:11:09',23,NULL,NULL),(58,15.00,'Cash','2025-02-28 18:25:41',23,NULL,NULL);
+INSERT INTO `sales` VALUES (53,15.00,'Cash','2025-02-23 17:14:39',23,NULL,NULL),(54,15.00,'Cash','2025-02-25 17:38:03',23,NULL,NULL),(55,15.00,'Cash','2025-02-26 17:39:14',23,NULL,NULL),(56,15.00,'Cash','2025-02-27 17:48:28',23,NULL,NULL),(57,15.00,'Cash','2025-02-27 18:11:09',23,NULL,NULL),(58,15.00,'Cash','2025-02-28 18:25:41',23,NULL,NULL),(59,30.00,'Cash','2025-02-27 20:01:01',23,NULL,NULL),(60,15.00,'Credit','2025-02-27 20:43:59',23,NULL,33),(61,15.00,'Credit','2025-02-27 20:44:05',23,NULL,32);
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -326,4 +326,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-02-27 11:37:04
+-- Dump completed on 2025-02-27 12:48:36

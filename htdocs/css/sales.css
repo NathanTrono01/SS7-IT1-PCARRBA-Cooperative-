@@ -60,6 +60,17 @@
     border: 2px solid #335fff;
 }
 
+.floating-label {
+    position: absolute;
+    left: 30px;
+    top: 8px;
+    /* Adjust this value to align with the input's border */
+    transform: translateY(0);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    color: rgba(247, 247, 248, 0.64);
+}
+
 .table-wrapper {
     overflow-x: auto;
 }
@@ -69,7 +80,7 @@ table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0 10px;
-    table-layout: auto;
+    table-layout: fixed;
     /* Ensure even spacing of columns */
 }
 
@@ -132,26 +143,7 @@ table tr td:last-child {
     border-bottom-right-radius: 5px;
 } */
 
-.restock-button {
-    display: inline-block;
-    padding: 8px 12px;
-    background: transparent;
-    color: rgb(187, 188, 190);
-    text-decoration: none;
-    border-radius: 7px;
-    border: 0.5px solid rgba(187, 188, 190, 0.5);
-    transition: border-color 0.3s, color 0.3s;
-    margin-bottom: 10px;
-}
-
-.restock-button:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-    border: 1.5px solid rgb(187, 188, 190);
-    color: #fff;
-    border-radius: 7px;
-}
-
-.button-product {
+.button a {
     background: transparent;
     display: inline-block;
     padding: 8px 12px;
@@ -164,7 +156,7 @@ table tr td:last-child {
     margin-bottom: 10px;
 }
 
-.button-product:hover {
+.button a:hover {
     background-color: rgba(255, 255, 255, 0.94);
     color: #000;
     border-radius: 7px;
@@ -172,15 +164,13 @@ table tr td:last-child {
 
 .btn-action {
     text-decoration: none;
-    padding: 6px 8px;
+    padding: 8px 8px;
     font-size: 0.9rem;
     border-radius: 5px;
     transition: all 0.3s ease;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     min-width: 60px;
-    text-align: center;
     box-sizing: border-box;
 }
 
@@ -192,7 +182,7 @@ table tr td:last-child {
     display: inline;
 }
 
-.btn-edit {
+.btn-open {
     background-color: #335fff !important;
     color: white !important;
 }
@@ -201,11 +191,6 @@ table tr td:last-child {
     border: 1px solid #ff3d3d !important;
     background-color: transparent !important;
     color: #ff3d3d !important;
-}
-
-.btn-delete:hover {
-    border: 1px solid rgb(255, 0, 0) !important;
-    color: rgb(255, 0, 0) !important;
 }
 
 .action-buttons {
@@ -219,16 +204,11 @@ table tr td:last-child {
         overflow-x: auto;
     }
 
-    table {
-        width: 100%;
-        table-layout: auto;
-    }
-
     table th,
     table td {
         font-size: 0.95rem;
-        padding: 6px;
     }
+
 
     .btn-action {
         padding: 6px 10px;
@@ -254,13 +234,11 @@ table tr td:last-child {
 
     table {
         width: 100%;
-        table-layout: auto;
     }
 
     table th,
     table td {
         font-size: 0.85rem;
-        padding: 6px;
     }
 
     .btn-action {
@@ -292,19 +270,17 @@ table tr td:last-child {
     .table-wrapper {
         margin: 0;
         width: 100%;
-        overflow-x: auto;
     }
 
     table {
         font-size: 0.8rem;
         width: 100%;
         overflow-x: hidden;
-        white-space: nowrap;
+        white-space: wrap;
     }
 
     table th,
     table td {
-        width: 100%;
         font-size: 0.8rem;
     }
 
@@ -325,7 +301,7 @@ table tr td:last-child {
     }
 }
 
-.popup-alert {
+.alert-success {
     position: fixed;
     margin-top: 10px;
     left: 50%;
@@ -340,7 +316,7 @@ table tr td:last-child {
     display: none;
 }
 
-.popup-alert.show {
+.alert-success.show {
     display: block;
 }
 
@@ -357,4 +333,21 @@ table tr td:last-child {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: none;
+}
+
+.view-details {
+    padding: 7px;
+    border-radius: 5px;
+    color: #335fff;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.view-details:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: rgb(82, 139, 255);
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.5s;
 }

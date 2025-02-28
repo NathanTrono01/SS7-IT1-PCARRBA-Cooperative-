@@ -468,7 +468,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <h2>Low Alerts</h2>
+                <h2>Low Stock Alert</h2>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
@@ -497,10 +497,19 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 <!-- Line Chart Card -->
                 <div class="card2 chart-container">
                     <h2>Sales Graph</h2>
+                    <!-- Range Selector -->
                     <div class="date-range-picker">
-                        <input type="text" id="startDate" placeholder="Start Date">
-                        <p>to</p>
-                        <input type="text" id="endDate" placeholder="End Date">
+                        <select id="rangeSelector" onchange="handleRangeSelection()">
+                            <option value="1">Past Day</option>
+                            <option value="7" selected>Past 7 Days</option>
+                            <option value="30">Past 30 Days</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                        <div id="customRange" style="display: none;">
+                            <input type="text" id="startDate" placeholder="Start Date">
+                            <p>to</p>
+                            <input type="text" id="endDate" placeholder="End Date">
+                        </div>
                         <button onclick="filterSalesData()">Apply</button>
                     </div>
                     <canvas id="salesChart"></canvas>
@@ -527,21 +536,18 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     defaultDate: "<?php echo date('Y-m-d'); ?>"
                 });
 
-                // Format dates to "Month, Day / Feb 12"
-                const salesDates = <?php echo json_encode($sales_dates); ?>.map(date => {
-                    const options = {
-                        month: 'short',
-                        day: 'numeric'
-                    };
-                    return new Date(date).toLocaleDateString('en-US', options);
-                });
-
-                // Line Chart (Sales Trends)
-                let ctx = document.getElementById("salesChart").getContext("2d");
-                const salesChart = new Chart(ctx, {
+                // Initialize the line chart (Sales Trends)
+                const salesCtx = document.getElementById("salesChart").getContext("2d");
+                window.salesChart = new Chart(salesCtx, {
                     type: "line",
                     data: {
-                        labels: salesDates,
+                        labels: <?php echo json_encode($sales_dates); ?>.map(date => {
+                            const options = {
+                                month: 'short',
+                                day: 'numeric'
+                            };
+                            return new Date(date).toLocaleDateString('en-US', options);
+                        }),
                         datasets: [{
                             label: "Total Sales",
                             data: <?php echo json_encode($sales_totals); ?>,
@@ -561,8 +567,8 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     }
                 });
 
-                // Pie Chart (Stock Status Breakdown)
-                let pieCtx = document.getElementById("stockPieChart").getContext("2d");
+                // Initialize the pie chart (Stock Status Breakdown)
+                const pieCtx = document.getElementById("stockPieChart").getContext("2d");
                 new Chart(pieCtx, {
                     type: "pie",
                     data: {
@@ -582,17 +588,37 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         }
                     }
                 });
+
+                // Load initial data for the line chart (Past 7 Days)
+                handleRangeSelection();
             });
 
-            function dismissLowStock(button) {
-                button.closest('.low-stock-card').remove();
+            // Handle range selection
+            function handleRangeSelection() {
+                const rangeSelector = document.getElementById("rangeSelector");
+                const customRange = document.getElementById("customRange");
+                const startDateInput = document.getElementById("startDate");
+                const endDateInput = document.getElementById("endDate");
+
+                if (rangeSelector.value === "custom") {
+                    customRange.style.display = "flex";
+                } else {
+                    customRange.style.display = "none";
+                    const days = parseInt(rangeSelector.value);
+                    const endDate = new Date();
+                    const startDate = new Date();
+                    startDate.setDate(endDate.getDate() - days);
+
+                    // Set the date inputs
+                    startDateInput._flatpickr.setDate(startDate);
+                    endDateInput._flatpickr.setDate(endDate);
+
+                    // Automatically apply the filter
+                    filterSalesData();
+                }
             }
 
-            function expandLowStock() {
-                const container = document.getElementById('lowStockContainer');
-                container.style.maxHeight = container.style.maxHeight === 'none' ? '200px' : 'none';
-            }
-
+            // Filter sales data based on the selected range
             function filterSalesData() {
                 const startDate = document.getElementById("startDate").value;
                 const endDate = document.getElementById("endDate").value;
@@ -600,11 +626,21 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 fetch(`filter_sales.php?startDate=${startDate}&endDate=${endDate}`)
                     .then(response => response.json())
                     .then(data => {
-                        // Update the chart with new data
-                        salesChart.data.labels = data.dates;
-                        salesChart.data.datasets[0].data = data.totals;
-                        salesChart.update();
-                    });
+                        // Format dates to "Month, Day / Feb 12"
+                        const formattedDates = data.dates.map(date => {
+                            const options = {
+                                month: 'short',
+                                day: 'numeric'
+                            };
+                            return new Date(date).toLocaleDateString('en-US', options);
+                        });
+
+                        // Update the line chart with new data
+                        window.salesChart.data.labels = formattedDates;
+                        window.salesChart.data.datasets[0].data = data.totals;
+                        window.salesChart.update();
+                    })
+                    .catch(error => console.error("Error fetching sales data:", error));
             }
         </script>
     </div>
