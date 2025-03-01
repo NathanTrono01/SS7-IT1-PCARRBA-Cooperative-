@@ -1,38 +1,38 @@
 <?php
-include 'db.php';
 session_start();
-
-if (isset($_SESSION['username'])) {
-    header("Location: loading.php"); // redirect location
-    exit();
-}
+include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = $_POST['password'];
 
     $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    if ($stmt) {
-        $stmt->bind_param("s", $username);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['userId'] = $user['userId'];
+
+        // Update login count
+        $login_count = $user['login_count'] + 1;
+        $stmt = $conn->prepare("UPDATE users SET login_count = ? WHERE userId = ?");
+        $stmt->bind_param("ii", $login_count, $user['userId']);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
 
-        if ($user && password_verify($password, $user['password'])) {
-            // Set session variables
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['accountLevel'] = $user['accountLevel'];
-            $_SESSION['userId'] = $user['userId']; // Set userId in session
-
-            // redirection location
-            header("Location: loading.php"); // or "dashboard.php"
-            exit();
+        // Set welcome message
+        if ($login_count == 1) {
+            $_SESSION['welcome_message'] = "Welcome to PCARBA Sari Sari Store Inventory System, " . $user['username'] . "!";
         } else {
-            // error message
-            $error = "Invalid username or password.";
+            $_SESSION['welcome_message'] = "Welcome back to PCARBA Sari Sari Store Inventory System, " . $user['username'] . "!";
         }
+
+        header("Location: dashboard.php");
+        exit();
     } else {
-        $error = "Database error: Unable to prepare statement.";
+        $error = "Invalid username or password.";
     }
 }
 ?>
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 
-<body class="fade-in"> 
+<body class="fade-in">
     <div class="d-flex flex-column justify-content-center align-items-center min-vh-100 px-3">
         <div class="main-title mb-4">
             <h3>PCARBA Sari-Sari Store Inventory System</h3>

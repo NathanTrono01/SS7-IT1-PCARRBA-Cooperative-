@@ -146,6 +146,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             align-items: center;
             text-decoration: none;
             color: #f7f7f8;
+            cursor: pointer;
         }
 
         .btn-back-wrapper span {
@@ -164,7 +165,7 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
     <?php include 'navbar.php'; ?>
     <div class="main-content fade-in">
         <div class="form-container">
-            <a href="sales.php" class="btn-back-wrapper">
+            <a href="#" class="btn-back-wrapper" id="back-button">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                 <b><span>Back</span></b>
             </a>
@@ -210,6 +211,18 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
 
                 document.getElementById('another-image').addEventListener('mouseout', function() {
                     this.src = 'images/back.png';
+                });
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    var referrer = document.referrer;
+                    var backButton = document.getElementById('back-button');
+                    if (referrer.includes('sales.php')) {
+                        backButton.href = 'sales.php';
+                    } else if (referrer.includes('reports.php')) {
+                        backButton.href = 'reports.php?tab=items';
+                    } else {
+                        backButton.href = 'reports.php?tab=items';
+                    }
                 });
             </script>
         </div>

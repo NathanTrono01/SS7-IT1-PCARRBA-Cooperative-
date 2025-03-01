@@ -55,7 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $newAmountPaid = $creditDetails[0]['amountPaid'] + $amountPaid;
     $newCreditBalance = $creditDetails[0]['creditBalance'] - $amountPaid;
-    $paymentStatus = $newCreditBalance <= 0 ? 'Paid' : 'Unpaid';
+    if ($newCreditBalance <= 0) {
+        $paymentStatus = 'Paid';
+    } elseif ($newCreditBalance < $creditDetails[0]['creditBalance']) {
+        $paymentStatus = 'Partially Paid';
+    } else {
+        $paymentStatus = 'Unpaid';
+    }
 
     // Update creditor's amount paid and credit balance
     $updateCreditorSql = "UPDATE creditor SET amountPaid = ?, creditBalance = ? WHERE creditorId = ?";
@@ -188,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             text-decoration: none;
             color: #f7f7f8;
+            cursor: pointer;
         }
 
         .btn-back-wrapper span {
@@ -206,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'navbar.php'; ?>
     <div class="main-content fade-in">
         <div class="form-container">
-            <a href="#" class="btn-back-wrapper" onclick="window.history.back()">
+            <a href="#" class="btn-back-wrapper" id="back-button">
                 <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                 <b><span>Back</span></b>
             </a>
@@ -272,6 +279,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             document.getElementById('another-image').addEventListener('mouseout', function() {
                 this.src = 'images/back.png';
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var referrer = document.referrer;
+                var backButton = document.getElementById('back-button');
+                if (referrer.includes('credit.php')) {
+                    backButton.href = 'credit.php';
+                } else if (referrer.includes('reports.php')) {
+                    backButton.href = 'reports.php?tab=items';
+                } else {
+                    backButton.href = 'reports.php?tab=items';
+                }
             });
         </script>
         <script src="js/bootstrap.bundle.min.js"></script>

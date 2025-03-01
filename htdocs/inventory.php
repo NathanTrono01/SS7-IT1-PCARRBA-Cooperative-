@@ -11,6 +11,18 @@ ini_set('display_errors', 1);
 // Include database connection
 include 'db.php';
 
+// Function to check if a product is referenced in the sale_item table
+function isProductReferencedInSaleItem($conn, $productId)
+{
+    $query = "SELECT COUNT(*) as count FROM sale_item WHERE productId = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $productId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['count'] > 0;
+}
+
 // Fetch all products with total stock level and category name
 $query = "
     SELECT 
@@ -47,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
-    <!-- <link rel="stylesheet" href="css/inventory.css"> -->
     <style>
         .flex-container {
             display: flex;
@@ -77,8 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .header-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: space-between;
+            position: relative;
+            padding: 10px;
         }
 
         .search-wrapper {
@@ -121,15 +135,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .table-wrapper {
-            overflow-x: auto;
+            overflow-x: hidden;
         }
 
         table {
             font-family: Arial, Helvetica, sans-serif;
-            width: 100%;
+            width: 90%;
             border-collapse: separate;
             border-spacing: 0 10px;
-            table-layout: auto;
+            table-layout: fixed;
             /* Ensure even spacing of columns */
         }
 
@@ -150,6 +164,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             /* Lighter background for even rows */
         }
 
+        table th,
+        table td {
+            text-wrap: auto;
+        }
+
         table th {
             padding: 7px;
             background-color: rgb(17, 18, 22);
@@ -157,7 +176,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: bold;
             text-transform: uppercase;
             font-size: 1rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
             padding-bottom: 25px;
         }
 
@@ -262,127 +280,21 @@ table tr td:last-child {
             background-color: transparent !important;
             color: #ff3d3d !important;
         }
-
+        
         .btn-delete:hover {
             border: 1px solid rgb(255, 0, 0) !important;
             color: rgb(255, 0, 0) !important;
         }
 
+        .btn-delete:disabled {
+            border: 1px solid #ff9999 !important;
+            color: #ff9999 !important;
+            cursor: not-allowed;
+        }
+
         .action-buttons {
             display: flex;
             gap: 5px;
-        }
-
-        @media (max-width: 1024px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
-            }
-
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
-            table th,
-            table td {
-                font-size: 0.95rem;
-                padding: 6px;
-            }
-
-            .btn-action {
-                padding: 6px 10px;
-                font-size: 0.85rem;
-            }
-
-            .btn-action span {
-                display: none;
-            }
-
-            .btn-action img {
-                display: inline;
-                width: 20px;
-                height: 20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
-            }
-
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
-            table th,
-            table td {
-                font-size: 0.85rem;
-                padding: 6px;
-            }
-
-            .btn-action {
-                padding: 7px 7px;
-                font-size: 0.7rem;
-                min-width: 30px;
-            }
-
-            .btn-action span {
-                display: none;
-            }
-
-            .btn-action img {
-                display: inline;
-                width: 20px;
-                height: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5em;
-            }
-
-            h2 {
-                font-size: 0.8em;
-            }
-
-            .table-wrapper {
-                margin: 0;
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            table {
-                font-size: 0.8rem;
-                width: 100%;
-                overflow-x: hidden;
-                white-space: nowrap;
-            }
-
-            table th,
-            table td {
-                width: 100%;
-                font-size: 0.8rem;
-            }
-
-            .btn-action {
-                padding: 4px 8px;
-                font-size: 0.7rem;
-                min-width: 30px;
-            }
-
-            .btn-action span {
-                display: none;
-            }
-
-            .btn-action img {
-                display: inline;
-                width: 15px;
-                height: 15px;
-            }
         }
 
         .popup-alert {
@@ -440,13 +352,201 @@ table tr td:last-child {
             height: 15px;
             margin-right: 10px;
         }
+
+        .table-wrapper {
+            height: 70vh;
+            /* Ensure the wrapper takes 70% of viewport height */
+            overflow-y: auto;
+            /* Allow vertical scrolling */
+            position: relative;
+            padding: 10px;
+            padding-top: 0;
+        }
+
+        /* Ensuring the table takes full width */
+        #productTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Sticky Header */
+        #productTable thead {
+            position: sticky;
+            top: 0;
+            background: rgb(17, 18, 22);
+            z-index: 10;
+        }
+
+
+        /* Styling for the headers */
+        #productTable th {
+            background: rgb(17, 18, 22);
+            /* Dark background */
+            color: white;
+            border-bottom: 2px solid #333942;
+            text-align: left;
+        }
+
+        /* Making tbody scrollable while keeping alignment */
+        #productTable tbody {
+            display: block;
+            max-height: 65vh;
+            /* Adjust height dynamically */
+        }
+
+        /* Ensuring rows and cells align properly */
+        #productTable tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        #productTable td {
+            padding: 10px;
+            color: white;
+        }
+
+        /* Scrollbar for tbody */
+        #productTable .table-wrapper::-webkit-scrollbar {
+            width: 6px;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Track (background of the scrollbar) */
+        #productTable .table-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* Thumb (scrollable part) */
+        #productTable .table-wrapper::-webkit-scrollbar-thumb {
+            background-color: #555;
+            background: grey;
+            border-radius: 10rem;
+            opacity: 0;
+            /* Initially hidden */
+        }
+
+        /* Show scrollbar on hover */
+        #productTable .table-wrapper:hover::-webkit-scrollbar-thumb {
+            opacity: 1;
+            /* Visible when hovering */
+        }
+
+        /* Hover effect for better UX */
+        #productTable .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background-color: #777;
+        }
+
+        @media (max-width: 1024px) {
+            .table-wrapper {
+                /* Responsive height based on viewport */
+                overflow-y: auto;
+                /* Scrollable body */
+                position: relative;
+                overflow-x: hidden;
+            }
+
+            table th,
+            table td {
+                font-size: 0.95rem;
+            }
+
+            .btn-action {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            table {
+                width: 100%;
+            }
+
+            table th,
+            table td {
+                font-size: 0.85rem;
+            }
+
+            .btn-action {
+                padding: 7px 7px;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 0.8em;
+            }
+
+            .table-wrapper {
+                margin: 0;
+            }
+
+            table {
+                font-size: 0.8rem;
+                width: 100%;
+                overflow-x: hidden;
+                white-space: nowrap;
+            }
+
+            table th,
+            table td {
+                font-size: 0.8rem;
+            }
+
+            .btn-action {
+                padding: 4px 8px;
+                font-size: 0.7rem;
+                min-width: 30px;
+            }
+
+            .btn-action span {
+                display: none;
+            }
+
+            .btn-action img {
+                display: inline;
+                width: 15px;
+                height: 15px;
+            }
+        }
+
+        .main-content {
+            padding: 10px;
+            height: 100vh;
+        }
     </style>
 </head>
 
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
-
     <div class="main-content fade-in">
         <div class="container">
             <?php if (isset($_SESSION['message'])): ?>
@@ -461,13 +561,11 @@ table tr td:last-child {
                     }, 4000);
                 </script>
             <?php endif; ?>
-            <div class="table-wrapper">
-                <div class="header-container">
-                    <h2>Products</h2>
-                    <div class="button">
-                        <a href="restock.php" class="restock-button">Restock</a>
-                        <a href="insertProduct.php" class="button-product">Add Product</a>
-                    </div>
+            <div class="header-container">
+                <h2>Products</h2>
+                <div class="button">
+                    <a href="restock.php" class="restock-button">Restock</a>
+                    <a href="insertProduct.php" class="button-product">Add Product</a>
                 </div>
                 <div class="search-container">
                     <div class="search-wrapper">
@@ -476,14 +574,15 @@ table tr td:last-child {
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                 </div>
-                <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
+            </div>
+            <div class="table-wrapper">
                 <table id="productTable" data-sort-order="asc">
                     <thead>
                         <tr align="left">
-                            <th onclick="sortTable(0)">Name <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(1)">Category <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(2)">Stock <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(3)">Price (₱) <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(0)">Name<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(1)">Category<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(2)">Stock<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(3)">Price<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -502,6 +601,7 @@ table tr td:last-child {
                                 } else {
                                     $stockClass = 'stock-good';
                                 }
+                                $isReferenced = isProductReferencedInSaleItem($conn, $product['productId']);
                             ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($product['productName']); ?></td>
@@ -519,7 +619,7 @@ table tr td:last-child {
                                             </form>
                                             <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
                                                 <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                                <button type="submit" name="delete_product" class="btn-action btn-delete">
+                                                <button type="submit" name="delete_product" class="btn-action btn-delete" <?php echo $isReferenced ? 'disabled' : ''; ?>>
                                                     <span>Delete</span>
                                                     <img src="images/delete.png" alt="Delete">
                                                 </button>

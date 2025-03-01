@@ -241,7 +241,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             max-height: 300px;
         }
 
-        .piechart-container {
+        .barchart-container {
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -254,7 +254,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             align-items: center;
         }
 
-        #stockPieChart {
+        #stockBarChart {
             width: 100% !important;
             height: auto !important;
             max-height: 300px;
@@ -263,12 +263,14 @@ while ($row = $product_stock_result->fetch_assoc()) {
         .restock-container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
+            position: relative;
+            /* Add this */
         }
 
         .restock-card {
             background: rgb(31, 32, 36);
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             display: flex;
@@ -336,18 +338,34 @@ while ($row = $product_stock_result->fetch_assoc()) {
             flex-wrap: wrap;
         }
 
-        .date-range-picker input {
+        .date-range-picker input, select {
             background: transparent;
             border: 1px solid #e0e0e0;
-            color: #e0e0e0;
+            color:rgba(224, 224, 224, 0.68);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 150px;
+        }
+        
+
+        .date-range-picker option {
+            background: #1f2024;
+            border: 1px solid #e0e0e0;
+            color:rgba(224, 224, 224, 0.68);
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
             width: 150px;
         }
 
+        .date-range-picker select:hover {
+            color: white;
+        }
+
+
         .date-range-picker input::placeholder {
-            color: #bbb;
+            color: rgba(224, 224, 224, 0.68);
         }
 
         .date-range-picker button {
@@ -392,8 +410,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             }
 
             .chart-container,
-            .piechart-container,
-            .calendar-container {
+            .barchart-container {
                 width: 100%;
             }
 
@@ -416,11 +433,14 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         .scrollable-restocks {
-            max-height: 200px;
-            /* Adjust the height as needed */
-            overflow-y: auto;
             position: relative;
-            /* Space for scrollbar */
+            /* Ensures child absolute elements stay inside */
+            overflow-y: auto;
+            /* Enables scrolling */
+            height: 250px;
+            /* Define a height for scrolling */
+            padding-bottom: 30px;
+            /* Prevent content from getting covered by the gradient */
         }
 
         .scrollable-restocks::-webkit-scrollbar {
@@ -430,6 +450,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
         .scrollable-restocks.no-blur::after {
             opacity: 0;
+        }
+
+        .welcome-message {
+            font-family: "Builder Sans", Helvetica, Arial, san-serif;
+            font-weight: 800;
+            font-size: 30px;
+            line-height: 135%;
+            text-decoration: none;
+            font-style: normal;
         }
     </style>
 </head>
@@ -442,7 +471,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
     <div class="main-content fade-in">
         <div class="dashboard-wrapper">
-            <h1>Overview</h1>
+            <span class="welcome-message"><?php echo $_SESSION['welcome_message']; ?></span>
+            <hr>
+            <h3>Overview</h3>
             <div class="status-cards">
                 <div class="card1 total-inventory">
                     <i class="fas fa-boxes"></i>
@@ -468,11 +499,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <h2>Low Stock Alert</h2>
+                <h3>Low Stock Alert</h3>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
                             <div class="restock-header">
+                        
                                 <p><img src="images/alert.png" alt="" style="width: 30px; height: 30px;"></p>
                                 <h4>
                                     <?php if ($product['quantity'] == 0) { ?>
@@ -492,7 +524,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             </div>
 
             <br>
-            <h2>Snapshot</h2>
+            <h3>Snapshot</h3>
             <div class="dashboard-container">
                 <!-- Line Chart Card -->
                 <div class="card2 chart-container">
@@ -500,9 +532,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     <!-- Range Selector -->
                     <div class="date-range-picker">
                         <select id="rangeSelector" onchange="handleRangeSelection()">
-                            <option value="1">Past Day</option>
-                            <option value="7" selected>Past 7 Days</option>
-                            <option value="30">Past 30 Days</option>
+                            <option value="1">Last Day</option>
+                            <option value="7" selected>Last 7 Days</option>
+                            <option value="30">Last 30 Days</option>
                             <option value="custom">Custom</option>
                         </select>
                         <div id="customRange" style="display: none;">
@@ -515,10 +547,10 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     <canvas id="salesChart"></canvas>
                 </div>
 
-                <!-- Pie Chart Card -->
-                <div class="card2 piechart-container">
+                <!-- Bar Chart Card -->
+                <div class="card2 chart-container">
                     <h2>Stock Status</h2>
-                    <canvas id="stockPieChart"></canvas>
+                    <canvas id="stockBarChart"></canvas>
                 </div>
             </div>
         </div>
@@ -567,13 +599,14 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     }
                 });
 
-                // Initialize the pie chart (Stock Status Breakdown)
-                const pieCtx = document.getElementById("stockPieChart").getContext("2d");
-                new Chart(pieCtx, {
-                    type: "pie",
+                // Initialize the bar chart (Stock Status Breakdown)
+                const barCtx = document.getElementById("stockBarChart").getContext("2d");
+                new Chart(barCtx, {
+                    type: "bar",
                     data: {
                         labels: <?php echo json_encode($product_names); ?>,
                         datasets: [{
+                            label: "Total Stock",
                             data: <?php echo json_encode($product_stocks); ?>,
                             backgroundColor: <?php echo json_encode($colors); ?>
                         }]
@@ -581,9 +614,14 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true // Ensure the y-axis starts at 0
+                            }
+                        },
                         plugins: {
                             legend: {
-                                position: 'left'
+                                display: false
                             }
                         }
                     }

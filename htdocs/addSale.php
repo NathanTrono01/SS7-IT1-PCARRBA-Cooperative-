@@ -402,6 +402,7 @@ if (!$result) {
                     document.querySelector('.btn-back').src = 'images/back.png';
                 });
             </script>
+            <br>
             <h1>Record a Sale</h1>
             <form method="POST" action="process_sale.php">
                 <div class="mb-3">

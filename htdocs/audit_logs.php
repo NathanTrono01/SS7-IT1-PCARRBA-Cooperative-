@@ -50,8 +50,12 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
 
         .header-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            flex-direction: row;
+            justify-content: space-between;
+            position: relative;
+            padding: 10px;
         }
 
         .search-wrapper {
@@ -104,6 +108,17 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
 
         .table-wrapper {
             overflow-x: auto;
+        }
+
+        .table-wrapper {
+            scroll-behavior: smooth;
+            height: 65vh;
+            /* Ensure the wrapper takes 70% of viewport height */
+            overflow-y: auto;
+            /* Allow vertical scrolling */
+            position: relative;
+            padding: 10px;
+            padding-top: 0;
         }
 
         table {
@@ -388,18 +403,18 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                     }, 4000);
                 </script>
             <?php endif; ?>
+            <div class="header-container">
+                <h2>Audit Logs</h2>
+            </div>
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <img src="images/search-icon.png" alt="Search" class="search-icon">
+                    <input type="text" id="searchBar" placeholder="Search Action" onkeyup="filterLogs(); toggleClearIcon();">
+                    <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                </div>
+            </div>
+            <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
             <div class="table-wrapper">
-                <div class="header-container">
-                    <h2>Audit Logs</h2>
-                </div>
-                <div class="search-container">
-                    <div class="search-wrapper">
-                        <img src="images/search-icon.png" alt="Search" class="search-icon">
-                        <input type="text" id="searchBar" placeholder="Search Logs" onkeyup="filterLogs(); toggleClearIcon();">
-                        <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
-                    </div>
-                </div>
-                <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
                 <table id="logsTable" width="100%">
                     <thead>
                         <tr align="left">

@@ -323,6 +323,7 @@ if (isset($_POST['add_item'])) {
                     <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                     <b><span>Back</span></b>
                 </a>
+                <br>
                 <h3 class="text-center flex-grow-1 m-0">New Product</h3>
                 <hr style="height: 1px; border: white; color: rgb(255, 255, 255); background-color: rgb(255, 255, 255);">
                 <?php if (isset($_SESSION['message'])): ?>

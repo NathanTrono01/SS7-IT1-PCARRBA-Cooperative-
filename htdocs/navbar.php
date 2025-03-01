@@ -144,6 +144,26 @@ $current_page = basename($_SERVER['PHP_SELF']);
             color: #fff;
         }
 
+        .sidebar-restock {
+            display: block;
+            font-size: 1.2rem;
+            padding: 15px 25px;
+            background: transparent;
+            border: 0.5px solid rgba(187, 188, 190, 0.5);
+            transition: border-color 0.3s, color 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-restock:hover {
+            background: transparent;
+            border: 1.5px solid rgb(187, 188, 190);
+            color: #fff;
+        }
+
+        .sidebar-restock.active {
+            color: #fff;
+        }
+
         .main-content {
             grid-row: 2 / -1;
             grid-column: 2 / -1;
@@ -379,6 +399,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
     <div class="sidebar sidebar-open">
         <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo in_array($current_page, ['addSale.php', 'addCredit.php', 'transaction.php']) ? 'active' : ''; ?>">New Transaction</a>
+        <a href="restock.php" class="sidebar-link sidebar-restock <?php echo in_array($current_page, ['restock.php']) ? 'active' : ''; ?>">Restock</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'dashboard.php' ? 'DB.png' : 'DB.png'; ?>" alt="Dashboard">&nbsp;Dashboard

@@ -2,20 +2,28 @@
 include 'db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $password = $_POST['password'];
     $accountLevel = $_POST['accountLevel'];
-    // Check if username is unique
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $error = "Username already exists.";
+
+    // Check if password meets length requirement
+    if (strlen($password) < 8) {
+        $error = "Password must be at least 8 characters long.";
     } else {
-        $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $password, $accountLevel);
+        $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Check if username is unique
+        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
         $stmt->execute();
-        $success = "Registration successful!";
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $error = "Username already exists.";
+        } else {
+            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $username, $password_hashed, $accountLevel);
+            $stmt->execute();
+            $success = "Registration successful!";
+        }
     }
 }
 ?>
@@ -41,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <input type="password" name="password" class="form-control" required minlength="8">
                 </div>
                 <div class="mb-3">
                     <label for="accountLevel" class="form-label">Account Level</label>

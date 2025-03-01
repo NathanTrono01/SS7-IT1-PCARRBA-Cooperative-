@@ -384,6 +384,7 @@ if (!$result) {
                     document.querySelector('.btn-back').src = 'images/back.png';
                 });
             </script>
+            <br>
             <h1>Record a Credit</h1>
             <form method="POST" action="process_credit.php">
                 <div class="mb-3">

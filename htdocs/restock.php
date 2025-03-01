@@ -153,8 +153,8 @@ if (isset($_POST['restock_items'])) {
         .form-control2 {
             border-radius: 5px;
             padding: 7px;
-            border: 1px solid rgba(208, 217, 251, .12);
-            background-color: rgba(208, 217, 251, .08);
+            border: 1px solid #4d4d50;
+            background-color: transparent;
             color: #f7f7f8;
             transition: border-color 0.3s ease, background-color 0.3s ease;
         }
@@ -182,10 +182,14 @@ if (isset($_POST['restock_items'])) {
         }
 
         .btn-clear {
-            color: red;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: rgb(255, 58, 58);
             background-color: transparent;
-            border: 1px solid red;
+            border: transparent;
             width: 30px;
+            height: 30px;
             padding: 5px;
             border-radius: 5px;
             font-size: 16px;
@@ -194,7 +198,8 @@ if (isset($_POST['restock_items'])) {
         }
 
         .btn-clear:hover {
-            background-color: rgba(255, 0, 0, 0.24);
+            color: red;
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .alert {
@@ -230,7 +235,7 @@ if (isset($_POST['restock_items'])) {
             background-color: rgba(208, 217, 251, .08);
             margin-bottom: 10px;
             color: white;
-            border: 1px solid rgba(208, 217, 251, .12);
+            border: 3px solid white;
             padding: 8.5px;
             font-size: 1rem;
             border-radius: 7.5px;
@@ -298,24 +303,37 @@ if (isset($_POST['restock_items'])) {
         }
 
         .selected-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .selected-product {
             display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #272930;
+            position: relative;
+        }
+
+        .selected-product-header {
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
         }
 
         .selected-product label {
-            flex: 1;
             color: #f7f7f8;
+            margin-bottom: 5px;
         }
 
-        .selected-product input[type="number"] {
-            width: 80px;
+        .selected-product input[type="number"],
+        .selected-product input[type="text"] {
+            width: 100%;
+            background-color: #111216;
+            margin-bottom: 10px;
         }
 
         .btn-back-wrapper {
@@ -359,14 +377,15 @@ if (isset($_POST['restock_items'])) {
             const productItem = document.createElement('div');
             productItem.className = 'selected-product';
             productItem.innerHTML = `
+            <div class="selected-product-header">
                 <label>${productName} (Stock: ${stockLevel})</label>
-                <input type="number" name="quantity[]" min="1" value="1" class="form-control2" required>
-                <input type="hidden" name="productId[]" value="${productId}">
-                &nbsp;
-                <input type="text" name="cost_price[]" placeholder="Enter cost price" class="form-control2" required>
-                &nbsp;
                 <button type="button" class="btn-clear" onclick="removeProduct(this, '${productId}')">X</button>
-            `;
+            </div>
+            <br>
+            <input type="number" name="quantity[]" min="1" value="1" class="form-control2" required>
+            <input type="hidden" name="productId[]" value="${productId}">
+            <input type="text" name="cost_price[]" placeholder="Enter cost price" class="form-control2" required>
+        `;
             selectedProducts.appendChild(productItem);
             document.getElementById('productSearch').value = '';
             document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.add('selected');
@@ -374,7 +393,7 @@ if (isset($_POST['restock_items'])) {
         }
 
         function removeProduct(button, productId) {
-            const productItem = button.parentElement;
+            const productItem = button.parentElement.parentElement;
             productItem.remove();
             document.querySelector(`.product-item[data-product-id="${productId}"]`).classList.remove('selected');
         }
@@ -404,6 +423,7 @@ if (isset($_POST['restock_items'])) {
                     <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                     <b><span>Back</span></b>
                 </a>
+                <br>
                 <script>
                     document.getElementById('another-image').addEventListener('mouseover', function() {
                         document.querySelector('.btn-back').src = 'images/back-hover.png';

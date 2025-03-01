@@ -1,0 +1,347 @@
+html,
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.card1 {
+    color: rgb(187, 188, 190);
+    background: transparent;
+    border: solid 1px rgb(67, 67, 67);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.card1:hover {
+    border: solid 1px white;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.card1 h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.card1 p {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.card1 i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #e0e0e0;
+}
+
+.card1.total-inventory p {
+    color: rgb(0, 72, 197);
+}
+
+.card1.total-sales p {
+    color: rgb(44, 195, 49);
+}
+
+.card1.low-stock p {
+    color: #F44336;
+}
+
+.card1.pending-credits p {
+    color: rgb(231, 175, 55);
+}
+
+.status-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.status-cards .card1 {
+    flex: 1 1 calc(25% - 20px);
+}
+
+.card2 {
+    background: rgb(31, 32, 36);
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.recent-restocks {
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: transparent;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    /* Fixed height */
+    overflow-y: auto;
+    /* Scrollable */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    text-align: left;
+}
+
+table th {
+    background: #333;
+}
+
+canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.dashboard-wrapper {
+    display: grid;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+    max-width: 1200px;
+    overflow-x: hidden;
+}
+
+.chart-container {
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#salesChart {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 300px;
+}
+
+.barchart-container {
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#stockBarChart {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 300px;
+}
+
+.restock-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    /* Add this */
+}
+
+.restock-card {
+    background: rgb(31, 32, 36);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.restock-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.restock-date {
+    font-size: 0.85rem;
+    color: #bbb;
+}
+
+.restock-footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.view-product {
+    padding: 7px;
+    border-radius: 7px;
+    color: rgb(43, 114, 255);
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.view-product:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: rgb(82, 139, 255);
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.5s;
+}
+
+.dismiss-btn {
+    background: transparent;
+    border: none;
+    color: red;
+    font-size: 25px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+/* Date Range Picker */
+.date-range-picker {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+.date-range-picker input {
+    background: transparent;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 150px;
+}
+
+.date-range-picker input::placeholder {
+    color: #bbb;
+}
+
+.date-range-picker button {
+    background: rgb(43, 114, 255);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.date-range-picker button:hover {
+    background: rgb(82, 139, 255);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+
+    .restock-card h4 {
+        font-size: 1rem;
+        /* Adjust the font size as needed */
+    }
+
+    .restock-card p {
+        font-size: 0.85rem;
+        /* Adjust the font size as needed */
+    }
+
+    .dashboard-wrapper {
+        padding: 10px;
+    }
+
+    .status-cards,
+    .dashboard-container {
+        gap: 20px;
+    }
+
+    .dashboard-container {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container,
+    .barchart-container {
+        width: 100%;
+    }
+
+    .status-cards .card1 {
+        flex: 1 1 100%;
+    }
+
+    .date-range-picker {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .date-range-picker input {
+        width: 100%;
+    }
+
+    .date-range-picker button {
+        width: 100%;
+    }
+}
+
+.scrollable-restocks {
+    position: relative;
+    /* Ensures child absolute elements stay inside */
+    overflow-y: auto;
+    /* Enables scrolling */
+    height: 250px;
+    /* Define a height for scrolling */
+    padding-bottom: 30px;
+    /* Prevent content from getting covered by the gradient */
+}
+
+.scrollable-restocks::-webkit-scrollbar {
+    width: 0;
+    /* Hide scrollbar */
+}
+
+.scrollable-restocks.no-blur::after {
+    opacity: 0;
+}
+
+.welcome-message {
+    font-family: "Builder Sans", Helvetica, Arial, san-serif;
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 135%;
+    text-decoration: none;
+    font-style: normal;
+}
