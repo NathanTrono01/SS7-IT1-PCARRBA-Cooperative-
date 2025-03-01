@@ -338,21 +338,22 @@ while ($row = $product_stock_result->fetch_assoc()) {
             flex-wrap: wrap;
         }
 
-        .date-range-picker input, select {
+        .date-range-picker input,
+        select {
             background: transparent;
             border: 1px solid #e0e0e0;
-            color:rgba(224, 224, 224, 0.68);
+            color: rgba(224, 224, 224, 0.68);
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
             width: 150px;
         }
-        
+
 
         .date-range-picker option {
             background: #1f2024;
             border: 1px solid #e0e0e0;
-            color:rgba(224, 224, 224, 0.68);
+            color: rgba(224, 224, 224, 0.68);
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
@@ -499,12 +500,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <h3>Low Stock Alert</h3>
+                <h3>Stock Alerts</h3>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
                             <div class="restock-header">
-                        
+
                                 <p><img src="images/alert.png" alt="" style="width: 30px; height: 30px;"></p>
                                 <h4>
                                     <?php if ($product['quantity'] == 0) { ?>
@@ -593,7 +594,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true // Ensure the y-axis starts at 0
+                                beginAtZero: true, // Ensure the y-axis starts at 0
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                }
                             }
                         }
                     }
@@ -616,7 +625,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true // Ensure the y-axis starts at 0
+                                beginAtZero: true, // Ensure the y-axis starts at 0
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                }
                             }
                         },
                         plugins: {

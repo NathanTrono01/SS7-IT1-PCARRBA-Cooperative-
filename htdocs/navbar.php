@@ -195,7 +195,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 grid-column: 1 / -1;
                 /* Main content takes full width */
                 margin-left: 0;
-                padding: 0;
+                padding: 10px;
             }
 
             .sidebar-open {
@@ -250,7 +250,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 grid-column: 1 / -1;
                 /* Main content takes full width */
                 margin-left: 0;
-                padding: 0;
+                padding: 10px;
             }
 
             .sidebar-open {
