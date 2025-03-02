@@ -718,10 +718,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             
             <!-- Tab Contents -->
             <div id="revenue" class="content active">
-                <div class="main-content">
-                    <h2>Revenue</h2>
-                    <p>Here is the Revenue information...</p>
-                </div>
+                <?php include ('sales_report.php'); ?>
             </div>
 
             <div id="product" class="content">
@@ -729,73 +726,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             </div>
 
             <div id="items" class="content">
-                <br>
-                <h2>Sale Items Data Tables</h2>
-                <div class="table-wrapper">
-                    <table id="saleItemTable">
-                        <thead>
-                            <h3 align="center"> SOLD ITEMS </h3>
-                            <tr>
-                                <th>Name</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($sale_items)) { ?>
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">No sale items found.</td>
-                                </tr>
-                            <?php } else { ?>
-                                <?php foreach ($sale_items as $sale_item) { ?>
-                                    <?php if (!empty($sale_item['saleId'])) { ?>
-                                        <tr data-sale-id="<?php echo htmlspecialchars($sale_item['saleId']); ?>">
-                                            <td><?php echo htmlspecialchars($sale_item['productName']); ?></td>
-                                            <td><?php echo htmlspecialchars($sale_item['quantity']) . (isset($sale_item['unit']) ? ' ' . htmlspecialchars($sale_item['unit']) : ''); ?></td>
-                                            <td>₱ <?php echo htmlspecialchars($sale_item['price']); ?></td>
-                                            <td>₱ <?php echo htmlspecialchars($sale_item['subTotal']); ?></td>
-                                            <td><a href="sale_details.php?saleId=<?php echo htmlspecialchars($sale_item['saleId']); ?>&tab=items">View Details</a></td>
-                                        </tr>
-                                    <?php } ?>
-                                <?php } ?>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                    <br>
-                    <table id="creditItemTable">
-                        <h3 align="center"> CREDIT ITEMS </h3>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($sale_items)) { ?>
-                                <tr>
-                                    <td colspan="6" style="text-align: center;">No credit items found.</td>
-                                </tr>
-                            <?php } else { ?>
-                                <?php foreach ($sale_items as $sale_item) { ?>
-                                    <?php if (!empty($sale_item['creditId'])) { ?>
-                                        <tr data-credit-id="<?php echo htmlspecialchars($sale_item['creditId']); ?>">
-                                            <td><?php echo htmlspecialchars($sale_item['productName']); ?></td>
-                                            <td><?php echo htmlspecialchars($sale_item['quantity']) . (isset($sale_item['unit']) ? ' ' . htmlspecialchars($sale_item['unit']) : ''); ?></td>
-                                            <td>₱ <?php echo htmlspecialchars($sale_item['price']); ?></td>
-                                            <td>₱ <?php echo htmlspecialchars($sale_item['subTotal']); ?></td>
-                                            <td><a href="credit_details.php?creditId=<?php echo htmlspecialchars($sale_item['creditId']); ?>&tab=items">View Details</a></td>
-                                        </tr>
-                                    <?php } ?>
-                                <?php } ?>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
+                <?php include ('sold_items.php'); ?>
             </div>
 
             <div id="download" class="content">
