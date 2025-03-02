@@ -249,8 +249,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
         }
 
         #creditsTable td {
-            padding: 10px;
-            color: white;
+            padding: 10px 10px;
+            font-size: 1rem;
+            margin: 0 5px;
+            width: 20%;
         }
 
         /* Scrollbar for tbody */
@@ -517,6 +519,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             padding: 10px;
             height: 100vh;
         }
+
+        .unpaid {
+            color: red;
+        }
+
+        .partial {
+            color: orange;
+        }
+
+        .paid {
+            color: limegreen;
+        }
     </style>
 </head>
 
@@ -569,13 +583,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                             </tr>
                         <?php } else { ?>
                             <?php foreach ($credits as $credit) {
+                                $statusClass = '';
+                                if ($credit['paymentStatus'] == "Unpaid") {
+                                    $statusClass = 'unpaid';
+                                } elseif ($credit['paymentStatus'] == "Partially Paid") {
+                                    $statusClass = 'partial';
+                                } else {
+                                    $statusClass = 'paid';
+                                }
                                 $date = !empty($credit['transactionDate'])
                                     ? date("n/j/y", strtotime($credit['transactionDate'])) . "<br>" . date("g:i A", strtotime($credit['transactionDate']))
                                     : 'N/A';
                             ?>
                                 <tr>
                                     <td data-date="<?php echo $credit['transactionDate']; ?>"><?php echo $date; ?></td>
-                                    <td><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
+                                    <td class="<?php echo $statusClass; ?>"><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
                                     <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
                                     <td>₱ <?php echo htmlspecialchars($credit['creditBalance']); ?></td>
                                     <td>

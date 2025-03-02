@@ -403,6 +403,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 line-height: 135%;
                 text-decoration: none;
                 font-style: normal;
+                text-align: center;
             }
 
             .restock-card h4 {
@@ -511,7 +512,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
     <div class="main-content fade-in">
         <div class="dashboard-wrapper">
             <span class="welcome-message"><?php echo $_SESSION['welcome_message']; ?></span>
-            <hr>
+            <br>
             <div class="title-link">
                 <span><b>Overview</b></span>
                 <a href="reports.php?tab=product">

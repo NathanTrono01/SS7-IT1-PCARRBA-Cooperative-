@@ -112,7 +112,7 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
 
         .table-wrapper {
             scroll-behavior: smooth;
-            height: 65vh;
+            height: 70vh;
             /* Ensure the wrapper takes 70% of viewport height */
             overflow-y: auto;
             /* Allow vertical scrolling */
@@ -158,12 +158,7 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
         table td {
             padding: 5px 10px;
             font-size: 1rem;
-            color: #eee;
             margin: 0 5px;
-            white-space: normal;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            word-wrap: break-word;
         }
 
         table tr {
@@ -405,15 +400,14 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
             <?php endif; ?>
             <div class="header-container">
                 <h2>Audit Logs</h2>
-            </div>
-            <div class="search-container">
-                <div class="search-wrapper">
-                    <img src="images/search-icon.png" alt="Search" class="search-icon">
-                    <input type="text" id="searchBar" placeholder="Search Action" onkeyup="filterLogs(); toggleClearIcon();">
-                    <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <img src="images/search-icon.png" alt="Search" class="search-icon">
+                        <input type="text" id="searchBar" placeholder="Search Action" onkeyup="filterLogs(); toggleClearIcon();">
+                        <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
+                    </div>
                 </div>
             </div>
-            <hr style="height: 1px; border: none; color: rgb(187, 188, 190); background-color: rgb(187, 188, 190);">
             <div class="table-wrapper">
                 <table id="logsTable" width="100%">
                     <thead>

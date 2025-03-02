@@ -709,23 +709,33 @@ while ($row = $product_stock_result->fetch_assoc()) {
             <!-- Navigation Tabs -->
             <div class="tabs-container">
                 <div class="tabs">
-                    <div class="tab" onclick="showTab('revenue')">Revenue</div>
+                    <div class="tab" onclick="showTab('sales')">Sales Report</div>
                     <div class="tab" onclick="showTab('product')">Product Report</div>
+                    <div class="tab" onclick="showTab('revenue')">Revenue</div>
                     <div class="tab" onclick="showTab('items')">Sold Items Table</div>
                     <div class="tab" onclick="showTab('download')">Download</div>
                 </div>
             </div>
-            
+
             <!-- Tab Contents -->
-            <div id="revenue" class="content active">
+
+            <div id="sales" class="content active">
                 <div class="main-content">
-                    <h2>Revenue</h2>
-                    <p>Here is the Revenue information...</p>
+                    <h2>Sales Report</h2>
+                    <p>Here is the Sales information...</p>
                 </div>
             </div>
 
             <div id="product" class="content">
                 <?php include ('product_report.php'); ?>
+            </div>
+
+            <div id="revenue" class="content">
+                <div class="main-content">
+                    <h2>Revenue</h2>
+                    <p>Here is the Revenue information...</p>
+                </div>
+
             </div>
 
             <div id="items" class="content">
@@ -838,7 +848,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const activeTab = urlParams.get('tab') || 'revenue';
+            const activeTab = urlParams.get('tab') || 'sales';
             showTab(activeTab);
             groupRowsById('saleItemTable', 'data-sale-id');
             groupRowsById('creditItemTable', 'data-credit-id');

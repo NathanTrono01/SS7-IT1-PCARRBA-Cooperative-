@@ -380,7 +380,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         #productTable td {
-            padding: 10px;
+            padding: 10px 10px;
+            font-size: 1rem;
+            margin: 0 5px;
+            width: 20%;
         }
 
         /* Scrollbar for tbody */

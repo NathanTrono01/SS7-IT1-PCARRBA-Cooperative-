@@ -339,8 +339,10 @@ table tr td:last-child {
         }
 
         #saleTable td {
-            padding: 10px;
-            color: white;
+            padding: 10px 10px;
+            font-size: 1rem;
+            margin: 0 5px;
+            width: 20%;
         }
 
         /* Scrollbar for tbody */
@@ -557,62 +559,26 @@ table tr td:last-child {
     </div>
 
     <script>
-        function filterSales() {
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            const rows = document.querySelectorAll('#salesTable tbody tr');
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const ripple = document.createElement("span");
+            ripple.classList.add("ripple");
 
-            rows.forEach(row => {
-                const dateSold = row.cells[0].textContent.toLowerCase();
-                const transactionType = row.cells[1].textContent.toLowerCase();
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height) * 2.5; // Bigger ripple
+            ripple.style.width = ripple.style.height = `${size}px`;
 
-                const isVisible = dateSold.includes(query) || transactionType.includes(query);
-                row.style.display = isVisible ? '' : 'none';
-            });
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+
+            button.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 2000); // Matches animation duration
         }
-
-        function clearSearch() {
-            document.getElementById('searchBar').value = '';
-            filterSales();
-            toggleClearIcon();
-        }
-
-        function toggleClearIcon() {
-            const searchBar = document.getElementById('searchBar');
-            const clearIcon = document.querySelector('.clear-icon');
-            clearIcon.style.display = searchBar.value ? 'block' : 'none';
-        }
-
-        function sortTable(columnIndex) {
-            const table = document.getElementById('salesTable');
-            const rows = Array.from(table.rows).slice(1);
-            const isAscending = table.getAttribute('data-sort-order') === 'asc';
-            const direction = isAscending ? 1 : -1;
-
-            rows.sort((a, b) => {
-                let aText = a.cells[columnIndex].textContent.trim();
-                let bText = b.cells[columnIndex].textContent.trim();
-
-                if (columnIndex === 0) { // Date column
-                    aText = new Date(a.cells[columnIndex].getAttribute('data-date')).getTime();
-                    bText = new Date(b.cells[columnIndex].getAttribute('data-date')).getTime();
-                } else if (columnIndex === 2) { // Amount column
-                    aText = parseFloat(aText.replace('₱', '').replace(',', ''));
-                    bText = parseFloat(bText.replace('₱', '').replace(',', ''));
-                }
-
-                if (!isNaN(aText) && !isNaN(bText)) {
-                    return direction * (aText - bText);
-                }
-
-                return direction * aText.localeCompare(bText);
-            });
-
-            const tbody = table.querySelector('tbody');
-            rows.forEach(row => tbody.appendChild(row));
-            table.setAttribute('data-sort-order', isAscending ? 'desc' : 'asc');
-        }
-
-        document.addEventListener('DOMContentLoaded', toggleClearIcon);
     </script>
 </body>
 
