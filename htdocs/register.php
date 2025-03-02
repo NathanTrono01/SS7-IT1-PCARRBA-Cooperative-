@@ -3,7 +3,6 @@ include 'db.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = $_POST['password'];
-    $accountLevel = $_POST['accountLevel'];
 
     // Check if password meets length requirement
     if (strlen($password) < 8) {
@@ -19,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result->num_rows > 0) {
             $error = "Username already exists.";
         } else {
-            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $username, $password_hashed, $accountLevel);
+            $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+            $stmt->bind_param("ss", $username, $password_hashed);
             $stmt->execute();
             $success = "Registration successful!";
         }

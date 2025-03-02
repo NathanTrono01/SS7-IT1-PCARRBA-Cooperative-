@@ -384,8 +384,26 @@ while ($row = $product_stock_result->fetch_assoc()) {
             background: rgb(82, 139, 255);
         }
 
+        .welcome-message {
+            font-family: "Builder Sans", Helvetica, Arial, san-serif;
+            font-weight: 800;
+            font-size: 30px;
+            line-height: 135%;
+            text-decoration: none;
+            font-style: normal;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
+
+            .welcome-message {
+                font-family: "Builder Sans", Helvetica, Arial, san-serif;
+                font-weight: 800;
+                font-size: 20px;
+                line-height: 135%;
+                text-decoration: none;
+                font-style: normal;
+            }
 
             .restock-card h4 {
                 font-size: 1rem;
@@ -453,13 +471,33 @@ while ($row = $product_stock_result->fetch_assoc()) {
             opacity: 0;
         }
 
-        .welcome-message {
+        .title-link {
+            display: flex;
             font-family: "Builder Sans", Helvetica, Arial, san-serif;
             font-weight: 800;
-            font-size: 30px;
-            line-height: 135%;
+            font-size: 20px;
+            line-height: 120%;
             text-decoration: none;
             font-style: normal;
+            align-items: center;
+            justify-content: flex-start;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            margin-bottom: 15px;
+        }
+
+        .title-link img {
+            width: 24px;
+            height: 24px;
+            margin-left: 5px;
+        }
+
+        .title-link img:hover {
+            width: 24px;
+            height: 24px;
+            border-radius: 300px;
+            background-color: rgba(187, 188, 190, 0.2);
+            transition: background 0.3s, color 0.3s;
         }
     </style>
 </head>
@@ -474,7 +512,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
         <div class="dashboard-wrapper">
             <span class="welcome-message"><?php echo $_SESSION['welcome_message']; ?></span>
             <hr>
-            <h3>Overview</h3>
+            <div class="title-link">
+                <span><b>Overview</b></span>
+                <a href="reports.php?tab=product">
+                    <img src="images/arrow-right.png" alt="Another Image" class="btn-back" id="another-image">
+                </a>
+            </div>
             <div class="status-cards">
                 <div class="card1 total-inventory">
                     <i class="fas fa-boxes"></i>
@@ -500,7 +543,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <h3>Stock Alerts</h3>
+                <span class="title-link">Stock Alerts</span>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
@@ -523,9 +566,8 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     <?php } ?>
                 </div>
             </div>
-
             <br>
-            <h3>Snapshot</h3>
+            <span class="title-link">Snapshot</span>
             <div class="dashboard-container">
                 <!-- Line Chart Card -->
                 <div class="card2 chart-container">

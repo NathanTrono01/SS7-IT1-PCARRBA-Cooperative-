@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Log the sale action
-    $action = "Make Sale";
+    $action = "Sale";
     logAction($action, $productIds, $quantities, $userId, $conn);
 
     // Redirect to sales page with success message

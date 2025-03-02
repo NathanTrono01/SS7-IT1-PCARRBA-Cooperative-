@@ -2,7 +2,7 @@
 include 'db.php';
 session_start();
 
-if (!isset($_SESSION['username']) || $_SESSION['accountLevel'] !== 'Admin') {
+if (!isset($_SESSION['userId'])) {
     header("Location: index.php");
     exit();
 }
@@ -13,7 +13,6 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $accountLevel = $_POST['accountLevel'];
 
     // Check if username is unique
     $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
@@ -27,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $stmt->close(); // Close the previous statement
 
-            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
             if ($stmt) {
-                $stmt->bind_param("sss", $username, $password, $accountLevel);
+                $stmt->bind_param("ss", $username, $password);
                 if ($stmt->execute()) {
                     $success = "Registration successful!";
                 } else {

@@ -7,42 +7,41 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $error = '';
 $success = '';
 
+// Fetch the current reorder level from the products table
+$reorderLevel = 5; // Default value
+$stmt = $conn->prepare("SELECT reorderLevel FROM inventory LIMIT 1");
+if ($stmt) {
+    $stmt->execute();
+    $stmt->bind_result($reorderLevel);
+    $stmt->fetch();
+    $stmt->close();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = htmlspecialchars($_POST['username']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $accountLevel = $_POST['accountLevel'];
+    if (isset($_POST['reorder_level'])) {
+        $reorderLevel = intval($_POST['reorder_level']);
 
-    // Check if username is unique
-    $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-    if ($stmt) {
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $error = "Username already exists.";
-        } else {
-            $stmt->close(); // Close the previous statement
-
-            $stmt = $conn->prepare("INSERT INTO users (username, password, accountLevel) VALUES (?, ?, ?)");
-            if ($stmt) {
-                $stmt->bind_param("sss", $username, $password, $accountLevel);
-                if ($stmt->execute()) {
-                    $success = "Registration successful!";
-                } else {
-                    $error = "Registration failed. Please try again.";
-                }
-                $stmt->close(); // Close the statement after execution
+        // Update reorder level in the products table
+        $stmt = $conn->prepare("UPDATE inventory SET reorderLevel = ? WHERE reorderLevel != ?");
+        if ($stmt) {
+            $stmt->bind_param("ii", $reorderLevel, $reorderLevel);
+            if ($stmt->execute()) {
+                $success = "Reorder level updated successfully!";
             } else {
-                $error = "Database error: Unable to prepare statement.";
+                $error = "Failed to update reorder level. Please try again.";
             }
+            $stmt->close();
+        } else {
+            $error = "Database error: Unable to prepare statement.";
         }
-    } else {
-        $error = "Database error: Unable to prepare statement.";
     }
+
     $conn->close(); // Close the database connection
 }
 ?>
@@ -59,12 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 100%;
             max-width: none;
             /* Remove max-width constraint */
-            border: 1px solid #bdbebe;
             color: white;
             padding: 20px;
             box-sizing: border-box;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin: 20px 0;
             /* Adjust margin for full width */
         }
@@ -94,9 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         /* Custom Button Styling */
         .custom-button {
             background: transparent;
-            border: 1px solid #bdbebe;
-            color: hsla(0, 0%, 100%, 0.7);
+            border: 0.5px solid rgba(187, 188, 190, 0.5);
             transition: border-color 0.3s, color 0.3s;
+            color: rgba(255, 255, 255, 0.92);;
             padding: 10px;
             font-size: 1rem;
             border-radius: 4px;
@@ -105,15 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .custom-button:hover {
-            border-color: white;
-            background: transparent;
-            color: white;
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgb(187, 188, 190);
+            color: #fff;
         }
+
 
         /* Alert Styling */
         .alert-error {
             border: 1px solid red;
-            background-color:rgb(255, 147, 147);
+            background-color: rgb(255, 147, 147);
             color: red;
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
@@ -194,35 +191,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p>This section is visible to all users.</p>
             </div>
             <br>
-            <?php if ($_SESSION['accountLevel'] === 'Admin'): ?>
-                <div class="custom-card">
-                    <form method="POST" action="">
-                        <div class="card-header text-center">
-                            <h3>Register a User</h3>
-                            <hr>
-                        </div>
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" name="username" class="custom-input" placeholder="Username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" name="password" class="custom-input" placeholder="Password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="accountLevel" class="form-label">Account Level</label>
-                            <select name="accountLevel" class="custom-input" required>
-                                <option value="nonAdmin">Non-Admin</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                            </select>
-                        </div>
-                        <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
-                        <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
-                        <button type="submit" class="custom-button" id="submitButton">Register</button>
-                    </form>
-                </div>
-            <?php endif; ?>
+            <hr>
+            <div class="custom-card">
+                <form method="POST" action="">
+                    <div class="card-header text-center">
+                        <h3>Set Reorder Level</h3>
+                        <hr>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reorder_level" class="form-label">Minimum Stock Level for All Products</label>
+                        <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
+                    </div>
+                    <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
+                    <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
+                    <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                </form>
+            </div>
+            <br>
+            <hr>
+            <div class="custom-card">
+                <form method="POST" action="">
+                    <div class="card-header text-center">
+                        <h3>Register a User</h3>
+                        <hr>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" name="username" class="custom-input" placeholder="Username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" name="password" class="custom-input" placeholder="Password" required>
+                    </div>
+                    <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
+                    <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
+                    <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 </body>

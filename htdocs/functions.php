@@ -22,7 +22,7 @@ function logAction($action, $productIds, $quantities, $userId, $conn)
         case 'Restock':
             $details = "Restocked " . implode(", ", $productDetails);
             break;
-        case 'Sold':
+        case 'Sale':
             $details = "Sold " . implode(", ", $productDetails);
             break;
         case 'New Product':

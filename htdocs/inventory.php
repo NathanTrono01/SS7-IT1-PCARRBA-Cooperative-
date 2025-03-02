@@ -200,16 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.3s ease;
         }
 
-        /* table tr td:first-child {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
-table tr td:last-child {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-} */
-
         .restock-button {
             display: inline-block;
             padding: 8px 12px;
@@ -271,7 +261,7 @@ table tr td:last-child {
         }
 
         .btn-edit {
-            background-color: #335fff !important;
+            background-color: rgb(42, 56, 255) !important;
             color: white !important;
         }
 
@@ -280,7 +270,7 @@ table tr td:last-child {
             background-color: transparent !important;
             color: #ff3d3d !important;
         }
-        
+
         .btn-delete:hover {
             border: 1px solid rgb(255, 0, 0) !important;
             color: rgb(255, 0, 0) !important;
@@ -302,14 +292,15 @@ table tr td:last-child {
             margin-top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(40, 167, 70, 0.44);
-            border: 1px solid rgb(0, 255, 60);
+            background-color: #d4edda;
+            border: 1px solid green;
             color: white;
             padding: 15px 30px;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: none;
+            color: green;
         }
 
         .popup-alert.show {
@@ -329,18 +320,6 @@ table tr td:last-child {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             display: none;
-        }
-
-        .stock-out {
-            color: red;
-        }
-
-        .stock-low {
-            color: orange;
-        }
-
-        .stock-good {
-            color: limegreen;
         }
 
         th {
@@ -382,7 +361,6 @@ table tr td:last-child {
         #productTable th {
             background: rgb(17, 18, 22);
             /* Dark background */
-            color: white;
             border-bottom: 2px solid #333942;
             text-align: left;
         }
@@ -403,7 +381,6 @@ table tr td:last-child {
 
         #productTable td {
             padding: 10px;
-            color: white;
         }
 
         /* Scrollbar for tbody */
@@ -541,6 +518,18 @@ table tr td:last-child {
             padding: 10px;
             height: 100vh;
         }
+
+        .stock-out {
+            color: red;
+        }
+
+        .stock-low {
+            color: orange;
+        }
+
+        .stock-good {
+            color: limegreen;
+        }
     </style>
 </head>
 
@@ -673,7 +662,7 @@ table tr td:last-child {
 
         function sortTable(columnIndex) {
             const table = document.getElementById('productTable');
-            const rows = Array.from(table.rows).slice(1);
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
             const isAscending = table.getAttribute('data-sort-order') === 'asc';
             const direction = isAscending ? 1 : -1;
 
@@ -681,14 +670,16 @@ table tr td:last-child {
                 const aText = a.cells[columnIndex].textContent.trim();
                 const bText = b.cells[columnIndex].textContent.trim();
 
-                if (!isNaN(aText) && !isNaN(bText)) {
-                    return direction * (parseFloat(aText) - parseFloat(bText));
+                if (columnIndex === 2 || columnIndex === 3) { // Stock or Price column
+                    const aValue = parseFloat(aText.replace(/[^\d.-]/g, '')) || 0;
+                    const bValue = parseFloat(bText.replace(/[^\d.-]/g, '')) || 0;
+                    return direction * (aValue - bValue);
                 }
 
                 return direction * aText.localeCompare(bText);
             });
 
-            rows.forEach(row => table.tBodies[0].appendChild(row));
+            rows.forEach(row => table.querySelector('tbody').appendChild(row));
             table.setAttribute('data-sort-order', isAscending ? 'desc' : 'asc');
 
             // Update sort icons

@@ -39,7 +39,6 @@ if (isset($_POST['add_item'])) {
     $stockLevel = $_POST['quantity'];
     $costPrice = $_POST['cost_price'];
     $unitPrice = $_POST['unit_price'];
-    $reorderLevel = $_POST['reorder_level'];
 
     // Use new category if provided
     if (!empty($newCategory)) {
@@ -173,9 +172,9 @@ if (isset($_POST['add_item'])) {
         }
 
         .btn-primary {
-            color: white;
-            background-color: #335fff;
-            border: none;
+            color: rgb(255, 255, 255);
+            background-color: rgb(42, 56, 255);
+            border: 1px solid rgb(42, 56, 255);
             padding: 10px;
             border-radius: 8px;
             font-size: 16px;
@@ -184,7 +183,8 @@ if (isset($_POST['add_item'])) {
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: rgba(85, 119, 255, 0.83);
+            border: 1px solid rgba(85, 119, 255, 0.83);
         }
 
         .btn-back img {
@@ -365,10 +365,6 @@ if (isset($_POST['add_item'])) {
                         <div class="form-group">
                             <label for="quantity" class="form-label">Stock Quantity: <span class="required">*</span></label>
                             <input type="number" class="form-c" name="quantity" id="quantity" style="width: 100%" placeholder="Enter quantity" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="reorder_level" class="form-label">Reorder Level: <span class="required">*</span></label>
-                            <input type="number" class="form-c" name="reorder_level" id="reorder_level" style="width: 100%" placeholder="Enter reorder level" required>
                         </div>
                     </div>
                     <div class="form-row">

@@ -1,13 +1,12 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['username'])) {
+if (!isset($_SESSION['userId'])) {
     header("Location: index.php");
     exit();
 }
 
-// Determine the redirect URL based on the user's role
-$redirectUrl = ($_SESSION['accountLevel'] === 'Admin') ? 'dashboard.php' : 'dashboard.php';
+$redirectUrl = 'dashboard.php';
 ?>
 
 <!DOCTYPE html>

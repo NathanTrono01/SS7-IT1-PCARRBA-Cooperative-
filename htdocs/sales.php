@@ -234,9 +234,9 @@ table tr td:last-child {
             margin-top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(40, 167, 70, 0.44);
-            border: 1px solid rgb(0, 255, 60);
-            color: white;
+            background-color: #d4edda;
+            border: 1px solid green;
+            color: green;
             padding: 15px 30px;
             border-radius: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

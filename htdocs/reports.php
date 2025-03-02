@@ -180,7 +180,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
         .table-wrapper {
             overflow-x: auto;
-            margin: 20px 0;
         }
 
         .table-wrapper::-webkit-scrollbar {
@@ -227,10 +226,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         @media (max-width: 1024px) {
-            .content h2 {
-                text-align: center;
-            }
-
             .main-content {
                 padding: 10px;
             }
@@ -671,11 +666,16 @@ while ($row = $product_stock_result->fetch_assoc()) {
             background: rgb(43, 114, 255);
             border: none;
             color: #fff;
-            padding: 8px 16px;
+            padding: 5px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.3s;
+        }
+
+        .pagination button img {
+            height: 24px;
+            width: 24px;
         }
 
         .pagination button:hover {
@@ -683,13 +683,13 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         .pagination input {
-            width: 50px;
+            width: 40px;
             text-align: center;
-            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
             background: #fff;
             color: #000;
+            height: 30px;
         }
 
         .pagination span {
@@ -804,16 +804,16 @@ while ($row = $product_stock_result->fetch_assoc()) {
                                 </table>
                             </div>
                             <div class="pagination">
-                                <button id="prevPage" onclick="changePage(-1)">&#9664;</button>
+                                <button id="prevPage" onclick="changePage(-1)"><img src="images/arrow-left.png" alt=""></button>
                                 <span>Page</span>
                                 <input type="number" id="pageInput" value="1" min="1" onchange="goToPage(this.value)">
                                 <span id="pageInfo"></span>
-                                <button id="nextPage" onclick="changePage(1)">&#9654;</button>
+                                <button id="nextPage" onclick="changePage(1)"><img src="images/arrow-right.png" alt=""></button>
                             </div>
                         </div>
                         <br>
                         <div>
-                            <h3>Low Stock Alert</h3>
+                            <h3>Stock Alert</h3>
                             <div class="restock-container scrollable-restocks" id="lowStockContainer">
                                 <?php foreach ($low_stock_products as $product) { ?>
                                     <div class="restock-card">
@@ -829,7 +829,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
                                             <p>Current Stock: <?php echo $product['quantity']; ?></p>
                                         </div>
                                         <div class="restock-footer">
-                                            <a href="restock.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">Restock</a>
+                                            <td><a href="restock.php?product=<?php echo urlencode($product['productName']); ?>&tab=product" class="view-product">Restock</a></td>
                                         </div>
                                     </div>
                                 <?php } ?>

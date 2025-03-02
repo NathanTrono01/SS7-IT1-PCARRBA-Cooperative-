@@ -18,6 +18,7 @@ if (!isset($_SESSION['userId'])) {
     die("User ID is not set in the session.");
 }
 
+
 // Get the userId from the session
 $userId = $_SESSION['userId'];
 
@@ -419,7 +420,7 @@ if (isset($_POST['restock_items'])) {
     <div class="main-content fade-in">
         <div class="form-container">
             <div class="container">
-                <a href="inventory.php" class="btn-back-wrapper">
+                <a href="#" class="btn-back-wrapper" id="back-button">
                     <img src="images/back.png" alt="Another Image" class="btn-back" id="another-image">
                     <b><span>Back</span></b>
                 </a>
@@ -475,6 +476,18 @@ if (isset($_POST['restock_items'])) {
         function closeAlert() {
             document.getElementById("alert").style.display = "none";
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var referrer = document.referrer;
+            var backButton = document.getElementById('back-button');
+            if (referrer.includes('inventory.php')) {
+                backButton.href = 'inventory.php';
+            } else if (referrer.includes('reports.php')) {
+                backButton.href = 'reports.php?tab=product';
+            } else {
+                backButton.href = 'reports.php?tab=product';
+            }
+        });
     </script>
 </body>
 
