@@ -225,6 +225,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
         tr:nth-child(even) {
             background-color: rgb(17, 18, 22);
         }
+        
 
         @media (max-width: 1024px) {
             .main-content {

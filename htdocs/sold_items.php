@@ -88,6 +88,13 @@ if ($most_sold_products_result->num_rows > 0) {
                     <?php } ?>
                 </tbody>
             </table>
+            <!-- <div class="pagination">
+                <button id="prevPage" onclick="changePage(-1)"><img src="images/arrow-left.png" alt=""></button>
+                <span>Page</span>
+                <input type="number" id="pageInput" value="1" min="1" onchange="goToPage(this.value)">
+                <span id="pageInfo"></span>
+                <button id="nextPage" onclick="changePage(1)"><img src="images/arrow-right.png" alt=""></button>
+            </div> -->
             <br>
             <table id="creditItemTable">
                 <h3 align="center"> CREDIT ITEMS </h3>
@@ -121,6 +128,13 @@ if ($most_sold_products_result->num_rows > 0) {
                 </tbody>
             </table>
         </div>
+        <!-- <div class="pagination">
+            <button id="prevPage" onclick="changePage(-1)"><img src="images/arrow-left.png" alt=""></button>
+            <span>Page</span>
+            <input type="number" id="pageInput" value="1" min="1" onchange="goToPage(this.value)">
+            <span id="pageInfo"></span>
+            <button id="nextPage" onclick="changePage(1)"><img src="images/arrow-right.png" alt=""></button>
+        </div> -->
     </div>
 </body>
 

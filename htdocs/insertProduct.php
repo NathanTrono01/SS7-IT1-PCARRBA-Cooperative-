@@ -31,7 +31,16 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Add new item to inventory
+// Fetch the reorder level from the inventory table
+$reorderLevel = 5; // Default value
+$stmt = $conn->prepare("SELECT reorderLevel FROM inventory LIMIT 1");
+if ($stmt) {
+    $stmt->execute();
+    $stmt->bind_result($reorderLevel);
+    $stmt->fetch();
+    $stmt->close();
+}
+
 if (isset($_POST['add_item'])) {
     $productName = $_POST['productName'];
     $categoryId = $_POST['product_category'];
@@ -39,6 +48,43 @@ if (isset($_POST['add_item'])) {
     $stockLevel = $_POST['quantity'];
     $costPrice = $_POST['cost_price'];
     $unitPrice = $_POST['unit_price'];
+    $imagePath = null;
+
+    // Handle image upload
+    $uploadDir = 'uploads/';
+    $newFileName = '';
+
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
+        $file = $_FILES['product_image'];
+        $fileName = basename($file['name']);
+        $fileSize = $file['size'];
+        $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
+
+        // Define allowed file types and size limit (e.g., 2MB for images)
+        $allowedTypes = ['jpg', 'jpeg', 'png'];
+        $maxSize = 2 * 1024 * 1024; // 2 MB
+
+        // Validate file type and size
+        if (in_array($fileExt, $allowedTypes) && $fileSize <= $maxSize) {
+            // Create unique file name and upload file
+            $newFileName = uniqid() . '.' . $fileExt;
+            $uploadFile = $uploadDir . $newFileName;
+
+            if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
+                $imagePath = $uploadFile;
+            } else {
+                $_SESSION['message'] = "Error uploading image.";
+                $_SESSION['alert_class'] = "alert-danger";
+                header("Location: insertProduct.php");
+                exit();
+            }
+        } else {
+            $_SESSION['message'] = "Invalid file type or size exceeded.";
+            $_SESSION['alert_class'] = "alert-danger";
+            header("Location: insertProduct.php");
+            exit();
+        }
+    }
 
     // Use new category if provided
     if (!empty($newCategory)) {
@@ -80,9 +126,9 @@ if (isset($_POST['add_item'])) {
         $conn->begin_transaction();
         try {
             // Insert new product
-            $insert_sql = "INSERT INTO products (productName, productCategory, unitPrice, categoryId) VALUES (?, ?, ?, ?)";
+            $insert_sql = "INSERT INTO products (productName, productCategory, unitPrice, categoryId, imagePath) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($insert_sql);
-            $stmt->bind_param("ssdi", $productName, $categoryId, $unitPrice, $categoryId);
+            $stmt->bind_param("ssdss", $productName, $categoryId, $unitPrice, $categoryId, $imagePath);
             $stmt->execute();
             $productId = $stmt->insert_id;
 
@@ -340,7 +386,11 @@ if (isset($_POST['add_item'])) {
                         }, 4000);
                     </script>
                 <?php endif; ?>
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="product_image" class="form-label">Product Image:</label><br>
+                        <input type="file" class="form-c" name="product_image" id="product_image" style="width: 100%">
+                    </div>
                     <div class="form-group">
                         <label for="productName" class="form-label">Product Name: <span class="required">*</span></label><br>
                         <input type="text" class="form-c" name="productName" id="productName" style="width: 100%" placeholder="Enter product name" required>
@@ -370,20 +420,21 @@ if (isset($_POST['add_item'])) {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="cost_price" class="form-label">Purchase Cost: <span class="required">*</span></label>
-                            <input type="text" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
+                            <input type="number" step="0.01" class="form-c" name="cost_price" id="cost_price" style="width: 100%" placeholder="Enter purchase cost" required>
                         </div>
                         <div class="form-group">
                             <label for="unit_price" class="form-label">Selling Price: <span class="required">*</span></label>
-                            <input type="text" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
+                            <input type="number" step="0.01" class="form-c" name="unit_price" id="unit_price" style="width: 100%" placeholder="Enter selling price" required>
                         </div>
                     </div>
-                    <br>
-                    <div class="d-grid">
-                        <button type="submit" name="add_item" class="btn-primary">Add Item</button>
-                    </div>
-                </form>
             </div>
+            <br>
+            <div class="d-grid">
+                <button type="submit" name="add_item" class="btn-primary">Add Item</button>
+            </div>
+            </form>
         </div>
+    </div>
     </div>
 
 

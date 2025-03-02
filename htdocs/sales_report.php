@@ -1,4 +1,5 @@
 <?php
+session_start();
 if (!isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
@@ -73,6 +74,7 @@ if (isset($_GET['ajax'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Sale Summary</title>
+    <script src="js/flatpickr.js"></script>
     <link rel="stylesheet" href="css/flatpickr.min.css">
     <style>
         body {
@@ -264,13 +266,13 @@ if (isset($_GET['ajax'])) {
             fetch(`sales_report.php?start_date=${startDate}&end_date=${endDate}&ajax=1`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('total_sales_revenue').innerText = `₱ ${parseFloat(data.total_sales_revenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById('total_sales_revenue').innerText = `${parseFloat(data.total_sales_revenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} PHP`;
                     document.getElementById('total_transactions').innerText = data.total_transactions;
                     document.getElementById('total_items_sold').innerText = data.total_items_sold;
-                    document.getElementById('average_sale_value').innerText = `₱ ${parseFloat(data.average_sale_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    document.getElementById('total_cogs').innerText = `₱ ${parseFloat(data.total_cogs).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    document.getElementById('gross_profit').innerText = `₱ ${parseFloat(data.gross_profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    document.getElementById('net_profit').innerText = `₱ ${parseFloat(data.net_profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    document.getElementById('average_sale_value').innerText = `${parseFloat(data.average_sale_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} PHP`;
+                    document.getElementById('total_cogs').innerText = `${parseFloat(data.total_cogs).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} PHP`;
+                    document.getElementById('gross_profit').innerText = `${parseFloat(data.gross_profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} PHP`;
+                    document.getElementById('net_profit').innerText = `${parseFloat(data.net_profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} PHP`;
                 });
         }
     </script>

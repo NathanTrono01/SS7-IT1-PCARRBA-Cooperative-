@@ -352,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
         .alert-success {
             position: fixed;
-            margin-top: 10px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #d4edda;
@@ -420,7 +420,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 overflow-x: hidden;
             }
 
-            #productTable td {
+            #creditsTable td {
                 padding: 8px 10px;
                 font-size: 0.8rem;
                 margin: 0 5px;
@@ -529,14 +529,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
         .unpaid {
             color: red;
+            font-size: 1rem;
+            white-space: wrap;
         }
 
         .partial {
             color: orange;
+            font-size: 1rem;
+            white-space: wrap;
         }
 
         .paid {
             color: limegreen;
+            font-size: 1rem;
+            white-space: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .unpaid, .partial, .paid {
+            font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .unpaid, .partial, .paid {
+            font-size: 0.75rem;
+            }
         }
     </style>
 </head>

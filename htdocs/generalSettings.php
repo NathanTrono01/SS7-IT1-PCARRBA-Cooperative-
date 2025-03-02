@@ -40,6 +40,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $error = "Database error: Unable to prepare statement.";
         }
+    } elseif (isset($_POST['current_password']) && isset($_POST['new_password']) && isset($_POST['confirm_password'])) {
+        $currentPassword = $_POST['current_password'];
+        $newPassword = $_POST['new_password'];
+        $confirmPassword = $_POST['confirm_password'];
+
+        if ($newPassword !== $confirmPassword) {
+            $error = "New password and confirm password do not match.";
+        } else {
+            $username = $_SESSION['username'];
+            $stmt = $conn->prepare("SELECT password FROM users WHERE username = ?");
+            if ($stmt) {
+                $stmt->bind_param("s", $username);
+                $stmt->execute();
+                $stmt->bind_result($hashedPassword);
+                $stmt->fetch();
+                $stmt->close();
+
+                if (password_verify($currentPassword, $hashedPassword)) {
+                    $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                    $stmt = $conn->prepare("UPDATE users SET password = ? WHERE username = ?");
+                    if ($stmt) {
+                        $stmt->bind_param("ss", $newHashedPassword, $username);
+                        if ($stmt->execute()) {
+                            $success = "Password changed successfully!";
+                        } else {
+                            $error = "Failed to change password. Please try again.";
+                        }
+                        $stmt->close();
+                    } else {
+                        $error = "Database error: Unable to prepare statement.";
+                    }
+                } else {
+                    $error = "Current password is incorrect.";
+                }
+            } else {
+                $error = "Database error: Unable to prepare statement.";
+            }
+        }
     }
 
     $conn->close(); // Close the database connection
@@ -53,19 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        /* Custom Card Styling */
         .custom-card {
-            width: 100%;
-            max-width: none;
-            /* Remove max-width constraint */
+            background-color: transparent;
             color: white;
             padding: 20px;
-            box-sizing: border-box;
-            margin: 20px 0;
-            /* Adjust margin for full width */
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
-        /* Custom Input Styling */
         .custom-input {
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
@@ -87,12 +120,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: rgba(0, 0, 0, 0.7);
         }
 
-        /* Custom Button Styling */
         .custom-button {
             background: transparent;
             border: 0.5px solid rgba(187, 188, 190, 0.5);
             transition: border-color 0.3s, color 0.3s;
-            color: rgba(255, 255, 255, 0.92);;
+            color: rgba(255, 255, 255, 0.92);
             padding: 10px;
             font-size: 1rem;
             border-radius: 4px;
@@ -106,8 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #fff;
         }
 
-
-        /* Alert Styling */
         .alert-error {
             border: 1px solid red;
             background-color: rgb(255, 147, 147);
@@ -119,63 +149,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .alert-success {
-            border: 1px solid green;
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
             background-color: #d4edda;
-            color: green;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            padding: 0.4rem 0.8rem;
-            margin-top: 10px;
-        }
-
-        /* Loading Indicator Styling */
-        .loading-indicator {
-            display: none;
+            border: 1px solid green;
             color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            color: green;
+        }
+
+        .alert-success.show {
+            display: block;
+        }
+
+        .section-title {
             font-size: 1.5rem;
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        /* Enhanced Responsive Adjustments */
-        @media (max-width: 768px) {
-            .custom-card {
-                padding: 18px;
-            }
-
-            .custom-input,
-            .custom-button {
-                font-size: 0.95rem;
-                padding: 8px;
-            }
-
-            .loading-indicator {
-                font-size: 1.3rem;
-                margin-top: 12px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .custom-card {
-                padding: 15px;
-                border-radius: 6px;
-            }
-
-            .custom-input,
-            .custom-button {
-                font-size: 0.9rem;
-                padding: 7px;
-            }
-
-            .loading-indicator {
-                font-size: 1.2rem;
-                margin-top: 10px;
-            }
-        }
-
-        /* Form Background Styling */
-        form.custom-card {
-            background-color: transparent;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fff;
         }
     </style>
 </head>
@@ -188,48 +185,77 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="container">
             <div class="container">
                 <h2>General Settings</h2>
-                <p>This section is visible to all users.</p>
-            </div>
-            <br>
-            <hr>
-            <div class="custom-card">
-                <form method="POST" action="">
-                    <div class="card-header text-center">
-                        <h3>Set Reorder Level</h3>
-                        <hr>
-                    </div>
-                    <div class="mb-3">
-                        <label for="reorder_level" class="form-label">Minimum Stock Level for All Products</label>
-                        <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
-                    </div>
+                <div class="custom-card">
                     <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
-                    <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
-                    <button type="submit" class="custom-button" id="submitButton">Submit</button>
-                </form>
-            </div>
-            <br>
-            <hr>
-            <div class="custom-card">
-                <form method="POST" action="">
-                    <div class="card-header text-center">
-                        <h3>Register a User</h3>
-                        <hr>
-                    </div>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" name="username" class="custom-input" placeholder="Username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" name="password" class="custom-input" placeholder="Password" required>
-                    </div>
-                    <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
-                    <?php if ($success) echo "<div class='alert-success'>$success</div>"; ?>
-                    <button type="submit" class="custom-button" id="submitButton">Submit</button>
-                </form>
+                    <?php if ($success) echo "<div class='alert-success show' id='alert-success'>$success</div>"; ?>
+                    <div class="section-title">Store Settings</div>
+                    <form method="POST" action="">
+                        <div class="mb-3">
+                            <label for="reorder_level" class="form-label">Low Stock Alert (Reorder Level)</label>
+                            <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
+                        </div>
+                        <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                    </form>
+                </div>
+                <div class="custom-card">
+                    <div class="section-title">User Settings</div>
+                    <form method="POST" action="">
+                        <input type="hidden" name="change_password" value="1">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Change Password</label>
+                            <input type="password" name="current_password" class="custom-input" placeholder="Current Password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="custom-input" placeholder="New Password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" name="confirm_password" class="custom-input" placeholder="Confirm New Password" required>
+                        </div>
+                        <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const successAlert = document.querySelector('.alert-success');
+                const errorAlert = document.querySelector('.alert-error');
+
+                if (successAlert && successAlert.textContent.trim() !== '') {
+                    successAlert.classList.add('show');
+                    setTimeout(function() {
+                        successAlert.classList.remove('show');
+                    }, 4000); // Hide after 4 seconds
+                }
+
+                if (errorAlert && errorAlert.textContent.trim() !== '') {
+                    errorAlert.style.display = 'block';
+                }
+            });
+
+            function exportData() {
+                // Implement data export functionality
+                alert('Data export functionality to be implemented.');
+            }
+
+            function importData() {
+                // Implement data import functionality
+                alert('Data import functionality to be implemented.');
+            }
+
+            function clearCache() {
+                // Implement cache clearing functionality
+                alert('Cache clearing functionality to be implemented.');
+            }
+
+            function resetData() {
+                // Implement data reset functionality
+                alert('Data reset functionality to be implemented.');
+            }
+        </script>
 </body>
 
 </html>

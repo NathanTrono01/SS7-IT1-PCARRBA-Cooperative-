@@ -346,11 +346,11 @@ if (isset($_POST['edit_item'])) {
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="cost_price" class="form-label">Purchase Cost: <span class="required">*</span></label>
-                                <input type="text" class="form-c" name="cost_price" id="cost_price" value="<?php echo htmlspecialchars($productDetails['costPrice'] ?? ''); ?>" placeholder="Enter purchase cost" required>
+                                <input type="number" class="form-c" name="cost_price" id="cost_price" value="<?php echo htmlspecialchars($productDetails['costPrice'] ?? ''); ?>" placeholder="Enter purchase cost" required>
                             </div>
                             <div class="form-group">
                                 <label for="unit_price" class="form-label">Selling Price: <span class="required">*</span></label>
-                                <input type="text" class="form-c" name="unit_price" id="unit_price" value="<?php echo htmlspecialchars($productDetails['unitPrice']); ?>" placeholder="Enter selling price" required>
+                                <input type="number" class="form-c" name="unit_price" id="unit_price" value="<?php echo htmlspecialchars($productDetails['unitPrice']); ?>" placeholder="Enter selling price" required>
                             </div>
                         </div>
                         <input type="hidden" name="quantity" value="<?php echo htmlspecialchars($productDetails['totalStock']); ?>">

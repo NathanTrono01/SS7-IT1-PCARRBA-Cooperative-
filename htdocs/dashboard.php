@@ -515,9 +515,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
             <br>
             <div class="title-link">
                 <span><b>Overview</b></span>
-                <a href="reports.php?tab=product">
-                    <img src="images/arrow-right.png" alt="Another Image" class="btn-back" id="another-image">
-                </a>
             </div>
             <div class="status-cards">
                 <div class="card1 total-inventory">
@@ -544,7 +541,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
             <br>
             <div>
-                <span class="title-link">Stock Alerts</span>
+                <div class="title-link">
+                    <span><b>Restock Alert</b></span>
+                    <a href="reports.php?tab=product">
+                        <img src="images/arrow-right.png" alt="Another Image" class="btn-back" id="another-image">
+                    </a>
+                </div>
                 <div class="restock-container scrollable-restocks" id="lowStockContainer">
                     <?php foreach ($low_stock_products as $product) { ?>
                         <div class="restock-card">
@@ -568,7 +570,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 </div>
             </div>
             <br>
-            <span class="title-link">Snapshot</span>
+            <div class="title-link">
+                <span><b>Snapshot</b></span>
+                <a href="reports.php?tab=revenue">
+                    <img src="images/arrow-right.png" alt="Another Image" class="btn-back" id="another-image">
+                </a>
+            </div>
             <div class="dashboard-container">
                 <!-- Line Chart Card -->
                 <div class="card2 chart-container">

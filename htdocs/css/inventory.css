@@ -65,7 +65,6 @@
 }
 
 .table-wrapper {
-
     overflow-x: hidden;
 }
 
@@ -116,7 +115,7 @@ table td {
     font-size: 1rem;
     color: #eee;
     margin: 0 5px;
-    white-space: normal;
+    white-space: wrap;
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -130,16 +129,6 @@ table tr:hover {
     background-color: rgba(187, 194, 209, 0.17);
     transition: all 0.3s ease;
 }
-
-/* table tr td:first-child {
-border-top-left-radius: 5px;
-border-bottom-left-radius: 5px;
-}
-
-table tr td:last-child {
-border-top-right-radius: 5px;
-border-bottom-right-radius: 5px;
-} */
 
 .restock-button {
     display: inline-block;
@@ -202,7 +191,7 @@ border-bottom-right-radius: 5px;
 }
 
 .btn-edit {
-    background-color: #335fff !important;
+    background-color: rgb(42, 56, 255) !important;
     color: white !important;
 }
 
@@ -217,6 +206,12 @@ border-bottom-right-radius: 5px;
     color: rgb(255, 0, 0) !important;
 }
 
+.btn-delete:disabled {
+    border: 1px solid #ff9999 !important;
+    color: #ff9999 !important;
+    cursor: not-allowed;
+}
+
 .action-buttons {
     display: flex;
     gap: 5px;
@@ -224,17 +219,18 @@ border-bottom-right-radius: 5px;
 
 .popup-alert {
     position: fixed;
-    margin-top: 10px;
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(40, 167, 70, 0.44);
-    border: 1px solid rgb(0, 255, 60);
+    background-color: #d4edda;
+    border: 1px solid green;
     color: white;
     padding: 15px 30px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: none;
+    color: green;
 }
 
 .popup-alert.show {
@@ -254,18 +250,6 @@ border-bottom-right-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: none;
-}
-
-.stock-out {
-    color: red;
-}
-
-.stock-low {
-    color: orange;
-}
-
-.stock-good {
-    color: limegreen;
 }
 
 th {
@@ -307,7 +291,6 @@ th img {
 #productTable th {
     background: rgb(17, 18, 22);
     /* Dark background */
-    color: white;
     border-bottom: 2px solid #333942;
     text-align: left;
 }
@@ -327,8 +310,10 @@ th img {
 }
 
 #productTable td {
-    padding: 10px;
-    color: white;
+    padding: 10px 10px;
+    font-size: 1rem;
+    margin: 0 5px;
+    width: 20%;
 }
 
 /* Scrollbar for tbody */
@@ -363,6 +348,14 @@ th img {
 }
 
 @media (max-width: 1024px) {
+
+    #productTable td {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        margin: 0 5px;
+        width: 20%;
+    }
+
     .table-wrapper {
         /* Responsive height based on viewport */
         overflow-y: auto;
@@ -375,6 +368,7 @@ th img {
     table td {
         font-size: 0.95rem;
     }
+
 
     .btn-action {
         padding: 6px 10px;
@@ -426,7 +420,7 @@ th img {
     }
 
     h2 {
-        font-size: 0.8em;
+        font-size: 0.7em;
     }
 
     .table-wrapper {
@@ -437,7 +431,7 @@ th img {
         font-size: 0.8rem;
         width: 100%;
         overflow-x: hidden;
-        white-space: nowrap;
+        white-space: wrap;
     }
 
     table th,
@@ -465,4 +459,16 @@ th img {
 .main-content {
     padding: 10px;
     height: 100vh;
+}
+
+.stock-out {
+    color: red;
+}
+
+.stock-low {
+    color: orange;
+}
+
+.stock-good {
+    color: limegreen;
 }

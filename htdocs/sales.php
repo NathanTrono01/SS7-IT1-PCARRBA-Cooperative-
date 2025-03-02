@@ -163,15 +163,6 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             transition: all 0.3s ease;
         }
 
-        /* table tr td:first-child {
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-
-table tr td:last-child {
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-} */
 
         .button a {
             background: transparent;
@@ -231,7 +222,7 @@ table tr td:last-child {
 
         .alert-success {
             position: fixed;
-            margin-top: 10px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #d4edda;
@@ -516,7 +507,7 @@ table tr td:last-child {
                 </div>
             </div>
             <div class="table-wrapper">
-                <table id="salesTable">
+                <table id="salesTable" data-sort-order="asc">
                     <thead>
                         <tr>
                             <th onclick="sortTable(0)">Date <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
@@ -557,27 +548,37 @@ table tr td:last-child {
             </div>
         </div>
     </div>
-
     <script>
-        function createRipple(event) {
-            const button = event.currentTarget;
-            const ripple = document.createElement("span");
-            ripple.classList.add("ripple");
+        function sortTable(columnIndex) {
+            const table = document.getElementById("salesTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const isNumericColumn = columnIndex === 2; // Amount column is numeric
+            const isDateColumn = columnIndex === 0; // Date column is date
 
-            const rect = button.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height) * 2.5; // Bigger ripple
-            ripple.style.width = ripple.style.height = `${size}px`;
+            let sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            table.dataset.sortOrder = sortOrder;
 
-            const x = event.clientX - rect.left - size / 2;
-            const y = event.clientY - rect.top - size / 2;
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].innerText.trim();
+                const cellB = rowB.cells[columnIndex].innerText.trim();
 
-            button.appendChild(ripple);
+                if (isDateColumn) {
+                    const dateA = new Date(rowA.cells[columnIndex].dataset.date);
+                    const dateB = new Date(rowB.cells[columnIndex].dataset.date);
+                    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+                }
 
-            setTimeout(() => {
-                ripple.remove();
-            }, 2000); // Matches animation duration
+                if (isNumericColumn) {
+                    const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, ""));
+                    const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, ""));
+                    return sortOrder === "asc" ? numA - numB : numB - numA;
+                }
+
+                return sortOrder === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
         }
     </script>
 </body>
