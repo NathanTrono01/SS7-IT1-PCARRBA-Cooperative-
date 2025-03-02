@@ -231,6 +231,13 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                 overflow-x: auto;
             }
 
+            #productTable td {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+                width: 20%;
+            }
+
             table th,
             table td {
                 font-size: 0.95rem;

@@ -418,6 +418,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         @media (max-width: 1024px) {
+
+            #productTable td {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+                width: 20%;
+            }
+
             .table-wrapper {
                 /* Responsive height based on viewport */
                 overflow-y: auto;
@@ -430,6 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             table td {
                 font-size: 0.95rem;
             }
+
 
             .btn-action {
                 padding: 6px 10px;
@@ -481,7 +490,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             h2 {
-                font-size: 0.8em;
+                font-size: 0.7em;
             }
 
             .table-wrapper {
@@ -492,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 font-size: 0.8rem;
                 width: 100%;
                 overflow-x: hidden;
-                white-space: nowrap;
+                white-space: wrap;
             }
 
             table th,
@@ -599,7 +608,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td><?php echo htmlspecialchars($product['productName']); ?></td>
                                     <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
                                     <td class="<?php echo $stockClass; ?>"><?php echo $product['totalStock'] == 0 ? 'Out of Stock' : htmlspecialchars($product['totalStock']) . (isset($product['unit']) ? ' ' . htmlspecialchars($product['unit']) : ''); ?></td>
-                                    <td>₱ <?php echo htmlspecialchars($product['unitPrice']); ?></td>
+                                    <td>₱ <?php echo number_format($product['unitPrice'], 2); ?></td>
                                     <td>
                                         <div class="action-buttons">
                                             <form method="post" style="display:inline;">

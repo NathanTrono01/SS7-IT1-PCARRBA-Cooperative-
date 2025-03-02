@@ -31,7 +31,7 @@ CREATE TABLE `audit_logs` (
   PRIMARY KEY (`logId`),
   KEY `users_audit_logs` (`userId`),
   CONSTRAINT `users_audit_logs` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `audit_logs` (
 
 LOCK TABLES `audit_logs` WRITE;
 /*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
-INSERT INTO `audit_logs` VALUES (3,'Make Sale','Sold 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:25:41'),(5,'Restock','Restocked 1 Youngs Town Sardines (pcs) with a total cost of 10 PHP',23,'2025-02-27 10:31:45'),(6,'Insert Product','Performed action: Insert Product on 10 Pancit Canton (pcs) with a cost of 10 PHP each',23,'2025-02-27 10:35:35'),(7,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:43:57'),(8,'Edit Product','Edited product: 2 Youngs Town Sardines (pcs) with a new cost price of 10.00 PHP',23,'2025-02-27 11:08:30'),(9,'Restock','Restocked 1 Youngs Town Sardines (pcs)',23,'2025-02-27 11:12:12'),(10,'Make Sale','Performed action: Make Sale on 2 Youngs Town Sardines (pcs)',23,'2025-02-27 20:01:01'),(11,'Make Sale','Performed action: Make Sale on 1 Pancit Canton (pcs)',23,'2025-02-28 10:30:45'),(12,'Restock','Restocked 10 Youngs Town Sardines (pcs)',23,'2025-02-28 02:32:21'),(13,'Insert Product','Performed action: Insert Product on 1 1 (pcs)',23,'2025-03-01 04:39:41'),(14,'Insert Product','Performed action: Insert Product on 2 2 (pcs)',23,'2025-03-01 04:39:47'),(15,'Insert Product','Performed action: Insert Product on 3 3 (pcs)',23,'2025-03-01 04:39:52'),(16,'Insert Product','Performed action: Insert Product on 4 4 (pcs)',23,'2025-03-01 04:39:57'),(17,'Insert Product','Performed action: Insert Product on 5 5 (pcs)',23,'2025-03-01 04:40:02'),(18,'Insert Product','Performed action: Insert Product on 6 6 (pcs)',23,'2025-03-01 05:08:00'),(19,'Insert Product','Performed action: Insert Product on 7 7 (pcs)',23,'2025-03-01 06:01:11'),(20,'Make Sale','Performed action: Make Sale on 13 Youngs Town Sardines (pcs)',23,'2025-03-01 14:57:01'),(21,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:08:59'),(22,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:09:07'),(23,'Credit','Recorded credit for 1 3 (pcs)',23,'2025-03-01 15:09:12'),(24,'Credit','Recorded credit for 1 5 (pcs)',23,'2025-03-01 15:09:19'),(25,'Credit','Recorded credit for 1 6 (pcs)',23,'2025-03-01 15:09:24'),(26,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:09:31'),(27,'Make Sale','Performed action: Make Sale on 6 Pancit Canton (pcs)',23,'2025-03-01 15:11:44'),(28,'Make Sale','Performed action: Make Sale on 1 1 (pcs), 1 2 (pcs)',24,'2025-03-01 17:38:07'),(29,'Make Sale','Performed action: Make Sale on 1 2 (pcs)',24,'2025-03-01 17:38:55'),(30,'Make Sale','Performed action: Make Sale on 1 5 (pcs)',24,'2025-03-01 17:40:05'),(31,'Credit','Recorded credit for 1 6 (pcs)',24,'2025-03-01 17:45:13'),(32,'Credit','Recorded credit for 1 3 (pcs)',24,'2025-03-01 17:46:44'),(33,'Insert Product','Performed action: Insert Product on 1 test (pcs)',24,'2025-03-01 10:01:34'),(34,'Insert Product','Performed action: Insert Product on 1 awdawdawd (pcs)',24,'2025-03-01 10:02:01'),(35,'Restock','Restocked 100 Youngs Town Sardines (pcs)',24,'2025-03-01 10:48:42'),(36,'Restock','Restocked 100 Pancit Canton (pcs)',24,'2025-03-01 10:48:42'),(37,'Restock','Restocked 100 1 (pcs)',23,'2025-03-01 13:20:12'),(38,'Restock','Restocked 15 Youngs Town Sardines (pcs)',23,'2025-03-01 13:20:12'),(39,'Sale','Performed action: Sale on 1 1 (pcs)',23,'2025-03-02 07:16:53'),(40,'Sale','Sold 1 Youngs Town Sardines (pcs)',23,'2025-03-02 07:18:26'),(41,'Restock','Restocked 1 2 (pcs)',23,'2025-03-02 00:07:59'),(42,'Restock','Restocked 1 3 (pcs)',23,'2025-03-02 00:08:23'),(43,'Restock','Restocked 1 Pancit Canton (pcs)',23,'2025-03-02 00:08:42'),(44,'Sale','Sold 1 Youngs Town Sardines (pcs)',23,'2025-03-02 08:09:28'),(45,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs), 1 1 (pcs), 1 4 (pcs), 1 7 (pcs), 1 Pancit Canton (pcs)',23,'2025-03-02 08:10:02');
+INSERT INTO `audit_logs` VALUES (3,'Make Sale','Sold 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:25:41'),(5,'Restock','Restocked 1 Youngs Town Sardines (pcs) with a total cost of 10 PHP',23,'2025-02-27 10:31:45'),(6,'Insert Product','Performed action: Insert Product on 10 Pancit Canton (pcs) with a cost of 10 PHP each',23,'2025-02-27 10:35:35'),(7,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs) with a total of 15 PHP',23,'2025-02-27 18:43:57'),(8,'Edit Product','Edited product: 2 Youngs Town Sardines (pcs) with a new cost price of 10.00 PHP',23,'2025-02-27 11:08:30'),(9,'Restock','Restocked 1 Youngs Town Sardines (pcs)',23,'2025-02-27 11:12:12'),(10,'Make Sale','Performed action: Make Sale on 2 Youngs Town Sardines (pcs)',23,'2025-02-27 20:01:01'),(11,'Make Sale','Performed action: Make Sale on 1 Pancit Canton (pcs)',23,'2025-02-28 10:30:45'),(12,'Restock','Restocked 10 Youngs Town Sardines (pcs)',23,'2025-02-28 02:32:21'),(13,'Insert Product','Performed action: Insert Product on 1 1 (pcs)',23,'2025-03-01 04:39:41'),(14,'Insert Product','Performed action: Insert Product on 2 2 (pcs)',23,'2025-03-01 04:39:47'),(15,'Insert Product','Performed action: Insert Product on 3 3 (pcs)',23,'2025-03-01 04:39:52'),(16,'Insert Product','Performed action: Insert Product on 4 4 (pcs)',23,'2025-03-01 04:39:57'),(17,'Insert Product','Performed action: Insert Product on 5 5 (pcs)',23,'2025-03-01 04:40:02'),(18,'Insert Product','Performed action: Insert Product on 6 6 (pcs)',23,'2025-03-01 05:08:00'),(19,'Insert Product','Performed action: Insert Product on 7 7 (pcs)',23,'2025-03-01 06:01:11'),(20,'Make Sale','Performed action: Make Sale on 13 Youngs Town Sardines (pcs)',23,'2025-03-01 14:57:01'),(21,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:08:59'),(22,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:09:07'),(23,'Credit','Recorded credit for 1 3 (pcs)',23,'2025-03-01 15:09:12'),(24,'Credit','Recorded credit for 1 5 (pcs)',23,'2025-03-01 15:09:19'),(25,'Credit','Recorded credit for 1 6 (pcs)',23,'2025-03-01 15:09:24'),(26,'Credit','Recorded credit for 1 Pancit Canton (pcs)',23,'2025-03-01 15:09:31'),(27,'Make Sale','Performed action: Make Sale on 6 Pancit Canton (pcs)',23,'2025-03-01 15:11:44'),(28,'Make Sale','Performed action: Make Sale on 1 1 (pcs), 1 2 (pcs)',24,'2025-03-01 17:38:07'),(29,'Make Sale','Performed action: Make Sale on 1 2 (pcs)',24,'2025-03-01 17:38:55'),(30,'Make Sale','Performed action: Make Sale on 1 5 (pcs)',24,'2025-03-01 17:40:05'),(31,'Credit','Recorded credit for 1 6 (pcs)',24,'2025-03-01 17:45:13'),(32,'Credit','Recorded credit for 1 3 (pcs)',24,'2025-03-01 17:46:44'),(33,'Insert Product','Performed action: Insert Product on 1 test (pcs)',24,'2025-03-01 10:01:34'),(34,'Insert Product','Performed action: Insert Product on 1 awdawdawd (pcs)',24,'2025-03-01 10:02:01'),(35,'Restock','Restocked 100 Youngs Town Sardines (pcs)',24,'2025-03-01 10:48:42'),(36,'Restock','Restocked 100 Pancit Canton (pcs)',24,'2025-03-01 10:48:42'),(37,'Restock','Restocked 100 1 (pcs)',23,'2025-03-01 13:20:12'),(38,'Restock','Restocked 15 Youngs Town Sardines (pcs)',23,'2025-03-01 13:20:12'),(39,'Sale','Performed action: Sale on 1 1 (pcs)',23,'2025-03-02 07:16:53'),(40,'Sale','Sold 1 Youngs Town Sardines (pcs)',23,'2025-03-02 07:18:26'),(41,'Restock','Restocked 1 2 (pcs)',23,'2025-03-02 00:07:59'),(42,'Restock','Restocked 1 3 (pcs)',23,'2025-03-02 00:08:23'),(43,'Restock','Restocked 1 Pancit Canton (pcs)',23,'2025-03-02 00:08:42'),(44,'Sale','Sold 1 Youngs Town Sardines (pcs)',23,'2025-03-02 08:09:28'),(45,'Credit','Recorded credit for 1 Youngs Town Sardines (pcs), 1 1 (pcs), 1 4 (pcs), 1 7 (pcs), 1 Pancit Canton (pcs)',23,'2025-03-02 08:10:02'),(46,'Sale','Sold 112 Youngs Town Sardines (pcs)',23,'2025-03-02 12:16:59'),(47,'Sale','Sold 100 Pancit Canton (pcs)',23,'2025-03-02 12:17:18'),(48,'Sale','Sold 98 1 (pcs)',23,'2025-03-02 12:17:32');
 /*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -72,7 +72,7 @@ CREATE TABLE `batchItem` (
 
 LOCK TABLES `batchItem` WRITE;
 /*!40000 ALTER TABLE `batchItem` DISABLE KEYS */;
-INSERT INTO `batchItem` VALUES (41,1,3.00,'2025-03-01 09:46:44',50,23),(42,3,4.00,'2025-03-02 00:10:02',51,23),(43,3,5.00,'2025-03-01 09:40:05',52,23),(44,4,6.00,'2025-03-01 09:45:13',53,23),(45,6,7.00,'2025-03-02 00:10:02',54,23),(48,98,10.00,'2025-03-02 00:10:02',42,24),(49,99,10.00,'2025-03-02 00:10:02',43,24),(50,98,10.00,'2025-03-02 00:10:02',48,23),(51,14,10.00,'2025-03-02 00:09:28',42,23),(52,1,10.00,'2025-03-02 00:07:59',49,23),(53,1,10.00,'2025-03-02 00:08:23',50,23),(54,1,10.00,'2025-03-02 00:08:42',43,23);
+INSERT INTO `batchItem` VALUES (41,1,3.00,'2025-03-01 09:46:44',50,23),(42,3,4.00,'2025-03-02 00:10:02',51,23),(43,3,5.00,'2025-03-01 09:40:05',52,23),(44,4,6.00,'2025-03-01 09:45:13',53,23),(45,6,7.00,'2025-03-02 00:10:02',54,23),(52,1,10.00,'2025-03-02 00:07:59',49,23),(53,1,10.00,'2025-03-02 00:08:23',50,23);
 /*!40000 ALTER TABLE `batchItem` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +183,7 @@ CREATE TABLE `inventory` (
 
 LOCK TABLES `inventory` WRITE;
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
-INSERT INTO `inventory` VALUES (19,112,5,42),(20,100,5,43),(21,98,5,48),(22,1,5,49),(23,2,5,50),(24,3,5,51),(25,3,5,52),(26,4,5,53),(27,6,5,54);
+INSERT INTO `inventory` VALUES (19,0,5,42),(20,0,5,43),(21,0,5,48),(22,1,5,49),(23,2,5,50),(24,3,5,51),(25,3,5,52),(26,4,5,53),(27,6,5,54);
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -200,7 +200,6 @@ CREATE TABLE `products` (
   `productCategory` varchar(100) NOT NULL,
   `unitPrice` decimal(10,2) NOT NULL,
   `categoryId` int(11) NOT NULL,
-  `status` enum('Active','Inactive') NOT NULL DEFAULT 'Active',
   `unit` enum('pcs','kg','L','pack','mL','doz','m') NOT NULL DEFAULT 'pcs',
   PRIMARY KEY (`productId`),
   KEY `categories_products` (`categoryId`),
@@ -214,7 +213,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (42,'Youngs Town Sardines','12',15.00,12,'Active','pcs'),(43,'Pancit Canton','13',12.00,13,'Active','pcs'),(48,'1','12',1.00,12,'Active','pcs'),(49,'2','12',2.00,12,'Active','pcs'),(50,'3','12',3.00,12,'Active','pcs'),(51,'4','12',4.00,12,'Active','pcs'),(52,'5','12',5.00,12,'Active','pcs'),(53,'6','12',6.00,12,'Active','pcs'),(54,'7','12',7.00,12,'Active','pcs');
+INSERT INTO `products` VALUES (42,'Youngs Town Sardines','12',15.00,12,'pcs'),(43,'Pancit Canton','13',12.00,13,'pcs'),(48,'1','12',1.00,12,'pcs'),(49,'2','12',2.00,12,'pcs'),(50,'3','12',3.00,12,'pcs'),(51,'4','12',4.00,12,'pcs'),(52,'5','12',5.00,12,'pcs'),(53,'6','12',6.00,12,'pcs'),(54,'7','12',7.00,12,'pcs');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,7 +241,7 @@ CREATE TABLE `sale_item` (
   CONSTRAINT `credits_sale_item` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`) ON DELETE CASCADE,
   CONSTRAINT `products_sale_item` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`),
   CONSTRAINT `sale_sale_item` FOREIGN KEY (`saleId`) REFERENCES `sales` (`saleId`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -251,7 +250,7 @@ CREATE TABLE `sale_item` (
 
 LOCK TABLES `sale_item` WRITE;
 /*!40000 ALTER TABLE `sale_item` DISABLE KEYS */;
-INSERT INTO `sale_item` VALUES (75,1,15.00,15.00,53,NULL,24,42),(76,1,15.00,15.00,NULL,32,25,42),(77,1,15.00,15.00,54,NULL,26,42),(78,1,15.00,15.00,55,NULL,27,42),(79,1,15.00,15.00,56,NULL,28,42),(80,1,15.00,15.00,57,NULL,28,42),(81,1,15.00,15.00,58,NULL,29,42),(82,1,15.00,15.00,NULL,33,29,42),(83,2,15.00,30.00,59,NULL,30,42),(84,1,12.00,12.00,62,NULL,32,43),(85,2,15.00,195.00,63,NULL,31,42),(86,1,15.00,195.00,63,NULL,33,42),(87,10,15.00,195.00,63,NULL,34,42),(88,1,12.00,12.00,NULL,34,32,43),(89,1,12.00,12.00,NULL,35,32,43),(90,1,3.00,3.00,NULL,36,41,50),(91,1,5.00,5.00,NULL,37,43,52),(92,1,6.00,6.00,NULL,38,44,53),(93,1,12.00,12.00,NULL,39,32,43),(94,6,12.00,72.00,64,NULL,32,43),(95,1,1.00,1.00,66,NULL,39,48),(96,1,2.00,2.00,66,NULL,40,49),(97,1,2.00,2.00,67,NULL,40,49),(98,1,5.00,5.00,68,NULL,43,52),(99,1,6.00,6.00,NULL,40,44,53),(100,1,3.00,3.00,NULL,41,41,50),(101,1,1.00,1.00,69,NULL,50,48),(102,1,15.00,15.00,70,NULL,48,42),(103,1,15.00,15.00,71,NULL,51,42),(104,1,15.00,15.00,NULL,42,48,42),(105,1,1.00,1.00,NULL,42,50,48),(106,1,4.00,4.00,NULL,42,42,51),(107,1,7.00,7.00,NULL,42,45,54),(108,1,12.00,12.00,NULL,42,49,43);
+INSERT INTO `sale_item` VALUES (75,1,15.00,15.00,53,NULL,24,42),(76,1,15.00,15.00,NULL,32,25,42),(77,1,15.00,15.00,54,NULL,26,42),(78,1,15.00,15.00,55,NULL,27,42),(79,1,15.00,15.00,56,NULL,28,42),(80,1,15.00,15.00,57,NULL,28,42),(81,1,15.00,15.00,58,NULL,29,42),(82,1,15.00,15.00,NULL,33,29,42),(83,2,15.00,30.00,59,NULL,30,42),(84,1,12.00,12.00,62,NULL,32,43),(85,2,15.00,195.00,63,NULL,31,42),(86,1,15.00,195.00,63,NULL,33,42),(87,10,15.00,195.00,63,NULL,34,42),(88,1,12.00,12.00,NULL,34,32,43),(89,1,12.00,12.00,NULL,35,32,43),(90,1,3.00,3.00,NULL,36,41,50),(91,1,5.00,5.00,NULL,37,43,52),(92,1,6.00,6.00,NULL,38,44,53),(93,1,12.00,12.00,NULL,39,32,43),(94,6,12.00,72.00,64,NULL,32,43),(95,1,1.00,1.00,66,NULL,39,48),(96,1,2.00,2.00,66,NULL,40,49),(97,1,2.00,2.00,67,NULL,40,49),(98,1,5.00,5.00,68,NULL,43,52),(99,1,6.00,6.00,NULL,40,44,53),(100,1,3.00,3.00,NULL,41,41,50),(101,1,1.00,1.00,69,NULL,50,48),(102,1,15.00,15.00,70,NULL,48,42),(103,1,15.00,15.00,71,NULL,51,42),(104,1,15.00,15.00,NULL,42,48,42),(105,1,1.00,1.00,NULL,42,50,48),(106,1,4.00,4.00,NULL,42,42,51),(107,1,7.00,7.00,NULL,42,45,54),(108,1,12.00,12.00,NULL,42,49,43),(109,14,15.00,1680.00,72,NULL,51,42),(110,98,15.00,1680.00,72,NULL,48,42),(111,1,12.00,1200.00,73,NULL,54,43),(112,99,12.00,1200.00,73,NULL,49,43),(113,98,1.00,98.00,74,NULL,50,48);
 /*!40000 ALTER TABLE `sale_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,7 +276,7 @@ CREATE TABLE `sales` (
   CONSTRAINT `creditor_sale` FOREIGN KEY (`creditorId`) REFERENCES `creditor` (`creditorId`),
   CONSTRAINT `credits_sales` FOREIGN KEY (`creditId`) REFERENCES `credits` (`creditId`),
   CONSTRAINT `users_sale` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`)
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +285,7 @@ CREATE TABLE `sales` (
 
 LOCK TABLES `sales` WRITE;
 /*!40000 ALTER TABLE `sales` DISABLE KEYS */;
-INSERT INTO `sales` VALUES (53,15.00,'Cash','2025-02-23 17:14:39',23,NULL,NULL),(54,15.00,'Cash','2025-02-25 17:38:03',23,NULL,NULL),(55,15.00,'Cash','2025-02-26 17:39:14',23,NULL,NULL),(56,15.00,'Cash','2025-02-27 17:48:28',23,NULL,NULL),(57,15.00,'Cash','2025-02-27 18:11:09',23,NULL,NULL),(58,15.00,'Cash','2025-02-28 18:25:41',23,NULL,NULL),(59,30.00,'Cash','2025-02-27 20:01:01',23,NULL,NULL),(60,15.00,'Credit','2025-02-27 20:43:59',23,NULL,33),(61,15.00,'Credit','2025-02-27 20:44:05',23,NULL,32),(62,12.00,'Cash','2025-02-28 10:30:45',23,NULL,NULL),(63,195.00,'Cash','2025-03-01 14:57:01',23,NULL,NULL),(64,72.00,'Cash','2025-03-01 15:11:44',23,NULL,NULL),(65,6.00,'Credit','2025-03-01 17:35:46',23,NULL,38),(66,3.00,'Cash','2025-03-01 17:38:07',24,NULL,NULL),(67,2.00,'Cash','2025-03-01 17:38:55',24,NULL,NULL),(68,5.00,'Cash','2025-03-01 17:40:05',24,NULL,NULL),(69,1.00,'Cash','2025-03-02 07:16:53',23,NULL,NULL),(70,15.00,'Cash','2025-03-02 07:18:26',23,NULL,NULL),(71,15.00,'Cash','2025-03-02 08:09:28',23,NULL,NULL);
+INSERT INTO `sales` VALUES (53,15.00,'Cash','2025-02-23 17:14:39',23,NULL,NULL),(54,15.00,'Cash','2025-02-25 17:38:03',23,NULL,NULL),(55,15.00,'Cash','2025-02-26 17:39:14',23,NULL,NULL),(56,15.00,'Cash','2025-02-27 17:48:28',23,NULL,NULL),(57,15.00,'Cash','2025-02-27 18:11:09',23,NULL,NULL),(58,15.00,'Cash','2025-02-28 18:25:41',23,NULL,NULL),(59,30.00,'Cash','2025-02-27 20:01:01',23,NULL,NULL),(60,15.00,'Credit','2025-02-27 20:43:59',23,NULL,33),(61,15.00,'Credit','2025-02-27 20:44:05',23,NULL,32),(62,12.00,'Cash','2025-02-28 10:30:45',23,NULL,NULL),(63,195.00,'Cash','2025-03-01 14:57:01',23,NULL,NULL),(64,72.00,'Cash','2025-03-01 15:11:44',23,NULL,NULL),(65,6.00,'Credit','2025-03-01 17:35:46',23,NULL,38),(66,3.00,'Cash','2025-03-01 17:38:07',24,NULL,NULL),(67,2.00,'Cash','2025-03-01 17:38:55',24,NULL,NULL),(68,5.00,'Cash','2025-03-01 17:40:05',24,NULL,NULL),(69,1.00,'Cash','2025-03-02 07:16:53',23,NULL,NULL),(70,15.00,'Cash','2025-03-02 07:18:26',23,NULL,NULL),(71,15.00,'Cash','2025-03-02 08:09:28',23,NULL,NULL),(72,1680.00,'Cash','2025-03-02 12:16:59',23,NULL,NULL),(73,1200.00,'Cash','2025-03-02 12:17:18',23,NULL,NULL),(74,98.00,'Cash','2025-03-02 12:17:32',23,NULL,NULL);
 /*!40000 ALTER TABLE `sales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -326,4 +325,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-02  2:27:51
+-- Dump completed on 2025-03-02  4:56:38

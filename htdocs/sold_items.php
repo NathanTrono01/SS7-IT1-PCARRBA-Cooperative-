@@ -1,10 +1,8 @@
 <?php
-session_start();
 if (!isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
 }
-
 // Include database connection
 include 'db.php';
 
@@ -55,9 +53,6 @@ if ($most_sold_products_result->num_rows > 0) {
 </head>
 
 <body>
-    <script src="js/bootstrap.bundle.min.js"></script>
-
-    <!-- Main content -->
     <div class="main-content fade-in">
         <br>
         <h2>Sale Items Data Tables</h2>

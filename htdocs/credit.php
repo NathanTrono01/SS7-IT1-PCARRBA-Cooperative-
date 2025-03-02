@@ -420,6 +420,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 overflow-x: hidden;
             }
 
+            #productTable td {
+                padding: 8px 10px;
+                font-size: 0.8rem;
+                margin: 0 5px;
+                width: 20%;
+            }
+
             table th,
             table td {
                 font-size: 0.95rem;

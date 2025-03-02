@@ -537,7 +537,7 @@ table tr td:last-child {
                                         <?php echo date("n/j/y", strtotime($sale['dateSold'])) . "<br>" . date("g:i A", strtotime($sale['dateSold'])); ?>
                                     </td>
                                     <td><?php echo htmlspecialchars($sale['transactionType']); ?></td>
-                                    <td>₱ <?php echo htmlspecialchars($sale['totalPrice']); ?></td>
+                                    <td>₱ <?php echo number_format($sale['totalPrice'], 2); ?></td>
                                     <td>
                                         <?php if ($sale['transactionType'] === 'Credit') { ?>
                                             <a href="credit_details.php?creditId=<?php echo $sale['creditId']; ?>" class="view-details">

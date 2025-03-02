@@ -1,11 +1,8 @@
 <?php
-session_start();
 if (!isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
 }
-
-// Include database connection
 include 'db.php';
 
 // Fetch top 5 most sold products
@@ -55,9 +52,6 @@ if ($most_sold_products_result->num_rows > 0) {
 </head>
 
 <body>
-    <script src="js/bootstrap.bundle.min.js"></script>
-
-    <!-- Main content -->
     <div class="main-content fade-in">
         <div class="dashboard-wrapper">
             <h2>Overview</h2>
@@ -85,7 +79,7 @@ if ($most_sold_products_result->num_rows > 0) {
                 <div class="card1 pending-credits">
                     <i class="fas fa-credit-card"></i>
                     <h2>Total Cost</h2>
-                    <p>₱ <?php echo array_sum(array_column($sale_items, 'subTotal')); ?></p>
+                    <p><?php echo number_format(array_sum(array_column($sale_items, 'subTotal')), 2); ?> PHP</p>
                 </div>
             </div>
 

@@ -108,6 +108,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
     $colors[] = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); // Generate random color
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -117,7 +118,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/reports.css">
     <link rel="stylesheet" href="css/layer1.css">
-    <link rel="stylesheet" href="css/rep.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -712,32 +712,24 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     <div class="tab" onclick="showTab('revenue')">Revenue</div>
                     <div class="tab" onclick="showTab('product')">Product Report</div>
                     <div class="tab" onclick="showTab('items')">Sold Items Table</div>
-                    <div class="tab" onclick="showTab('download')">Download</div>
                 </div>
             </div>
-            
+
             <!-- Tab Contents -->
             <div id="revenue" class="content active">
-                <?php include ('sales_report.php'); ?>
+                <?php include('sales_report.php'); ?>
             </div>
 
             <div id="product" class="content">
-                <?php include ('product_report.php'); ?>
+                <?php include('product_report.php'); ?>
             </div>
 
             <div id="items" class="content">
-                <?php include ('sold_items.php'); ?>
-            </div>
-
-            <div id="download" class="content">
-                <div class="main-content">
-                    <h2>Download</h2>
-                    <p>Here is the download information...</p>
-                </div>
+                <?php include('sold_items.php'); ?>
             </div>
         </div>
     </div>
-
+    <?php include 'navbar.php'; ?>
     <script>
         function showTab(tabId) {
             // Hide all content
@@ -952,7 +944,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
             paginateTable('productMovementTable');
         });
     </script>
-    <?php include 'navbar.php'; ?>
 </body>
 
 </html>

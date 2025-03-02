@@ -455,7 +455,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 'inventory.php': 'Inventory',
                 'sales.php': 'Sales',
                 'credit.php': 'Credit',
-                'audit_logs.php': 'Audit Logs'
+                'audit_logs.php': 'Audit Logs',
+                'reports.php': 'Reports',
             };
 
             const navbarBrandMobile = document.querySelector('.navbar-brand-mobile');
