@@ -351,9 +351,19 @@ th img {
 
     #productTable td {
         padding: 8px 10px;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         margin: 0 5px;
         width: 20%;
+    }
+
+    #productTable th {
+        font-size: 0.5rem !important;
+    }
+
+    th img {
+        width: 10px;
+        height: 10px;
+        margin-right: 5px;
     }
 
     .table-wrapper {

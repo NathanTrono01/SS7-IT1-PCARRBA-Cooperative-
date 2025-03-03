@@ -23,11 +23,10 @@ if ($result->num_rows > 0) {
     }
 }
 
-// Fetch product details for editing
 $productDetails = null;
 if (isset($_GET['productName'])) {
     $productName = $_GET['productName'];
-    $fetch_sql = "SELECT p.*, i.totalStock, i.reorderLevel, b.costPrice, c.categoryName AS productCategory FROM products p 
+    $fetch_sql = "SELECT p.*, i.totalStock, i.reorderLevel, b.costPrice, c.categoryName AS productCategory, p.imagePath as image FROM products p 
                   LEFT JOIN inventory i ON p.productId = i.productId 
                   LEFT JOIN batchItem b ON p.productId = b.productId 
                   LEFT JOIN categories c ON p.categoryId = c.categoryId 
@@ -45,19 +44,55 @@ if (isset($_GET['productName'])) {
     }
 }
 
-// Edit item in inventory
 if (isset($_POST['edit_item'])) {
     $productId = $productDetails['productId'];
     $stockLevel = $productDetails['totalStock']; // Use the existing stock level
     $costPrice = $_POST['cost_price'];
     $unitPrice = $_POST['unit_price'];
 
+    // Initialize image path with current image
+    $imagePath = $productDetails['image'];
+
+    // Handle image upload
+    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] == 0) {
+        $file = $_FILES['product_image'];
+        $fileName = basename($file['name']);
+        $fileSize = $file['size'];
+        $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
+        $uploadDir = 'uploads/';
+
+        // Define allowed file types and size limit (e.g., 2MB for images)
+        $allowedTypes = ['jpg', 'jpeg', 'png'];
+        $maxSize = 2 * 1024 * 1024; // 2 MB
+
+        // Validate file type and size
+        if (in_array($fileExt, $allowedTypes) && $fileSize <= $maxSize) {
+            // Create unique file name and upload file
+            $newFileName = uniqid() . '.' . $fileExt;
+            $uploadFile = $uploadDir . $newFileName;
+
+            if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
+                // Delete the old image if it exists and is not the default image
+                if (!empty($imagePath) && $imagePath != 'images/no-image.png' && file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
+                $imagePath = $uploadFile;
+            } else {
+                $message = "Error uploading image.";
+                $alert_class = "alert-danger";
+            }
+        } else {
+            $message = "Invalid file type or size exceeded.";
+            $alert_class = "alert-danger";
+        }
+    }
+
     $conn->begin_transaction();
     try {
-        // Update product details
-        $update_product_sql = "UPDATE products SET unitPrice = ? WHERE productId = ?";
+        // Update product details including image path
+        $update_product_sql = "UPDATE products SET unitPrice = ?, imagePath = ? WHERE productId = ?";
         $stmt = $conn->prepare($update_product_sql);
-        $stmt->bind_param("di", $unitPrice, $productId);
+        $stmt->bind_param("dsi", $unitPrice, $imagePath, $productId);
         $stmt->execute();
 
         // Update inventory details
@@ -316,8 +351,20 @@ if (isset($_POST['edit_item'])) {
                 <?php endif; ?>
 
                 <?php if ($productDetails): ?>
-
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="product_image" class="form-label">Product Image:</label><br>
+                            <div style="margin-bottom: 10px;">
+                                <?php
+                                $currentImagePath = isset($productDetails['image']) && !empty($productDetails['image'])
+                                    ? $productDetails['image']
+                                    : 'images/no-image.png';
+                                ?>
+                                <img src="<?php echo htmlspecialchars($currentImagePath); ?>" alt="Current product image" style="max-width: 150px; max-height: 150px; object-fit: contain;">
+                            </div>
+                            <input type="file" class="form-c" name="product_image" id="product_image" style="width: 100%">
+                            <small class="text-mute">Leave empty to keep current image</small>
+                        </div>
                         <div class="form-group">
                             <label for="productName" class="form-label">Product Name:</label><br>
                             <input type="text" class="form-c form-text text-mute" name="productName" id="productName" style="width: 100%" value="<?php echo htmlspecialchars($productDetails['productName']); ?>" disabled readonly>

@@ -5,7 +5,14 @@ function filterProducts() {
 
     rows.forEach(row => {
         const productName = row.cells[0].textContent.toLowerCase();
-        row.style.display = productName.includes(query) ? '' : 'none';
+        const productCategory = row.cells[1].textContent.toLowerCase();
+        
+        // Check if query matches either product name or category
+        const matchesName = productName.includes(query);
+        const matchesCategory = productCategory.includes(query);
+        
+        // Show row if either name or category matches
+        row.style.display = (matchesName || matchesCategory) ? '' : 'none';
     });
 }
 

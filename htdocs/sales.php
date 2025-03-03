@@ -369,6 +369,16 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
 
 
         @media (max-width: 1024px) {
+            #salesTable th {
+                font-size: 0.6rem !important;
+            }
+
+            th img {
+                width: 11px;
+                height: 11px;
+                margin-right: 5px;
+            }
+
             .table-wrapper {
                 /* Responsive height based on viewport */
                 overflow-y: auto;

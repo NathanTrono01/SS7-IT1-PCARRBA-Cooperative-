@@ -90,17 +90,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Settings</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
+
     <style>
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            flex: 1 1 auto;
+        }
+
         .custom-card {
             background-color: transparent;
             color: white;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
+            width: 1000px;
+            max-width: 100%;
+            justify-content: center;
         }
 
         .custom-input {
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.3);
+            ;
             color: white;
             border: 1px solid hsla(0, 0%, 100%, 0.2);
             padding: 8.5px;
@@ -184,41 +196,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="main-content fade-in">
         <div class="container">
             <div class="container">
-                <h2>General Settings</h2>
-                <div class="custom-card">
-                    <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
-                    <?php if ($success) echo "<div class='alert-success show' id='alert-success'>$success</div>"; ?>
-                    <div class="section-title">Store Settings</div>
-                    <form method="POST" action="">
-                        <div class="mb-3">
-                            <label for="reorder_level" class="form-label">Low Stock Alert (Reorder Level)</label>
-                            <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
-                        </div>
-                        <button type="submit" class="custom-button" id="submitButton">Submit</button>
-                    </form>
-                </div>
-                <div class="custom-card">
-                    <div class="section-title">User Settings</div>
-                    <form method="POST" action="">
-                        <input type="hidden" name="change_password" value="1">
-                        <div class="mb-3">
-                            <label for="current_password" class="form-label">Change Password</label>
-                            <input type="password" name="current_password" class="custom-input" placeholder="Current Password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">New Password</label>
-                            <input type="password" name="new_password" class="custom-input" placeholder="New Password" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirm New Password</label>
-                            <input type="password" name="confirm_password" class="custom-input" placeholder="Confirm New Password" required>
-                        </div>
-                        <button type="submit" class="custom-button" id="submitButton">Submit</button>
-                    </form>
+                <div class="card-container">
+                    <div class="custom-card">
+                        <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
+                        <?php if ($success) echo "<div class='alert-success show' id='alert-success'>$success</div>"; ?>
+                        <div class="section-title">Store Settings</div>
+                        <form method="POST" action="">
+                            <div class="mb-3">
+                                <label for="reorder_level" class="form-label">Low Stock Alert (Reorder Level)</label>
+                                <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
+                            </div>
+                            <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                        </form>
+    </div>
+                    <div class="custom-card">
+                        <div class="section-title">User Settings</div>
+                        <form method="POST" action="">
+                            <input type="hidden" name="change_password" value="1">
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Change Password</label>
+                                <input type="password" name="current_password" class="custom-input" placeholder="Current Password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" name="new_password" class="custom-input" placeholder="New Password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" name="confirm_password" class="custom-input" placeholder="Confirm New Password" required>
+                            </div>
+                            <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const successAlert = document.querySelector('.alert-success');

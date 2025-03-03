@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <tbody>
                         <?php foreach ($creditDetails as $item) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?> : &nbsp; ₱ <?php echo htmlspecialchars($item['subTotal']); ?></td>
+                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?> </td>
                             </tr>
                         <?php } ?>
                     </tbody>

@@ -31,7 +31,8 @@ $query = "
         c.categoryName AS productCategory, 
         p.unitPrice, 
         COALESCE(SUM(b.quantity), 0) AS totalStock,
-        p.unit
+        p.unit,
+        p.imagePath as image
     FROM 
         products p
     LEFT JOIN 
@@ -39,8 +40,10 @@ $query = "
     LEFT JOIN 
         categories c ON p.categoryId = c.categoryId
     GROUP BY 
-        p.productId, p.productName, c.categoryName, p.unitPrice, p.unit
+        p.productId, p.productName, c.categoryName, p.unitPrice, p.unit, p.imagePath
 ";
+
+
 $result = $conn->query($query);
 $products = $result->fetch_all(MYSQLI_ASSOC);
 
@@ -69,22 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/layer1.css">
     <link rel="stylesheet" href="css/inventory.css">
     <style>
-        .toggle-container {
-            margin-bottom: 10px;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        .grid-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
     </style>
 </head>
 
@@ -117,9 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" id="searchBar" placeholder="Search Product/s" onkeyup="filterProducts(); toggleClearIcon();">
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
-                </div>
-                <div class="toggle-container">
-                    <button id="toggleView" onclick="toggleView()">Switch to Grid Mode</button>
+                    <div class="toggle-container">
+                        <a href="grid.php" class="grid-button">
+                            <img src="images/grid-mode.png" alt="Grid Mode" style="width: 20px; height: 20px;">
+                        </a>
+                    </div>
                 </div>
             </div>
             <div id="tableView" class="view active table-wrapper">
@@ -138,6 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <tr>
                                 <td colspan="5" style="text-align: center;">No products found. <a href="insertProduct.php">Stock a product</a>.</td>
                             </tr>
+
                         <?php } else { ?>
                             <?php foreach ($products as $product) {
                                 $stockClass = '';
@@ -149,6 +139,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $stockClass = 'stock-good';
                                 }
                                 $isReferenced = isProductReferencedInSaleItem($conn, $product['productId']);
+                                $imagePath = isset($product['image']) && !empty($product['image'])
+                                    ? (file_exists($product['image']) ? $product['image'] : 'images/no-image.png')
+                                    : 'images/no-image.png';
                             ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($product['productName']); ?></td>
@@ -179,38 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
             </div>
-            <!-- Grid View (Hidden by Default) -->
-            <div id="gridView" class="view" style="display: none;">
-                <div class="grid-container">
-                    <?php foreach ($products as $product) { ?>
-                        <div class="grid-item">
-                            <h3><?php echo htmlspecialchars($product['productName']); ?></h3>
-                            <p>Category: <?php echo htmlspecialchars($product['productCategory']); ?></p>
-                            <p>Stock: <?php echo htmlspecialchars($product['totalStock']); ?></p>
-                            <p>Price: ₱<?php echo number_format($product['unitPrice'], 2); ?></p>
-                        </div>
-                    <?php } ?>
-                </div>
-            </div>
         </div>
     </div>
-    <script>
-        function toggleView() {
-            let tableView = document.getElementById('tableView');
-            let gridView = document.getElementById('gridView');
-            let button = document.getElementById('toggleView');
-
-            if (tableView.style.display === 'none') {
-                tableView.style.display = 'block';
-                gridView.style.display = 'none';
-                button.textContent = 'Switch to Grid Mode';
-            } else {
-                tableView.style.display = 'none';
-                gridView.style.display = 'block';
-                button.textContent = 'Switch to Table Mode';
-            }
-        }
-    </script>
     <script src="js/inventory.js"></script>
 </body>
 

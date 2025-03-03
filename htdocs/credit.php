@@ -60,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
             position: relative;
             width: 100%;
         }
@@ -421,10 +420,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
             }
 
             #creditsTable td {
-                padding: 8px 10px;
+                padding: 5px 10px;
                 font-size: 0.8rem;
                 margin: 0 5px;
                 width: 20%;
+            }
+
+            #creditsTable th {
+                font-size: 0.6rem !important;
+            }
+
+            th img {
+                width: 11px;
+                height: 11px;
+                margin-right: 5px;
             }
 
             table th,
@@ -546,14 +555,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
         }
 
         @media (max-width: 768px) {
-            .unpaid, .partial, .paid {
-            font-size: 0.85rem;
+
+            .unpaid,
+            .partial,
+            .paid {
+                font-size: 0.85rem;
             }
         }
 
         @media (max-width: 480px) {
-            .unpaid, .partial, .paid {
-            font-size: 0.75rem;
+
+            .unpaid,
+            .partial,
+            .paid {
+                font-size: 0.75rem;
             }
         }
     </style>
