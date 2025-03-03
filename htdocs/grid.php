@@ -323,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php include 'navbar.php'; ?>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <div class="main-content fade-in">
+    <div class="main-content">
         <div class="container">
             <?php if (isset($_SESSION['message'])): ?>
                 <div class="popup-alert show <?php echo $_SESSION['alert_class']; ?>" id="popupAlert">
@@ -358,7 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <hr>
             <!-- Modified grid view HTML -->
-            <div class="view product-grid">
+            <div class="view product-grid wwfade-in">
                 <?php foreach ($products as $product) {
                     $stockClass = '';
                     $stockText = '';
