@@ -50,13 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="password" class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" required minlength="8">
                 </div>
-                <div class="mb-3">
-                    <label for="accountLevel" class="form-label">Account Level</label>
-                    <select name="accountLevel" class="form-select" required>
-                        <option value="Admin">Admin</option>
-                        <option value="nonAdmin">Non-Admin</option>
-                    </select>
-                </div>
                 <button type="submit" class="btn btn-primary w-100">Register</button>
             </form>
         </div>
