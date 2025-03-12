@@ -559,6 +559,39 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         </div>
     </div>
     <script>
+        function filterSales() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const rows = document.querySelectorAll('#salesTable tbody tr');
+
+            rows.forEach(row => {
+                const date = row.cells[0].textContent.toLowerCase();
+                const type = row.cells[1].textContent.toLowerCase();
+                
+                // Check if query matches either date or transaction type
+                const matchesDate = date.includes(query);
+                const matchesType = type.includes(query);
+                
+                // Show row if either date or type matches
+                row.style.display = (matchesDate || matchesType) ? '' : 'none';
+            });
+        }
+
+        function clearSearch() {
+            document.getElementById('searchBar').value = '';
+            filterSales();
+            toggleClearIcon();
+        }
+
+        function toggleClearIcon() {
+            const searchBar = document.getElementById('searchBar');
+            const clearIcon = document.querySelector('.clear-icon');
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleClearIcon();
+        });
+
         function sortTable(columnIndex) {
             const table = document.getElementById("salesTable");
             const tbody = table.querySelector("tbody");
