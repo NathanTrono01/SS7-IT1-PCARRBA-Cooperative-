@@ -482,9 +482,13 @@ if (isset($_POST['restock_items'])) {
             var backButton = document.getElementById('back-button');
             if (referrer.includes('inventory.php')) {
                 backButton.href = 'inventory.php';
-            } else if (referrer.includes('reports.php')) {
-                backButton.href = 'reports.php?tab=product';
-            } else {
+            } else if (referrer.includes('dashboard.php')) {
+                backButton.href = 'dashboard.php';
+            } else if (referrer.includes('grid.php')) {
+                backButton.href = 'grid.php';
+            }
+            
+            else {
                 backButton.href = 'reports.php?tab=product';
             }
         });

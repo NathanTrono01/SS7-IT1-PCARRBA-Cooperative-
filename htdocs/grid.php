@@ -421,6 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     <script>
+        
         // Search functionality for grid view only
         function filterProducts() {
             const searchTerm = document.getElementById('searchBar').value.toLowerCase();

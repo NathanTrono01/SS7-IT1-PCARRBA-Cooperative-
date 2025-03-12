@@ -298,6 +298,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             font-size: 1.5rem;
             font-weight: bold;
             margin-left: 10px;
+            white-space: nowrap;
+            overflow: visible; /* Changed from hidden to visible */
+            text-overflow: clip; /* Changed from ellipsis to clip */
+            max-width: none; /* Remove max-width limitation */
         }
 
         .minimize-btn {
@@ -357,6 +361,38 @@ $current_page = basename($_SERVER['PHP_SELF']);
             font-weight: 600;
             font-size: 1.5rem;
             margin-right: 20px;
+            white-space: nowrap;
+            overflow: visible; /* Changed from hidden to visible */
+            text-overflow: clip; /* Changed from ellipsis to clip */
+            max-width: none; /* Remove max-width limitation */
+        }
+
+        .dropdown-toggle {
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+            display: inline-block;
+            padding-right: 15px !important; /* Space for the caret */
+        }
+
+        .dropdown-toggle::after {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* For smaller screens, reduce max-width more */
+        @media (max-width: 400px) {
+            .navbar-brand-mobile {
+                max-width: 100px;
+            }
+            
+            .dropdown-toggle {
+                max-width: 80px;
+            }
         }
 
         .sidebar hr {
@@ -371,6 +407,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
             /* Adjust the height as needed */
             margin-right: 10px;
             /* Space between image and text */
+        }
+
+        /* For smaller screens, adjust layout to prioritize page title */
+        @media (max-width: 768px) {
+            .navbar2 {
+                flex-shrink: 1;
+            }
+            
+            .navbar1 {
+                flex-shrink: 0;
+                max-width: 70%; /* Allow navbar1 to take more space */
+            }
+            
+            .dropdown-toggle {
+                max-width: 80px; /* Smaller username on mobile */
+            }
         }
     </style>
 </head>
@@ -411,10 +463,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <img src="images/<?php echo $current_page == 'sales.php' ? 'barsales_active.png' : 'barsales.png'; ?>" alt="Sales">&nbsp;Sales
         </a>
         <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credits
+            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credit
         </a>
         <a href="audit_logs.php" class="<?php echo $current_page == 'audit_logs.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Audit Logs">&nbsp;Audit Logs
+            <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Audit Logs">&nbsp;Audit Log
         </a>
         <a href="reports.php" class="<?php echo $current_page == 'reports.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'reports.php' ? 'reports.png' : 'reports.png'; ?>" alt="reports">&nbsp;Reports
@@ -455,7 +507,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 'inventory.php': 'Inventory',
                 'sales.php': 'Sales',
                 'credit.php': 'Credit',
-                'audit_logs.php': 'Audit Logs',
+                'audit_logs.php': 'Audit Log',
                 'reports.php': 'Reports',
             };
 

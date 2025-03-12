@@ -205,6 +205,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
         canvas {
             max-width: 100%;
             height: auto !important;
+            touch-action: manipulation; /* Improves touch behavior */
         }
 
         .dashboard-wrapper {
@@ -391,6 +392,48 @@ while ($row = $product_stock_result->fetch_assoc()) {
             line-height: 135%;
             text-decoration: none;
             font-style: normal;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 0;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive welcome message styling */
+        @media (max-width: 768px) {
+            .welcome-message {
+                font-size: 24px;
+                text-align: center;
+                padding: 0.5rem 1rem;
+                margin: 0.5rem auto 1.5rem;
+            }
+        }
+
+        /* Modify existing chart options to enhance dots for mobile */
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            touch-action: manipulation; /* Improves touch behavior */
+        }
+
+        /* Custom scrollbar styling */
+        .scrollable-restocks::-webkit-scrollbar {
+            width: 6px;
+            display: block; /* Show scrollbar for better UX */
+        }
+
+        .scrollable-restocks::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .scrollable-restocks::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
         }
 
         /* Responsive Design */
@@ -619,7 +662,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     defaultDate: "<?php echo date('Y-m-d'); ?>"
                 });
 
-                // Initialize the line chart (Sales Trends)
+                // Initialize the line chart (Sales Trends) with larger points
                 const salesCtx = document.getElementById("salesChart").getContext("2d");
                 window.salesChart = new Chart(salesCtx, {
                     type: "line",
@@ -635,30 +678,65 @@ while ($row = $product_stock_result->fetch_assoc()) {
                             label: "Total Sales",
                             data: <?php echo json_encode($sales_totals); ?>,
                             borderColor: "rgb(43, 114, 255)",
-                            backgroundColor: "transparent",
-                            fill: true
+                            backgroundColor: "rgba(43, 114, 255, 0.1)",
+                            fill: true,
+                            pointBackgroundColor: "rgb(43, 114, 255)",
+                            pointBorderColor: "#fff",
+                            pointHoverBackgroundColor: "#fff",
+                            pointHoverBorderColor: "rgb(43, 114, 255)",
+                            pointRadius: 6, // Larger point size
+                            pointHoverRadius: 8, // Even larger on hover
+                            pointBorderWidth: 2, // Border for better definition
+                            tension: 0.3 // Slightly curved line
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false, // Makes it easier to interact with points
+                            mode: 'index' // Shows all values at a given x-index
+                        },
+                        hitRadius: 12, // Larger hit detection area for mobile taps
                         scales: {
                             y: {
-                                beginAtZero: true, // Ensure the y-axis starts at 0
+                                beginAtZero: true,
                                 grid: {
-                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                },
+                                ticks: {
+                                    color: "rgba(255, 255, 255, 0.7)" // Better visibility
                                 }
                             },
                             x: {
                                 grid: {
-                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                },
+                                ticks: {
+                                    color: "rgba(255, 255, 255, 0.7)", // Better visibility
+                                    maxRotation: 45, // Better readability on mobile
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                bodyFont: {
+                                    size: 14
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return `₱${context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                                    }
                                 }
                             }
                         }
                     }
                 });
 
-                // Initialize the bar chart (Stock Status Breakdown)
+                // Initialize the bar chart with similar improvements
                 const barCtx = document.getElementById("stockBarChart").getContext("2d");
                 new Chart(barCtx, {
                     type: "bar",
@@ -667,7 +745,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         datasets: [{
                             label: "Total Stock",
                             data: <?php echo json_encode($product_stocks); ?>,
-                            backgroundColor: <?php echo json_encode($colors); ?>
+                            backgroundColor: <?php echo json_encode($colors); ?>,
+                            borderWidth: 1,
+                            borderColor: "#ffffff40"
                         }]
                     },
                     options: {
@@ -675,20 +755,32 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true, // Ensure the y-axis starts at 0
+                                beginAtZero: true,
                                 grid: {
-                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                },
+                                ticks: {
+                                    color: "rgba(255, 255, 255, 0.7)"
                                 }
                             },
                             x: {
                                 grid: {
-                                    color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                },
+                                ticks: {
+                                    color: "rgba(255, 255, 255, 0.7)",
+                                    maxRotation: 45,
+                                    minRotation: 45
                                 }
                             }
                         },
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12
                             }
                         }
                     }

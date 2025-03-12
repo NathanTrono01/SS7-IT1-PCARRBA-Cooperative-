@@ -439,6 +439,7 @@ if (isset($_POST['add_item'])) {
 
 
     <script>
+        
         document.getElementById('another-image').addEventListener('mouseover', function() {
             document.querySelector('.btn-back').src = 'images/back-hover.png';
         });
@@ -459,6 +460,21 @@ if (isset($_POST['add_item'])) {
         function closeAlert() {
             document.getElementById("alert").style.display = "none";
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var referrer = document.referrer;
+            var backButton = document.querySelector('.btn-back-wrapper');
+            
+            if (referrer.includes('inventory.php')) {
+                backButton.href = 'inventory.php';
+            } else if (referrer.includes('dashboard.php')) {
+                backButton.href = 'dashboard.php';
+            } else if (referrer.includes('grid.php')) {
+                backButton.href = 'grid.php';
+            } else {
+                backButton.href = 'inventory.php'; // Default fallback
+            }
+        });
     </script>
 </body>
 

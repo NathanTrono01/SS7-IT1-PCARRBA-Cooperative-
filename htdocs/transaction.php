@@ -13,7 +13,7 @@ include 'db.php';
 <html lang="en">
 
 <head>
-    <title>Transaction Selection</title>
+    <title>Sale Type Transaction Selection</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
@@ -341,7 +341,7 @@ include 'db.php';
     <div class="main-content fade-in">
         <!-- Centered buttons with text -->
         <div class="button-container">
-            <h2>Choose Transaction Type</h2>
+            <h2>Choose Sale Type</h2>
             <a href="addSale.php" class="btn btn-primary">Record a Sale</a>
             <a href="addCredit.php" class="btn btn-primary">Record a Credit</a>
         </div>

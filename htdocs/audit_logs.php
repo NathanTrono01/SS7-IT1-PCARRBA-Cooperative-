@@ -27,7 +27,7 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit Logs</title>
+    <title>Audit Log</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
@@ -406,7 +406,7 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                 </script>
             <?php endif; ?>
             <div class="header-container">
-                <h2>Audit Logs</h2>
+                <h2>Audit Log</h2>
                 <div class="search-container">
                     <div class="search-wrapper">
                         <img src="images/search-icon.png" alt="Search" class="search-icon">

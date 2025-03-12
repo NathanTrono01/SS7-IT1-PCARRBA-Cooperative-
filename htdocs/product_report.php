@@ -136,6 +136,34 @@ if ($most_sold_products_result->num_rows > 0) {
                     <button id="nextPage" onclick="changePage(1)"><img src="images/arrow-right.png" alt=""></button>
                 </div>
             </div>
+
+            <br>
+            <div>
+                <h3>Top 5 Most Sold Products</h3>
+                <div class="restock-container scrollable-restocks">
+                    <?php if (count($most_sold_products) > 0) { ?>
+                        <?php foreach ($most_sold_products as $product) { ?>
+                            <div class="restock-card">
+                                <div class="restock-header">
+                                    <p><img src="images/bestseller.png" alt="" style="width: 30px; height: 30px;"></p>
+                                    <h4><?php echo htmlspecialchars($product['productName']); ?></h4>
+                                    <p>Total Sold: <strong><?php echo $product['quantity_sold']; ?> units</strong></p>
+                                </div>
+                                <div class="restock-footer">
+                                    <a href="product_details.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">View Details</a>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <div class="restock-card">
+                            <div class="restock-header">
+                                <p>No sales data available yet.</p>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+
             <br>
             <div>
                 <h3>Stock Alert</h3>
