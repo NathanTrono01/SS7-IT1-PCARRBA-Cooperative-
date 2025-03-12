@@ -286,8 +286,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 var backButton = document.getElementById('back-button');
                 if (referrer.includes('credit.php')) {
                     backButton.href = 'credit.php';
-                } else if (referrer.includes('reports.php')) {
-                    backButton.href = 'reports.php?tab=items';
+                } else if (referrer.includes('sales.php')) {
+                    backButton.href = 'sales.php';
                 } else {
                     backButton.href = 'reports.php?tab=items';
                 }
