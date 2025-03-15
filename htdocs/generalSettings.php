@@ -1,6 +1,7 @@
 <?php
-include 'db.php';
 session_start();
+
+include 'db.php';
 
 if (!isset($_SESSION['username'])) {
     header("Location: index.php");
@@ -9,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 
 // Check if user has admin privileges for database reset
 // Only allow specific usernames to see and use the database reset feature
-$allowedResetUsers = ['admin', 'superadmin', 'itadmin', 'Nathrix']; // Add specific usernames here
+$allowedResetUsers = ['admin', 'superadmin', 'itadmin', 'Nathrix ']; // Add specific usernames here
 $canResetDatabase = false;
 
 // Check if current user is in the allowed list
@@ -69,18 +70,38 @@ if (isset($_FILES['import_file']) && $canResetDatabase) {
                 $action = "Database Import";
                 $details = "User $currentUsername imported database from file: $fileName";
                 
-                // Check if username column exists in audit_logs table
-                $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
-                if($columnCheckResult->num_rows > 0) {
-                    // If username column exists, use the original query
-                    $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
-                    $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
+                // Check if userId exists and is valid
+                if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
+                    // Check if the userId exists in the users table
+                    $checkUserStmt = $conn->prepare("SELECT userId FROM users WHERE userId = ?");
+                    $checkUserStmt->bind_param("i", $_SESSION['userId']);
+                    $checkUserStmt->execute();
+                    $checkUserStmt->store_result();
+                    
+                    if ($checkUserStmt->num_rows > 0) {
+                        // User exists, proceed with logging
+                        // Check if username column exists in audit_logs table
+                        $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
+                        if($columnCheckResult->num_rows > 0) {
+                            // If username column exists, use the original query
+                            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
+                            $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
+                        } else {
+                            // If username column doesn't exist, use a query without the username column
+                            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
+                            $stmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                        }
+                        $stmt->execute();
+                    } else {
+                        // User doesn't exist, log this information but don't attempt to insert
+                        $error .= " Warning: Could not log this action as user ID is invalid.";
+                    }
+                    
+                    $checkUserStmt->close();
                 } else {
-                    // If username column doesn't exist, use a query without the username column
-                    $stmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
-                    $stmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                    // No valid userId, log this information
+                    $error .= " Warning: Could not log this action as user ID is not set.";
                 }
-                $stmt->execute();
             }
         } else {
             $error = "Invalid file format. Please upload a .sql file.";
@@ -111,7 +132,7 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
     if ($returnCode !== 0 || !file_exists($backupPath) || filesize($backupPath) < 100) {
         $error = "Failed to create database backup. Database reset aborted.";
     } else {
-        // List of all tables to truncate or reset
+        // List of all tables to truncate or reset (credits table added to clear credit entries)
         $tables = [
             'audit_logs',
             'batchItem',
@@ -119,7 +140,8 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
             'inventory',
             'products',
             'sale_item',
-            'sales'
+            'sales',
+            'credits'
             // Excluding 'users' table to preserve login ability
         ];
         
@@ -147,25 +169,39 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
                 $conn->query("INSERT INTO categories (categoryName) VALUES ('General')");
                 
                 $conn->commit();
-                $success = "Database has been reset successfully. All product and sales data has been cleared. Backup created: $backupFile";
+                $success = "Database has been reset successfully. All product, sales, and credit data have been cleared. Backup created: $backupFile";
                 
                 // Log this critical action
                 $currentUsername = $_SESSION['username'];
                 $action = "Database Reset";
                 $details = "User $currentUsername performed a complete database reset. Backup created: $backupFile";
                 
-                // Check if username column exists in audit_logs table
-                $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
-                if($columnCheckResult->num_rows > 0) {
-                    // If username column exists, use the original query
-                    $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
-                    $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
-                } else {
-                    // If username column doesn't exist, use a query without the username column
-                    $stmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
-                    $stmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                // Check if userId exists and is valid
+                if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
+                    // Check if the userId exists in the users table
+                    $checkUserStmt = $conn->prepare("SELECT userId FROM users WHERE userId = ?");
+                    $checkUserStmt->bind_param("i", $_SESSION['userId']);
+                    $checkUserStmt->execute();
+                    $checkUserStmt->store_result();
+                    
+                    if ($checkUserStmt->num_rows > 0) {
+                        // User exists, proceed with logging
+                        // Check if username column exists in audit_logs table
+                        $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
+                        if($columnCheckResult->num_rows > 0) {
+                            // Username column exists
+                            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
+                            $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
+                        } else {
+                            // No username column; use alternative query
+                            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
+                            $stmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                        }
+                        $stmt->execute();
+                    }
+                    
+                    $checkUserStmt->close();
                 }
-                $stmt->execute();
             } else {
                 throw new Exception("Not all tables could be reset.");
             }

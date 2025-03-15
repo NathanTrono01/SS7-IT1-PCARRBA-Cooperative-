@@ -1,11 +1,4 @@
 <?php
-if (!isset($_SESSION['username'])) {
-    header("Location: index.php");
-    exit();
-}
-// Include database connection
-include 'db.php';
-
 // Fetch top 5 most sold products
 $most_sold_products_sql = "
     SELECT p.productName, SUM(si.quantity) AS quantity_sold

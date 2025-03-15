@@ -1,11 +1,4 @@
 <?php
-session_start();
-if (!isset($_SESSION['username'])) {
-    header("Location: index.php");
-    exit();
-}
-include 'db.php';
-
 // Set default date range to last 7 days
 $end_date = date('Y-m-d');
 $start_date = date('Y-m-d', strtotime('-7 days'));
@@ -36,8 +29,23 @@ $total_items_sold = $total_items_sold_result->fetch_assoc()['total_items_sold'] 
 // Calculate average sale value
 $average_sale_value = $total_transactions > 0 ? $total_sales_revenue / $total_transactions : 0;
 
-// Fetch total cost of goods sold (COGS)
-$total_cogs_sql = "SELECT SUM(quantity * costPrice) AS total_cogs FROM batchItem WHERE DATE(dateAdded) BETWEEN '$start_date' AND '$end_date'";
+// CORRECTED: Fetch total cost of goods sold (COGS) based on items actually sold in the period
+// This joins sale_item to get sold quantities and matches with the average cost price of those products
+$total_cogs_sql = "
+    SELECT SUM(si.quantity * IFNULL(avg_cost.avg_cost_price, 0)) AS total_cogs
+    FROM sale_item si
+    JOIN sales s ON si.saleId = s.saleId
+    LEFT JOIN (
+        SELECT 
+            productId, 
+            AVG(costPrice) as avg_cost_price
+        FROM 
+            batchItem
+        GROUP BY 
+            productId
+    ) avg_cost ON si.productId = avg_cost.productId
+    WHERE DATE(s.dateSold) BETWEEN '$start_date' AND '$end_date'
+";
 $total_cogs_result = $conn->query($total_cogs_sql);
 $total_cogs = $total_cogs_result->fetch_assoc()['total_cogs'] ?? 0;
 
@@ -170,6 +178,14 @@ if (isset($_GET['ajax'])) {
         .date-range-picker button:hover {
             background: rgb(82, 139, 255);
         }
+
+        /* Add or modify styles for custom range container */
+        #customRange {
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -179,8 +195,9 @@ if (isset($_GET['ajax'])) {
             <span class="date-header">Date Range</span>
             <div class="date-range-picker">
                 <select id="rangeSelector" onchange="handleRangeSelection()">
+                    <option value="today" selected>Today</option>
                     <option value="1">Last Day</option>
-                    <option value="7" selected>Last 7 Days</option>
+                    <option value="7">Last 7 Days</option>
                     <option value="30">Last 30 Days</option>
                     <option value="custom">Custom</option>
                 </select>
@@ -243,10 +260,14 @@ if (isset($_GET['ajax'])) {
             if (rangeSelector.value === "custom") {
                 startDate = document.getElementById("startDate").value;
                 endDate = document.getElementById("endDate").value;
+            } else if (rangeSelector.value === "today") {
+                // Both start and end date are set to today
+                const today = new Date();
+                startDate = today.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
             } else {
                 endDate = new Date();
                 startDate = new Date();
-
                 switch (rangeSelector.value) {
                     case "1":
                         startDate.setDate(endDate.getDate() - 1);
@@ -258,7 +279,6 @@ if (isset($_GET['ajax'])) {
                         startDate.setDate(endDate.getDate() - 30);
                         break;
                 }
-
                 startDate = startDate.toISOString().split('T')[0];
                 endDate = endDate.toISOString().split('T')[0];
             }

@@ -471,6 +471,8 @@ if (isset($_POST['add_item'])) {
                 backButton.href = 'dashboard.php';
             } else if (referrer.includes('grid.php')) {
                 backButton.href = 'grid.php';
+            } else if (referrer.includes('reports.php')) {
+                backButton.href = 'reports.php?tab=product'
             } else {
                 backButton.href = 'inventory.php'; // Default fallback
             }

@@ -1,15 +1,16 @@
 <?php
 session_start();
-if (!isset($_SESSION['userId'])) {
+// Use consistent session variable checking
+if (!isset($_SESSION['userId']) && !isset($_SESSION['username'])) {
     header("Location: index.php");
     exit();
 }
 
-// Include database connection
+// Include database connection only once in the parent file
 include 'db.php';
 include 'datetime.php';
 
-// Fetch all sale items with sale ID or credit ID
+// Fetch all sale items with sale ID or credit ID - keep this in main file
 $query = "
     SELECT 
         si.sale_itemId, 
@@ -49,10 +50,13 @@ if (empty($sales_dates)) {
     $sales_totals[] = 0;
 }
 
-// Fetch total inventory items
+// Keep all these data fetching operations in the main file
+// [Rest of the data fetching code as in original reports.php]
+
+// Continue with the existing queries...
 $total_inventory_sql = "SELECT SUM(quantity) AS total_inventory FROM batchItem";
 $total_inventory_result = $conn->query($total_inventory_sql);
-$total_inventory = $total_inventory_result->fetch_assoc()['total_inventory'] ?? 0; // Add 0 if no value
+$total_inventory = $total_inventory_result->fetch_assoc()['total_inventory'] ?? 0;
 
 // Fetch total sales today
 $total_sales_sql = "SELECT SUM(totalPrice) AS total_sales_today FROM sales WHERE DATE(dateSold) = ?";
@@ -114,7 +118,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
 <head>
     <title>Reports</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/reports.css">
     <link rel="stylesheet" href="css/layer1.css">
@@ -697,6 +701,49 @@ while ($row = $product_stock_result->fetch_assoc()) {
         .pagination span {
             font-size: 14px;
             color: #fff;
+        }
+
+        /* Mobile-friendly table styles */
+        @media (max-width: 480px) {
+            table {
+                font-size: 0.75rem;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            table th,
+            table td {
+                font-size: 0.75rem;
+                padding: 4px 2px;
+                word-break: break-word;
+            }
+            
+            /* Ensure the view details links are more visible/clickable */
+            table td a {
+                display: inline-block;
+                padding: 5px;
+                background: rgba(43, 114, 255, 0.2);
+                border-radius: 4px;
+                text-align: center;
+                width: 80px;
+            }
+            
+            /* Make date range selector more responsive */
+            .date-range-picker {
+                flex-wrap: wrap;
+            }
+            
+            .date-range-picker select, 
+            .date-range-picker input,
+            .date-range-picker button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            /* Adjust card layout for very small screens */
+            .status-cards .card1 {
+                flex: 1 1 100%;
+            }
         }
     </style>
 </head>

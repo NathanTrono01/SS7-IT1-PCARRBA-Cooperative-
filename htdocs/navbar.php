@@ -41,7 +41,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             justify-content: space-between;
             align-items: center;
             height: 60px;
-            padding: 0 20px;
+            padding: 0 10px;
             background-color: rgb(17, 18, 22);
             border-bottom: 0.25px solid rgba(187, 188, 190, 0.25);
             z-index: 1000;

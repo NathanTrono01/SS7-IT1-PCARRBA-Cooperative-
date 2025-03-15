@@ -440,9 +440,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
         @media (max-width: 768px) {
 
             .welcome-message {
-                font-family: "Builder Sans", Helvetica, Arial, san-serif;
+                font-family: "Poppins", san-serif;
                 font-weight: 800;
-                font-size: 20px;
+                font-size: 25px;
                 line-height: 135%;
                 text-decoration: none;
                 font-style: normal;
@@ -543,6 +543,28 @@ while ($row = $product_stock_result->fetch_assoc()) {
             background-color: rgba(187, 188, 190, 0.2);
             transition: background 0.3s, color 0.3s;
         }
+
+        /* Add these new styles */
+        .scrollable-restocks {
+            min-height: 100px;
+            max-height: 300px;
+            transition: min-height 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .scrollable-restocks:empty {
+            min-height: auto;
+        }
+        
+        .restock-card:only-child {
+            margin-bottom: 0;
+        }
+        
+        /* Style for empty chart message */
+        .chart-container div p {
+            color: #999;
+            font-size: 16px;
+        }
     </style>
 </head>
 
@@ -590,23 +612,30 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         <img src="images/arrow-right.png" alt="Another Image" class="btn-back" id="another-image">
                     </a>
                 </div>
-                <div class="restock-container scrollable-restocks" id="lowStockContainer">
-                    <?php foreach ($low_stock_products as $product) { ?>
-                        <div class="restock-card">
-                            <div class="restock-header">
-
-                                <p><img src="images/alert.png" alt="" style="width: 30px; height: 30px;"></p>
-                                <h4>
-                                    <?php if ($product['quantity'] == 0) { ?>
-                                        Your "<?php echo $product['productName']; ?>" is out of stock!
-                                    <?php } else { ?>
-                                        Your "<?php echo $product['productName']; ?>" is low stock!
-                                    <?php } ?>
-                                </h4>
-                                <p>Current Stock: <?php echo $product['quantity']; ?></p>
+                <div class="restock-container scrollable-restocks" id="lowStockContainer" style="<?php echo empty($low_stock_products) ? 'min-height: auto; height: auto;' : ''; ?>">
+                    <?php if (!empty($low_stock_products)) { ?>
+                        <?php foreach ($low_stock_products as $product) { ?>
+                            <div class="restock-card">
+                                <div class="restock-header">
+                                    <p><img src="images/alert.png" alt="" style="width: 30px; height: 30px;"></p>
+                                    <h4>
+                                        <?php if ($product['quantity'] == 0) { ?>
+                                            Your "<?php echo $product['productName']; ?>" is out of stock!
+                                        <?php } else { ?>
+                                            Your "<?php echo $product['productName']; ?>" is low stock!
+                                        <?php } ?>
+                                    </h4>
+                                    <p>Current Stock: <?php echo $product['quantity']; ?></p>
+                                </div>
+                                <div class="restock-footer">
+                                    <a href="restock.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">Restock</a>
+                                </div>
                             </div>
-                            <div class="restock-footer">
-                                <a href="restock.php?product=<?php echo urlencode($product['productName']); ?>" class="view-product">Restock</a>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <div class="restock-card" style="margin-bottom: 0;">
+                            <div class="restock-header">
+                                <p>No stock alerts at this time.</p>
                             </div>
                         </div>
                     <?php } ?>
@@ -638,13 +667,25 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         </div>
                         <button onclick="filterSalesData()">Apply</button>
                     </div>
-                    <canvas id="salesChart"></canvas>
+                    <?php if (array_sum($sales_totals) > 0) { ?>
+                        <canvas id="salesChart"></canvas>
+                    <?php } else { ?>
+                        <div style="text-align: center; padding: 30px 0;">
+                            <p>No sales data available yet.</p>
+                        </div>
+                    <?php } ?>
                 </div>
 
                 <!-- Bar Chart Card -->
                 <div class="card2 chart-container">
                     <h2>Stock Status</h2>
-                    <canvas id="stockBarChart"></canvas>
+                    <?php if (array_sum($product_stocks) > 0) { ?>
+                        <canvas id="stockBarChart"></canvas>
+                    <?php } else { ?>
+                        <div style="text-align: center; padding: 30px 0;">
+                            <p>No stock data available yet.</p>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -662,6 +703,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
                     defaultDate: "<?php echo date('Y-m-d'); ?>"
                 });
 
+                <?php if (array_sum($sales_totals) > 0) { ?>
                 // Initialize the line chart (Sales Trends) with larger points
                 const salesCtx = document.getElementById("salesChart").getContext("2d");
                 window.salesChart = new Chart(salesCtx, {
@@ -735,7 +777,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         }
                     }
                 });
+                <?php } ?>
 
+                <?php if (array_sum($product_stocks) > 0) { ?>
                 // Initialize the bar chart with similar improvements
                 const barCtx = document.getElementById("stockBarChart").getContext("2d");
                 new Chart(barCtx, {
@@ -785,9 +829,12 @@ while ($row = $product_stock_result->fetch_assoc()) {
                         }
                     }
                 });
+                <?php } ?>
 
-                // Load initial data for the line chart (Past 7 Days)
+                // Load initial data for the line chart (Past 7 Days) if chart exists
+                <?php if (array_sum($sales_totals) > 0) { ?>
                 handleRangeSelection();
+                <?php } ?>
             });
 
             // Handle range selection
