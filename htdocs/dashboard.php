@@ -577,7 +577,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
     <div class="main-content fade-in">
         <div class="dashboard-wrapper">
             <span class="welcome-message"><?php echo $_SESSION['welcome_message']; ?></span>
-            <br>
             <div class="title-link">
                 <span><b>Overview</b></span>
             </div>
