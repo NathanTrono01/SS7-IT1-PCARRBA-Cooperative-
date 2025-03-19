@@ -10,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 
 // Check if user has admin privileges for database reset
 // Only allow specific usernames to see and use the database reset feature
-$allowedResetUsers = ['admin', 'superadmin', 'itadmin', 'Nathrix ']; // Add specific usernames here
+$allowedResetUsers = ['admin', 'superadmin', 'itadmin', 'Nathrix']; // Add specific usernames here
 $canResetDatabase = false;
 
 // Check if current user is in the allowed list

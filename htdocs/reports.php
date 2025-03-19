@@ -122,6 +122,8 @@ while ($row = $product_stock_result->fetch_assoc()) {
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/reports.css">
     <link rel="stylesheet" href="css/layer1.css">
+    <link rel="stylesheet" href="css/flatpickr.min.css">
+    <script src="js/flatpickr.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -398,11 +400,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
         table td {
             padding: 10px;
             text-align: left;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto !important;
         }
 
         .dashboard-wrapper {
@@ -816,17 +813,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
         });
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Initialize Flatpickr for date range picker
-            flatpickr("#startDate", {
-                dateFormat: "Y-m-d",
-                defaultDate: "<?php echo date('Y-m-d', strtotime('-7 days')); ?>"
-            });
-
-            flatpickr("#endDate", {
-                dateFormat: "Y-m-d",
-                defaultDate: "<?php echo date('Y-m-d'); ?>"
-            });
-
             // Initialize the line chart (Sales Trends)
             const salesCtx = document.getElementById("salesChart").getContext("2d");
             window.salesChart = new Chart(salesCtx, {
