@@ -295,6 +295,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 font-size: 12px;
             }
         }
+
+        /* Stock level badges */
+        .stock-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 35px;
+            width: 70%;
+        }
+
+        .stock-out {
+            background-color: rgba(235, 87, 87, 0.15);
+            color: #EB5757;
+            border: 1px solid rgba(235, 87, 87, 0.3);
+        }
+
+        .stock-low {
+            background-color: rgba(242, 153, 74, 0.15);
+            color: #F39C12;
+            border: 1px solid rgba(242, 153, 74, 0.3);
+        }
+
+        .stock-good {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: #27AE60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        /* Sort indicators for table headers */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        .active-sort {
+            opacity: 1;
+            color: #335fff;
+        }
+
+        /* Enhanced table header styling */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* Hover effect for all table headers */
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Product table specific styling */
+        #productTable th {
+            padding: 12px 15px;
+            border-bottom: 2px solid #333942;
+            font-weight: 600;
+        }
+
+        #productTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Additional table styling */
+        #productTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        #productTable td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(51, 57, 66, 0.2);
+        }
+
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+        }
+
+        .search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-left: 15px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .stock-badge {
+                min-width: unset;
+                /* Remove minimum width */
+                width: auto;
+                /* Let it be as wide as needed */
+                padding: 4px;
+            }
+        }
     </style>
 </head>
 
@@ -333,15 +434,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </a>
                     </div>
                 </div>
+                <span class="search-results-count" id="searchResultsCount"></span>
             </div>
             <div id="tableView" class="view active table-wrapper">
-                <table id="productTable" data-sort-order="asc">
+                <table id="productTable" data-sort-order="asc" data-sort-column="0">
                     <thead>
                         <tr align="left">
-                            <th onclick="sortTable(0)">Name<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(1)">Category<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(2)">Stock<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(3)">Price<span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(0)">Name <span class="sort-indicator active-sort">▼</span></th>
+                            <th onclick="sortTable(1)">Category <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(2)">Stock <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(3)">Price <span class="sort-indicator">◆</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -369,7 +471,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <tr>
                                     <td><?php echo htmlspecialchars($product['productName']); ?></td>
                                     <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
-                                    <td class="<?php echo $stockClass; ?>"><?php echo $product['totalStock'] == 0 ? 'Out of Stock' : htmlspecialchars($product['totalStock']) . (isset($product['unit']) ? ' ' . htmlspecialchars($product['unit']) : ''); ?></td>
+                                    <td>
+                                        <span class="stock-badge <?php echo $stockClass; ?>">
+                                            <?php echo $product['totalStock'] == 0 ? 'Out of Stock' : htmlspecialchars($product['totalStock']) . (isset($product['unit']) ? ' ' . htmlspecialchars($product['unit']) : ''); ?>
+                                        </span>
+                                    </td>
                                     <td>₱ <?php echo number_format($product['unitPrice'], 2); ?></td>
                                     <td>
                                         <div class="action-buttons">
@@ -398,6 +504,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     <script src="js/inventory.js"></script>
+    <script>
+        // Enhanced table sorter function
+        function sortTable(columnIndex) {
+            const table = document.getElementById("productTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const isNumericColumn = (columnIndex === 2 || columnIndex === 3); // Stock and Price columns
+
+            // Update sort order
+            let sortOrder = "asc";
+            if (table.dataset.sortColumn === columnIndex.toString()) {
+                sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            }
+
+            table.dataset.sortOrder = sortOrder;
+            table.dataset.sortColumn = columnIndex;
+
+            // Update sort indicators
+            const indicators = document.querySelectorAll('.sort-indicator');
+            indicators.forEach(ind => {
+                ind.textContent = '◆';
+                ind.classList.remove('active-sort');
+            });
+
+            const activeIndicator = indicators[columnIndex];
+            activeIndicator.textContent = sortOrder === 'asc' ? '▲' : '▼';
+            activeIndicator.classList.add('active-sort');
+
+            rows.sort((rowA, rowB) => {
+                let cellA = rowA.cells[columnIndex].innerText.trim();
+                let cellB = rowB.cells[columnIndex].innerText.trim();
+
+                // Special handling for price column
+                if (columnIndex === 3) { // Price column
+                    const numA = parseFloat(cellA.replace(/[^\d.-]/g, ""));
+                    const numB = parseFloat(cellB.replace(/[^\d.-]/g, ""));
+                    return sortOrder === "asc" ? numA - numB : numB - numA;
+                }
+
+                // Special handling for stock column
+                if (columnIndex === 2) { // Stock column
+                    if (cellA === "Out of Stock") cellA = "0";
+                    if (cellB === "Out of Stock") cellB = "0";
+
+                    const numA = parseInt(cellA.replace(/[^\d.-]/g, "")) || 0;
+                    const numB = parseInt(cellB.replace(/[^\d.-]/g, "")) || 0;
+                    return sortOrder === "asc" ? numA - numB : numB - numA;
+                }
+
+                // Text comparison for other columns
+                return sortOrder === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+
+            // Reorder rows
+            rows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize sort on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial sort on name column
+            sortTable(0);
+        });
+    </script>
+    <!-- Update the filterProducts function to show search result counts -->
+    <script>
+        function filterProducts() {
+            const searchInput = document.getElementById('searchBar');
+            const filter = searchInput.value.toLowerCase();
+            const table = document.getElementById('productTable');
+            const tr = table.getElementsByTagName('tr');
+            let visibleCount = 0;
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (let i = 1; i < tr.length; i++) { // Start at 1 to skip header row
+                const nameCell = tr[i].getElementsByTagName('td')[0];
+                const categoryCell = tr[i].getElementsByTagName('td')[1];
+                if (nameCell && categoryCell) {
+                    const nameText = nameCell.textContent || nameCell.innerText;
+                    const categoryText = categoryCell.textContent || categoryCell.innerText;
+
+                    if (nameText.toLowerCase().indexOf(filter) > -1 ||
+                        categoryText.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                        visibleCount++;
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+
+            // Update search results count
+            const resultsCounter = document.getElementById('searchResultsCount');
+            if (filter.length > 0) {
+                resultsCounter.textContent = `${visibleCount} product${visibleCount !== 1 ? 's' : ''} found`;
+                resultsCounter.style.display = 'inline-block';
+            } else {
+                resultsCounter.style.display = 'none';
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchBar').value = '';
+            filterProducts();
+            toggleClearIcon();
+        }
+
+        function toggleClearIcon() {
+            const searchBar = document.getElementById('searchBar');
+            const clearIcon = document.querySelector('.clear-icon');
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleClearIcon();
+            sortTable(0);
+        });
+    </script>
 </body>
 
 </html>

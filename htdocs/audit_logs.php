@@ -384,6 +384,70 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
             font-weight: bold;
             transition: 0.5s;
         }
+
+        /* Sort indicators */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        .active-sort {
+            opacity: 1;
+            color: #335fff;
+        }
+
+        /* Search results count */
+        .search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-left: 15px;
+            margin-top: 5px;
+        }
+
+        /* Enhanced table header styling with hover effect */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Update table styling to match inventory.php */
+        #logsTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        #logsTable th {
+            padding: 12px 15px;
+            border-bottom: 2px solid #333942;
+            font-weight: 600;
+            background-color: rgb(17, 18, 22);
+            color: rgba(247, 247, 248, 0.9);
+            text-transform: uppercase;
+            box-shadow: none; /* Remove the box shadow to be consistent */
+        }
+
+        #logsTable td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(51, 57, 66, 0.2);
+            font-size: 1rem;
+            color: #eee;
+        }
+        
+        /* Specific hover styling for logsTable headers */
+        #logsTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
     </style>
 </head>
 
@@ -410,19 +474,20 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                 <div class="search-container">
                     <div class="search-wrapper">
                         <img src="images/search-icon.png" alt="Search" class="search-icon">
-                        <input type="text" id="searchBar" placeholder="Search Action" onkeyup="filterLogs(); toggleClearIcon();">
+                        <input type="text" id="searchBar" placeholder="Search Action/User/Details" onkeyup="filterLogs(); toggleClearIcon();">
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                 </div>
+                <span class="search-results-count" id="searchResultsCount"></span>
             </div>
             <div class="table-wrapper">
-                <table id="logsTable" width="100%">
+                <table id="logsTable" data-sort-order="desc" data-sort-column="0">
                     <thead>
                         <tr align="left">
-                            <th>Timestamp</th>
-                            <th>User</th>
-                            <th>Action</th>
-                            <th>Details</th>
+                            <th onclick="sortTable(0)">Timestamp <span class="sort-indicator active-sort">▼</span></th>
+                            <th onclick="sortTable(1)">User <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(2)">Action <span class="sort-indicator">◆</span></th>
+                            <th>Details</th> <!-- Removed onclick and sort indicator -->
                         </tr>
                     </thead>
                     <tbody>
@@ -432,12 +497,13 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
                             </tr>
                         <?php } else { ?>
                             <?php foreach ($logs as $log) {
+                                $timestamp = !empty($log['timestamp']) ? $log['timestamp'] : '';
                                 $date = !empty($log['timestamp'])
                                     ? date("n/j/y", strtotime($log['timestamp'])) . "<br>" . date("g:i A", strtotime($log['timestamp']))
                                     : 'N/A';
                             ?>
                                 <tr>
-                                    <td><?php echo $date; ?></td>
+                                    <td data-timestamp="<?php echo $timestamp; ?>"><?php echo $date; ?></td>
                                     <td><?php echo htmlspecialchars($log['username']); ?></td>
                                     <td><?php echo htmlspecialchars($log['action']); ?></td>
                                     <td><?php echo htmlspecialchars($log['details']); ?></td>
@@ -454,19 +520,41 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
         function filterLogs() {
             const query = document.getElementById('searchBar').value.toLowerCase();
             const rows = document.querySelectorAll('#logsTable tbody tr');
+            let visibleCount = 0;
 
             rows.forEach(row => {
-                const action = row.cells[0].textContent.toLowerCase();
-                const details = row.cells[1].textContent.toLowerCase();
-                const user = row.cells[2].textContent.toLowerCase();
-                const timestamp = row.cells[3].textContent.toLowerCase();
-
-                if (action.includes(query) || details.includes(query) || user.includes(query) || timestamp.includes(query)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                // Skip header row if present in selection
+                if (row.querySelector('th')) return;
+                
+                // Skip the "No logs found" row
+                if (row.cells.length === 1 && row.cells[0].colSpan > 1) return;
+                
+                const timestamp = row.cells[0].textContent.toLowerCase();
+                const user = row.cells[1].textContent.toLowerCase();
+                const action = row.cells[2].textContent.toLowerCase();
+                const details = row.cells[3].textContent.toLowerCase();
+                
+                // Check if query matches any field
+                const matchesTimestamp = timestamp.includes(query);
+                const matchesUser = user.includes(query);
+                const matchesAction = action.includes(query);
+                const matchesDetails = details.includes(query);
+                
+                // Show row if any field matches
+                const isVisible = (matchesTimestamp || matchesUser || matchesAction || matchesDetails);
+                row.style.display = isVisible ? '' : 'none';
+                
+                if (isVisible) visibleCount++;
             });
+            
+            // Update search results count
+            const resultsCounter = document.getElementById('searchResultsCount');
+            if (query.length > 0) {
+                resultsCounter.textContent = `${visibleCount} record${visibleCount !== 1 ? 's' : ''} found`;
+                resultsCounter.style.display = 'inline-block';
+            } else {
+                resultsCounter.style.display = 'none';
+            }
         }
 
         function clearSearch() {
@@ -480,6 +568,78 @@ $logs = $result->fetch_all(MYSQLI_ASSOC);
             const clearIcon = document.querySelector('.clear-icon');
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
         }
+        
+        function sortTable(columnIndex) {
+            const table = document.getElementById("logsTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            
+            // Skip if only "No logs found" row exists
+            if (rows.length === 1 && rows[0].cells.length === 1 && rows[0].cells[0].colSpan > 1) {
+                return;
+            }
+            
+            const isDateColumn = columnIndex === 0; // Timestamp column is date
+            
+            // Update sort order
+            let sortOrder = "asc";
+            if (table.dataset.sortColumn === columnIndex.toString()) {
+                sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            }
+            
+            table.dataset.sortOrder = sortOrder;
+            table.dataset.sortColumn = columnIndex;
+            
+            // Update sort indicators
+            const indicators = document.querySelectorAll('.sort-indicator');
+            indicators.forEach((ind, index) => {
+                // Only update indicators for sortable columns (0-2)
+                if (index <= 2) {
+                    ind.textContent = '◆';
+                    ind.classList.remove('active-sort');
+                }
+            });
+            
+            // Update the active indicator
+            if (columnIndex <= 2) {
+                const activeIndicator = indicators[columnIndex];
+                activeIndicator.textContent = sortOrder === 'asc' ? '▲' : '▼';
+                activeIndicator.classList.add('active-sort');
+            }
+            
+            // Sort the rows
+            rows.sort((rowA, rowB) => {
+                // Skip rows with colspan (like "no logs" message)
+                if (rowA.cells.length === 1 || rowB.cells.length === 1) return 0;
+                
+                if (isDateColumn) {
+                    // Use the data-timestamp attribute for more accurate sorting
+                    const dateA = rowA.cells[columnIndex].dataset.timestamp ? 
+                        new Date(rowA.cells[columnIndex].dataset.timestamp) : 
+                        new Date(0);
+                        
+                    const dateB = rowB.cells[columnIndex].dataset.timestamp ? 
+                        new Date(rowB.cells[columnIndex].dataset.timestamp) : 
+                        new Date(0);
+                        
+                    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+                }
+                
+                const cellA = rowA.cells[columnIndex].textContent.trim().toLowerCase();
+                const cellB = rowB.cells[columnIndex].textContent.trim().toLowerCase();
+                return sortOrder === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            });
+            
+            // Re-append sorted rows to the table
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleClearIcon();
+            // Set initial sort on timestamp column (descending by default)
+            sortTable(0);
+        });
     </script>
 </body>
 

@@ -279,7 +279,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Product price with enhanced styling */
         .product-price {
-            font-family: Arial'
             font-weight: 600;
             color: #f8fafc;
         }

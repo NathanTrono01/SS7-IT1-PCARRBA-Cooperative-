@@ -187,6 +187,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
 
         .table-wrapper {
             overflow-x: auto;
+            margin: 0 !important;
         }
 
         .table-wrapper::-webkit-scrollbar {
@@ -754,9 +755,9 @@ while ($row = $product_stock_result->fetch_assoc()) {
             <!-- Navigation Tabs -->
             <div class="tabs-container">
                 <div class="tabs">
-                    <div class="tab" onclick="showTab('revenue')">Revenue</div>
-                    <div class="tab" onclick="showTab('product')">Product Report</div>
-                    <div class="tab" onclick="showTab('items')">Sold Items Table</div>
+                    <div class="tab" onclick="showTab('revenue')">Revenue Report</div>
+                    <div class="tab" onclick="showTab('product')">Inventory Report</div>
+                    <div class="tab" onclick="showTab('items')">Product Outflow</div>
                 </div>
             </div>
 

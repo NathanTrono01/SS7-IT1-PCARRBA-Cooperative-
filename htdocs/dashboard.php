@@ -203,9 +203,11 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         canvas {
-            max-width: 100%;
+            max-width: 100% !important;
+            width: 100% !important;
             height: auto !important;
-            touch-action: manipulation; /* Improves touch behavior */
+            touch-action: manipulation;
+            /* Improves touch behavior */
         }
 
         .dashboard-wrapper {
@@ -219,7 +221,8 @@ while ($row = $product_stock_result->fetch_assoc()) {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 10px;
-            max-width: 1200px;
+            width: 100%;
+            max-width: 100vw; /* Set max width to viewport width */
             overflow-x: hidden;
         }
 
@@ -399,8 +402,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Responsive welcome message styling */
@@ -417,13 +427,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
         canvas {
             max-width: 100%;
             height: auto !important;
-            touch-action: manipulation; /* Improves touch behavior */
+            touch-action: manipulation;
+            /* Improves touch behavior */
         }
 
         /* Custom scrollbar styling */
         .scrollable-restocks::-webkit-scrollbar {
             width: 6px;
-            display: block; /* Show scrollbar for better UX */
+            display: block;
+            /* Show scrollbar for better UX */
         }
 
         .scrollable-restocks::-webkit-scrollbar-track {
@@ -551,15 +563,15 @@ while ($row = $product_stock_result->fetch_assoc()) {
             transition: min-height 0.3s ease;
             overflow-y: auto;
         }
-        
+
         .scrollable-restocks:empty {
             min-height: auto;
         }
-        
+
         .restock-card:only-child {
             margin-bottom: 0;
         }
-        
+
         /* Style for empty chart message */
         .chart-container div p {
             color: #999;
@@ -703,136 +715,136 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 });
 
                 <?php if (array_sum($sales_totals) > 0) { ?>
-                // Initialize the line chart (Sales Trends) with larger points
-                const salesCtx = document.getElementById("salesChart").getContext("2d");
-                window.salesChart = new Chart(salesCtx, {
-                    type: "line",
-                    data: {
-                        labels: <?php echo json_encode($sales_dates); ?>.map(date => {
-                            const options = {
-                                month: 'short',
-                                day: 'numeric'
-                            };
-                            return new Date(date).toLocaleDateString('en-US', options);
-                        }),
-                        datasets: [{
-                            label: "Total Sales",
-                            data: <?php echo json_encode($sales_totals); ?>,
-                            borderColor: "rgb(43, 114, 255)",
-                            backgroundColor: "rgba(43, 114, 255, 0.1)",
-                            fill: true,
-                            pointBackgroundColor: "rgb(43, 114, 255)",
-                            pointBorderColor: "#fff",
-                            pointHoverBackgroundColor: "#fff",
-                            pointHoverBorderColor: "rgb(43, 114, 255)",
-                            pointRadius: 6, // Larger point size
-                            pointHoverRadius: 8, // Even larger on hover
-                            pointBorderWidth: 2, // Border for better definition
-                            tension: 0.3 // Slightly curved line
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            intersect: false, // Makes it easier to interact with points
-                            mode: 'index' // Shows all values at a given x-index
+                    // Initialize the line chart (Sales Trends) with larger points
+                    const salesCtx = document.getElementById("salesChart").getContext("2d");
+                    window.salesChart = new Chart(salesCtx, {
+                        type: "line",
+                        data: {
+                            labels: <?php echo json_encode($sales_dates); ?>.map(date => {
+                                const options = {
+                                    month: 'short',
+                                    day: 'numeric'
+                                };
+                                return new Date(date).toLocaleDateString('en-US', options);
+                            }),
+                            datasets: [{
+                                label: "Total Sales",
+                                data: <?php echo json_encode($sales_totals); ?>,
+                                borderColor: "rgb(43, 114, 255)",
+                                backgroundColor: "rgba(43, 114, 255, 0.1)",
+                                fill: true,
+                                pointBackgroundColor: "rgb(43, 114, 255)",
+                                pointBorderColor: "#fff",
+                                pointHoverBackgroundColor: "#fff",
+                                pointHoverBorderColor: "rgb(43, 114, 255)",
+                                pointRadius: 6, // Larger point size
+                                pointHoverRadius: 8, // Even larger on hover
+                                pointBorderWidth: 2, // Border for better definition
+                                tension: 0.3 // Slightly curved line
+                            }]
                         },
-                        hitRadius: 12, // Larger hit detection area for mobile taps
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: "rgba(255, 255, 255, 0.1)"
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                intersect: false, // Makes it easier to interact with points
+                                mode: 'index' // Shows all values at a given x-index
+                            },
+                            hitRadius: 12, // Larger hit detection area for mobile taps
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: "rgba(255, 255, 255, 0.1)"
+                                    },
+                                    ticks: {
+                                        color: "rgba(255, 255, 255, 0.7)" // Better visibility
+                                    }
                                 },
-                                ticks: {
-                                    color: "rgba(255, 255, 255, 0.7)" // Better visibility
+                                x: {
+                                    grid: {
+                                        color: "rgba(255, 255, 255, 0.1)"
+                                    },
+                                    ticks: {
+                                        color: "rgba(255, 255, 255, 0.7)", // Better visibility
+                                        maxRotation: 45, // Better readability on mobile
+                                        minRotation: 45
+                                    }
                                 }
                             },
-                            x: {
-                                grid: {
-                                    color: "rgba(255, 255, 255, 0.1)"
-                                },
-                                ticks: {
-                                    color: "rgba(255, 255, 255, 0.7)", // Better visibility
-                                    maxRotation: 45, // Better readability on mobile
-                                    minRotation: 45
-                                }
-                            }
-                        },
-                        plugins: {
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                bodyFont: {
-                                    size: 14
-                                },
-                                callbacks: {
-                                    label: function(context) {
-                                        return `₱${context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                            plugins: {
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    bodyFont: {
+                                        size: 14
+                                    },
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `₱${context.raw.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
+                    });
                 <?php } ?>
 
                 <?php if (array_sum($product_stocks) > 0) { ?>
-                // Initialize the bar chart with similar improvements
-                const barCtx = document.getElementById("stockBarChart").getContext("2d");
-                new Chart(barCtx, {
-                    type: "bar",
-                    data: {
-                        labels: <?php echo json_encode($product_names); ?>,
-                        datasets: [{
-                            label: "Total Stock",
-                            data: <?php echo json_encode($product_stocks); ?>,
-                            backgroundColor: <?php echo json_encode($colors); ?>,
-                            borderWidth: 1,
-                            borderColor: "#ffffff40"
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: "rgba(255, 255, 255, 0.1)"
-                                },
-                                ticks: {
-                                    color: "rgba(255, 255, 255, 0.7)"
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: "rgba(255, 255, 255, 0.1)"
-                                },
-                                ticks: {
-                                    color: "rgba(255, 255, 255, 0.7)",
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            }
+                    // Initialize the bar chart with similar improvements
+                    const barCtx = document.getElementById("stockBarChart").getContext("2d");
+                    new Chart(barCtx, {
+                        type: "bar",
+                        data: {
+                            labels: <?php echo json_encode($product_names); ?>,
+                            datasets: [{
+                                label: "Total Stock",
+                                data: <?php echo json_encode($product_stocks); ?>,
+                                backgroundColor: <?php echo json_encode($colors); ?>,
+                                borderWidth: 1,
+                                borderColor: "#ffffff40"
+                            }]
                         },
-                        plugins: {
-                            legend: {
-                                display: false
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: "rgba(255, 255, 255, 0.1)"
+                                    },
+                                    ticks: {
+                                        color: "rgba(255, 255, 255, 0.7)"
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: "rgba(255, 255, 255, 0.1)"
+                                    },
+                                    ticks: {
+                                        color: "rgba(255, 255, 255, 0.7)",
+                                        maxRotation: 45,
+                                        minRotation: 45
+                                    }
+                                }
                             },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12
+                                }
                             }
                         }
-                    }
-                });
+                    });
                 <?php } ?>
 
                 // Load initial data for the line chart (Past 7 Days) if chart exists
                 <?php if (array_sum($sales_totals) > 0) { ?>
-                handleRangeSelection();
+                    handleRangeSelection();
                 <?php } ?>
             });
 

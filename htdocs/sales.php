@@ -302,17 +302,15 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             position: sticky;
             top: 0;
             background: rgb(17, 18, 22);
-            z-index: 10;
         }
 
 
         /* Styling for the headers */
         #saleTable th {
-            background: rgb(17, 18, 22);
-            /* Dark background */
             color: white;
             border-bottom: 2px solid #333942;
             text-align: left;
+            z-index: 100;
         }
 
         /* Making tbody scrollable while keeping alignment */
@@ -334,6 +332,7 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             font-size: 1rem;
             margin: 0 5px;
             width: 20%;
+            border-bottom: 1px solid rgba(51, 57, 66, 0.2);
         }
 
         /* Scrollbar for tbody */
@@ -483,6 +482,117 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             padding: 10px;
             height: 100vh;
         }
+
+        /* Sort indicators */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        .active-sort {
+            opacity: 1;
+            color: #335fff;
+        }
+
+        /* Enhanced table header styling */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* Search results count */
+        .search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-left: 15px;
+            margin-top: 5px;
+        }
+        
+        /* Remove the old sort icon styles */
+        th img {
+            display: none;
+        }
+
+        /* Enhanced table header styling with hover effect */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Specific hover styling for salesTable headers */
+        #salesTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Improved styling for saleTable headers */
+        #saleTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Update table styling to match inventory.php */
+        #salesTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        #salesTable th {
+            padding: 12px 15px;
+            border-bottom: 2px solid #333942;
+            font-weight: 600;
+            background-color: rgb(17, 18, 22);
+            color: rgba(247, 247, 248, 0.9);
+            text-transform: uppercase;
+        }
+
+        #salesTable td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(51, 57, 66, 0.2);
+            font-size: 1rem;
+            color: #eee;
+        }
+
+        /* Enhanced table header styling with consistent hover effect */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Specific hover styling for salesTable headers to ensure consistency */
+        #salesTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+        
+        /* Enhanced sort indicators */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        .active-sort {
+            opacity: 1;
+            color: #335fff;
+        }
     </style>
 </head>
 
@@ -515,14 +625,15 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                 </div>
+                <span class="search-results-count" id="searchResultsCount"></span>
             </div>
             <div class="table-wrapper">
-                <table id="salesTable" data-sort-order="asc">
+                <table id="salesTable" data-sort-order="asc" data-sort-column="0">
                     <thead>
-                        <tr>
-                            <th onclick="sortTable(0)">Date <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(1)">Type <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(2)">Amount <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                        <tr align="left">
+                            <th onclick="sortTable(0)">Date <span class="sort-indicator active-sort">▼</span></th>
+                            <th onclick="sortTable(1)">Type <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(2)">Amount <span class="sort-indicator">◆</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -562,18 +673,39 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
         function filterSales() {
             const query = document.getElementById('searchBar').value.toLowerCase();
             const rows = document.querySelectorAll('#salesTable tbody tr');
+            let visibleCount = 0;
 
             rows.forEach(row => {
+                // Skip header row if present in selection
+                if (row.querySelector('th')) return;
+                
+                // Skip the "No records found" row
+                if (row.cells.length === 1 && row.cells[0].colSpan > 1) return;
+
                 const date = row.cells[0].textContent.toLowerCase();
                 const type = row.cells[1].textContent.toLowerCase();
+                const amount = row.cells[2].textContent.toLowerCase();
                 
-                // Check if query matches either date or transaction type
+                // Check if query matches date, transaction type or amount
                 const matchesDate = date.includes(query);
                 const matchesType = type.includes(query);
+                const matchesAmount = amount.includes(query);
                 
-                // Show row if either date or type matches
-                row.style.display = (matchesDate || matchesType) ? '' : 'none';
+                // Show row if any field matches
+                const isVisible = (matchesDate || matchesType || matchesAmount);
+                row.style.display = isVisible ? '' : 'none';
+                
+                if (isVisible) visibleCount++;
             });
+            
+            // Update search results count
+            const resultsCounter = document.getElementById('searchResultsCount');
+            if (query.length > 0) {
+                resultsCounter.textContent = `${visibleCount} record${visibleCount !== 1 ? 's' : ''} found`;
+                resultsCounter.style.display = 'inline-block';
+            } else {
+                resultsCounter.style.display = 'none';
+            }
         }
 
         function clearSearch() {
@@ -588,24 +720,43 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
             clearIcon.style.display = searchBar.value ? 'block' : 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            toggleClearIcon();
-        });
-
         function sortTable(columnIndex) {
             const table = document.getElementById("salesTable");
             const tbody = table.querySelector("tbody");
             const rows = Array.from(tbody.querySelectorAll("tr"));
+            
+            // Skip if only "No records found" row exists
+            if (rows.length === 1 && rows[0].cells.length === 1 && rows[0].cells[0].colSpan > 1) {
+                return;
+            }
+            
             const isNumericColumn = columnIndex === 2; // Amount column is numeric
             const isDateColumn = columnIndex === 0; // Date column is date
-
-            let sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            
+            // Update sort order
+            let sortOrder = "asc";
+            if (table.dataset.sortColumn === columnIndex.toString()) {
+                sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            }
+            
             table.dataset.sortOrder = sortOrder;
+            table.dataset.sortColumn = columnIndex;
+            
+            // Update sort indicators
+            const indicators = document.querySelectorAll('.sort-indicator');
+            indicators.forEach(ind => {
+                ind.textContent = '◆';
+                ind.classList.remove('active-sort');
+            });
+            
+            const activeIndicator = indicators[columnIndex];
+            activeIndicator.textContent = sortOrder === 'asc' ? '▲' : '▼';
+            activeIndicator.classList.add('active-sort');
 
             rows.sort((rowA, rowB) => {
-                const cellA = rowA.cells[columnIndex].innerText.trim();
-                const cellB = rowB.cells[columnIndex].innerText.trim();
-
+                // Skip rows with colspan (like "no records" message)
+                if (rowA.cells.length === 1 || rowB.cells.length === 1) return 0;
+                
                 if (isDateColumn) {
                     const dateA = new Date(rowA.cells[columnIndex].dataset.date);
                     const dateB = new Date(rowB.cells[columnIndex].dataset.date);
@@ -613,16 +764,25 @@ $sales = $result->fetch_all(MYSQLI_ASSOC);
                 }
 
                 if (isNumericColumn) {
-                    const numA = parseFloat(cellA.replace(/[^0-9.-]+/g, ""));
-                    const numB = parseFloat(cellB.replace(/[^0-9.-]+/g, ""));
+                    const numA = parseFloat(rowA.cells[columnIndex].innerText.replace(/[^0-9.-]+/g, ""));
+                    const numB = parseFloat(rowB.cells[columnIndex].innerText.replace(/[^0-9.-]+/g, ""));
                     return sortOrder === "asc" ? numA - numB : numB - numA;
                 }
 
+                const cellA = rowA.cells[columnIndex].innerText.trim();
+                const cellB = rowB.cells[columnIndex].innerText.trim();
                 return sortOrder === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
             });
 
             rows.forEach(row => tbody.appendChild(row));
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleClearIcon();
+            // Set initial sort on date column (descending by default for dates)
+            sortTable(0);
+        });
     </script>
 </body>
 

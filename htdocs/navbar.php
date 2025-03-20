@@ -1,5 +1,10 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// Add session_start() at the top if it's not already there
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -63,6 +68,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .dropdown-menu {
+            z-index: 1000;
             color: #b6b7be;
             padding: 10px;
             background-color: #1f2024;
@@ -174,6 +180,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .container {
+            max-width: 100vw !important;
             width: 100%;
             padding: 0;
             margin: 0 auto;
@@ -206,7 +213,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 width: 80%;
                 height: calc(100% - 60px);
                 background-color: rgb(17, 18, 22);
-                z-index: 1000;
+                z-index: 700;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease-in-out;
             }
@@ -516,6 +523,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
             const navbarBrandMobile = document.querySelector('.navbar-brand-mobile');
             if (navbarBrandMobile && pageNames[currentPage]) {
                 navbarBrandMobile.textContent = pageNames[currentPage];
+            }
+
+            // Then around line 443, add a check before accessing $_SESSION
+            if (isset($_SESSION) && isset($_SESSION['userRole'])) {
+                // existing code that uses $_SESSION['userRole']
+            } else {
+                // fallback for when session isn't available
+                $userRole = "guest"; // or whatever default makes sense
             }
         });
     </script>

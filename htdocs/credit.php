@@ -571,6 +571,223 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                 font-size: 0.75rem;
             }
         }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 35px;
+            width: 70%;
+        }
+
+        .status-unpaid {
+            background-color: rgba(235, 87, 87, 0.15);
+            color: #EB5757;
+            border: 1px solid rgba(235, 87, 87, 0.3);
+        }
+
+        .status-partial {
+            background-color: rgba(242, 153, 74, 0.15);
+            color: #F39C12;
+            border: 1px solid rgba(242, 153, 74, 0.3);
+        }
+
+        .status-paid {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: #27AE60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        /* Sort indicators */
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        .active-sort {
+            opacity: 1;
+            color: #335fff;
+        }
+
+        /* Enhanced table header styling */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            padding: 7px;
+            background-color: rgb(17, 18, 22);
+            color: rgba(247, 247, 248, 0.9);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1rem;
+            padding-bottom: 25px;
+        }
+
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+        }
+
+        /* Specific hover styling for creditsTable headers */
+        #creditsTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Search results count */
+        .search-results-count {
+            display: none;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-left: 15px;
+            margin-top: 5px;
+        }
+
+        /* Remove old status styles */
+        .unpaid, .partial, .paid {
+            color: inherit;
+            font-size: inherit;
+            white-space: inherit;
+        }
+
+        /* Status badges with responsive design */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 80px;
+            justify-content: center;
+        }
+
+        .status-unpaid {
+            background-color: rgba(235, 87, 87, 0.15);
+            color: #EB5757;
+            border: 1px solid rgba(235, 87, 87, 0.3);
+        }
+
+        .status-partial {
+            background-color: rgba(242, 153, 74, 0.15);
+            color: #F39C12;
+            border: 1px solid rgba(242, 153, 74, 0.3);
+        }
+
+        .status-paid {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: #27AE60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        /* Status indicator dot for mobile */
+        .status-indicator {
+            display: none; /* Hidden by default, shown only on mobile */
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-unpaid .status-indicator {
+            background-color: #EB5757;
+            box-shadow: 0 0 0 2px rgba(235, 87, 87, 0.2);
+        }
+
+        .status-partial .status-indicator {
+            background-color: #F39C12;
+            box-shadow: 0 0 0 2px rgba(242, 153, 74, 0.2);
+        }
+        
+        .status-paid .status-indicator {
+            background-color: #27AE60;
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+        }
+
+        /* Status text (hidden on mobile) */
+        .status-text {
+            display: inline;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .status-badge {
+                min-width: unset; /* Remove minimum width */
+                width: auto; /* Let it be as wide as needed */
+                padding: 4px;
+            }
+            
+            .status-indicator {
+                display: inline-block; /* Show the dot on mobile */
+                margin-right: 0; /* No margin needed when text is hidden */
+            }
+            
+            .status-text {
+                display: none; /* Hide the text on mobile */
+            }
+            
+            #creditsTable td {
+                padding: 8px 5px; /* Reduce padding on mobile */
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .status-badge {
+                padding: 3px;
+            }
+            
+            .status-indicator {
+                width: 10px;
+                height: 10px;
+            }
+        }
+
+        /* Update #creditsTable styling to match inventory.php */
+        #creditsTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        #creditsTable th {
+            padding: 12px 15px;
+            border-bottom: 2px solid #333942;
+            font-weight: 600;
+            background-color: rgb(17, 18, 22);
+            color: rgba(247, 247, 248, 0.9);
+            text-transform: uppercase;
+        }
+
+        #creditsTable td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(51, 57, 66, 0.2);
+            font-size: 1rem;
+            color: #eee;
+            width: 20%;
+        }
+
+        /* Enhanced table header styling with consistent hover effect */
+        table th {
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        table th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
+
+        /* Specific hover styling for creditsTable headers */
+        #creditsTable th:hover {
+            background-color: rgba(51, 95, 255, 0.1);
+            border-bottom: 2px solid #335fff;
+        }
     </style>
 </head>
 
@@ -604,15 +821,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                 </div>
+                <span class="search-results-count" id="searchResultsCount"></span>
             </div>
             <div class="table-wrapper">
-                <table id="creditsTable" data-sort-order="asc">
+                <table id="creditsTable" data-sort-order="asc" data-sort-column="0">
                     <thead>
                         <tr align="left">
-                            <th onclick="sortTable(0)">Date <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(1)">Status <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(2)">Creditor <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
-                            <th onclick="sortTable(3)">Balance <span class="sort-icon"><img src="images/sort.png" alt="sort"></span></th>
+                            <th onclick="sortTable(0)">Date <span class="sort-indicator active-sort">▼</span></th>
+                            <th onclick="sortTable(1)">Creditor <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(2)">Status <span class="sort-indicator">◆</span></th>
+                            <th onclick="sortTable(3)">Balance <span class="sort-indicator">◆</span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -625,11 +843,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                             <?php foreach ($credits as $credit) {
                                 $statusClass = '';
                                 if ($credit['paymentStatus'] == "Unpaid") {
-                                    $statusClass = 'unpaid';
+                                    $statusClass = 'status-unpaid';
                                 } elseif ($credit['paymentStatus'] == "Partially Paid") {
-                                    $statusClass = 'partial';
+                                    $statusClass = 'status-partial';
                                 } else {
-                                    $statusClass = 'paid';
+                                    $statusClass = 'status-paid';
                                 }
                                 $date = !empty($credit['transactionDate'])
                                     ? date("n/j/y", strtotime($credit['transactionDate'])) . "<br>" . date("g:i A", strtotime($credit['transactionDate']))
@@ -637,9 +855,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
                             ?>
                                 <tr>
                                     <td data-date="<?php echo $credit['transactionDate']; ?>"><?php echo $date; ?></td>
-                                    <td class="<?php echo $statusClass; ?>"><?php echo htmlspecialchars($credit['paymentStatus']); ?></td>
                                     <td><?php echo htmlspecialchars($credit['customerName']); ?></td>
-                                    <td>₱ <?php echo htmlspecialchars($credit['creditBalance']); ?></td>
+                                    <td>
+                                        <span class="status-badge <?php echo $statusClass; ?>">
+                                            <span class="status-indicator"></span>
+                                            <span class="status-text"><?php echo htmlspecialchars($credit['paymentStatus']); ?></span>
+                                        </span>
+                                    </td>
+                                    <td>₱ <?php echo number_format(floatval($credit['creditBalance']), 2); ?></td>
                                     <td>
                                         <a href="credit_details.php?creditId=<?php echo $credit['creditId']; ?>" class="view-details">
                                             <span>View Details</span>
@@ -658,16 +881,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
         function filterCredits() {
             const query = document.getElementById('searchBar').value.toLowerCase();
             const rows = document.querySelectorAll('#creditsTable tbody tr');
+            let visibleCount = 0;
 
             rows.forEach(row => {
+                // Skip header row if present in selection
+                if (row.querySelector('th')) return;
+                
+                // Skip the "No records found" row
+                if (row.cells.length === 1 && row.cells[0].colSpan > 1) return;
+
                 const date = row.cells[0].textContent.toLowerCase();
-                const status = row.cells[1].textContent.toLowerCase();
-                const creditorName = row.cells[2].textContent.toLowerCase();
+                const creditorName = row.cells[1].textContent.toLowerCase();
+                const status = row.cells[2].textContent.toLowerCase();
                 const balance = row.cells[3].textContent.toLowerCase();
 
-                const isVisible = date.includes(query) || status.includes(query) || creditorName.includes(query) || balance.includes(query);
+                const isVisible = date.includes(query) || 
+                                creditorName.includes(query) || 
+                                status.includes(query) || 
+                                balance.includes(query);
+                
                 row.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
             });
+            
+            // Update search results count
+            const resultsCounter = document.getElementById('searchResultsCount');
+            if (query.length > 0) {
+                resultsCounter.textContent = `${visibleCount} record${visibleCount !== 1 ? 's' : ''} found`;
+                resultsCounter.style.display = 'inline-block';
+            } else {
+                resultsCounter.style.display = 'none';
+            }
         }
 
         function clearSearch() {
@@ -684,35 +928,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCreditId'])) {
 
         function sortTable(columnIndex) {
             const table = document.getElementById('creditsTable');
-            const rows = Array.from(table.rows).slice(1);
-            const isAscending = table.getAttribute('data-sort-order') === 'asc';
-            const direction = isAscending ? 1 : -1;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Skip if only "No records found" row exists
+            if (rows.length === 1 && rows[0].cells.length === 1 && rows[0].cells[0].colSpan > 1) {
+                return;
+            }
+            
+            // Update sort order
+            let sortOrder = "asc";
+            if (table.dataset.sortColumn === columnIndex.toString()) {
+                sortOrder = table.dataset.sortOrder === "asc" ? "desc" : "asc";
+            }
+            
+            table.dataset.sortOrder = sortOrder;
+            table.dataset.sortColumn = columnIndex;
+            
+            // Update sort indicators
+            const indicators = document.querySelectorAll('.sort-indicator');
+            indicators.forEach(ind => {
+                ind.textContent = '◆';
+                ind.classList.remove('active-sort');
+            });
+            
+            const activeIndicator = indicators[columnIndex];
+            activeIndicator.textContent = sortOrder === 'asc' ? '▲' : '▼';
+            activeIndicator.classList.add('active-sort');
 
-            rows.sort((a, b) => {
-                let aText = a.cells[columnIndex].textContent.trim();
-                let bText = b.cells[columnIndex].textContent.trim();
+            rows.sort((rowA, rowB) => {
+                // Skip rows with colspan (like "no records" message)
+                if (rowA.cells.length === 1 || rowB.cells.length === 1) return 0;
+                
+                let cellA = rowA.cells[columnIndex].textContent.trim();
+                let cellB = rowB.cells[columnIndex].textContent.trim();
 
                 if (columnIndex === 0) { // Date column
-                    aText = new Date(a.cells[columnIndex].getAttribute('data-date')).getTime();
-                    bText = new Date(b.cells[columnIndex].getAttribute('data-date')).getTime();
+                    const dateA = new Date(rowA.cells[columnIndex].getAttribute('data-date'));
+                    const dateB = new Date(rowB.cells[columnIndex].getAttribute('data-date'));
+                    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
                 } else if (columnIndex === 3) { // Balance column
-                    aText = parseFloat(aText.replace('₱', '').replace(',', ''));
-                    bText = parseFloat(bText.replace('₱', '').replace(',', ''));
+                    const numA = parseFloat(cellA.replace(/[^\d.-]/g, ""));
+                    const numB = parseFloat(cellB.replace(/[^\d.-]/g, ""));
+                    return sortOrder === "asc" ? numA - numB : numB - numA;
                 }
 
-                if (!isNaN(aText) && !isNaN(bText)) {
-                    return direction * (aText - bText);
-                }
-
-                return direction * aText.localeCompare(bText);
+                // Default text comparison
+                return sortOrder === "asc" ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
             });
 
-            const tbody = table.querySelector('tbody');
-            rows.forEach(row => tbody.appendChild(row));
-            table.setAttribute('data-sort-order', isAscending ? 'desc' : 'asc');
+            // Reapply the sorted rows
+            rows.forEach(row => {
+                tbody.appendChild(row);
+            });
         }
 
-        document.addEventListener('DOMContentLoaded', toggleClearIcon);
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleClearIcon();
+            sortTable(0); // Initial sort on date column
+        });
     </script>
 </body>
 
