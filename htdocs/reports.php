@@ -407,7 +407,6 @@ while ($row = $product_stock_result->fetch_assoc()) {
             display: grid;
             gap: 10px;
             box-sizing: border-box;
-            padding: 20px;
         }
 
         .dashboard-container {

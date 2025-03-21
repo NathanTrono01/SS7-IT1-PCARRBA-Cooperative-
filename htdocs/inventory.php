@@ -419,8 +419,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="header-container">
                 <h2>Products</h2>
                 <div class="button">
-                    <a href="restock.php" class="restock-button">Restock</a>
-                    <a href="insertProduct.php" class="button-product">Add Product</a>
+                    <a title="Restock product" href="restock.php" class="restock-button">Restock</a>
+                    <a title="New product" href="insertProduct.php" class="button-product">Add Product</a>
                 </div>
                 <div class="search-container">
                     <div class="search-wrapper">
@@ -429,7 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                     <div class="toggle-container">
-                        <a href="grid.php" class="grid-button">
+                        <a title="Grid View" href="grid.php" class="grid-button">
                             <img src="images/grid-mode.png" alt="Grid Mode" style="width: 20px; height: 20px;">
                         </a>
                     </div>
@@ -481,14 +481,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="action-buttons">
                                             <form method="post" style="display:inline;">
                                                 <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                                <a href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
+                                                <a title="Edit product" href="editProduct.php?productName=<?php echo urlencode($product['productName']); ?>" class="btn-action btn-edit">
                                                     <span>Edit</span>
                                                     <img src="images/white-pencil.png" alt="Edit">
                                                 </a>
                                             </form>
                                             <form method="post" style="display:inline;" onsubmit="return confirmDelete()">
                                                 <input type="hidden" name="productId" value="<?php echo $product['productId']; ?>">
-                                                <button type="submit" name="delete_product" class="btn-action btn-delete" <?php echo $isReferenced ? 'disabled' : ''; ?>>
+                                                <button title="Delete product" type="submit" name="delete_product" class="btn-action btn-delete" <?php echo $isReferenced ? 'disabled' : ''; ?>>
                                                     <span>Delete</span>
                                                     <img src="images/delete.png" alt="Delete">
                                                 </button>

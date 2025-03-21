@@ -371,6 +371,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .product-grid .product-card:nth-child(n+6) {
             animation-delay: 0.3s;
         }
+
+        .grid-button {
+            display: inline-block;
+            padding: 8px 12px;
+            background: transparent;
+            color: rgb(187, 188, 190);
+            text-decoration: none;
+            border-radius: 7px;
+            border: 0.5px solid rgba(187, 188, 190, 0.5);
+            transition: border-color 0.3s, color 0.3s;
+        }
+
+        .grid-button:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgb(187, 188, 190);
+            color: #fff;
+            border-radius: 7px;
+        }
     </style>
 </head>
 
@@ -404,7 +422,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <img src="images/x-circle.png" alt="Clear" class="clear-icon" onclick="clearSearch()">
                     </div>
                     <div class="toggle-container">
-                        <a href="inventory.php" class="grid-button">
+                        <a title="Table View" href="inventory.php" class="grid-button">
                             <img src="images/table-mode.png" alt="Table Mode" style="width: 20px; height: 20px;">
                         </a>
                     </div>
