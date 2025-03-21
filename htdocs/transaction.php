@@ -18,317 +18,267 @@ include 'db.php';
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
-        .flex-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        /* Enhanced container layout */
+        .transaction-container {
+            max-width: 100%;
+            margin: 0px auto;
+            padding: 30px;
+        }
+
+        .transaction-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: whitesmoke;
+        }
+
+        .transaction-header h2 {
+            font-size: 28px;
+            font-weight: 600;
             margin-bottom: 10px;
         }
 
-        .search-container {
-            margin-top: 10px;
+        .transaction-header p {
+            font-size: 16px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Card options grid */
+        .transaction-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .transaction-card {
+            background-color: rgba(39, 41, 48, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 57, 66, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            height: 100%;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+        }
+
+        .transaction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            border-color: rgba(51, 95, 255, 0.5);
+        }
+
+        .transaction-card:active {
+            transform: translateY(0px);
+        }
+
+        .card-header {
+            padding: 20px;
+            background-color: rgba(33, 34, 39, 0.9);
+            border-bottom: 1px solid rgba(51, 57, 66, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(51, 95, 255, 0.15);
+            border-radius: 12px;
+            font-size: 24px;
+        }
+
+        .card-title {
+            color: whitesmoke;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex: 1;
+        }
+
+        .card-description {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+
+        .card-features li {
+            color: #f7f7f8;
+            padding: 8px 0;
+            display: flex;
             align-items: center;
             gap: 10px;
             position: relative;
-            width: 100%;
+            font-size: 14px;
         }
 
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .search-wrapper {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .search-wrapper .search-icon {
-            position: absolute;
-            left: 10px;
-            width: 16px;
-            height: 16px;
-        }
-
-        .search-wrapper .clear-icon {
-            position: absolute;
-            right: 10px;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .search-wrapper input {
-            padding: 8px 8px 8px 30px;
-            /* Adjust padding to make space for the search icon */
-            width: 100%;
-            border-radius: 5px;
-            border: 1px solid #333942;
-            background-color: rgba(33, 34, 39, 255);
-            color: #f7f7f8;
-        }
-
-        .search-wrapper input::placeholder {
-            color: rgba(247, 247, 248, 0.64);
-            font-weight: 200;
-        }
-
-        table {
-            font-family: Arial, Helvetica, sans-serif;
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-        }
-
-        table thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background-color: #1f1f1f;
-        }
-
-        table th {
-            padding: 7px;
-            background-color: #0c0c0f;
-            color: rgba(247, 247, 248, 0.9);
+        .card-features li::before {
+            content: "✓";
+            color: #4CAF50;
             font-weight: bold;
-            text-transform: uppercase;
-            font-size: 1rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.83);
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-            width: 20%; /* Set each column to take up 20% of the table width */
         }
 
-        table th:first-child {
-            border-left: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-        }
-
-        table th:last-child {
-            border-right: 2px solid #333942;
-            border-top: 2px solid #333942;
-            border-bottom: 2px solid #333942;
-            width: 150px; /* Fixed width for the Actions column */
-        }
-
-        table td {
-            padding: 5px 10px; /* Add padding to the sides of the td elements */
-            font-size: 1rem;
-            color: #eee;
-            margin: 0 5px;
-            width: 20%; /* Set each column to take up 20% of the table width */
-        }
-
-        table td:last-child {
-            width: 150px; /* Fixed width for the Actions column */
-        }
-
-        table tr {
-            background-color: transparent;
-        }
-
-        table tr:hover {
-            background-color: rgba(187, 194, 209, 0.17);
-            transition: all 0.3s ease;
-        }
-
-        table tr td:first-child {
-            border-top-left-radius: 7px;
-            border-bottom-left-radius: 7px;
-        }
-
-        table tr td:last-child {
-            border-top-right-radius: 7px;
-            border-bottom-right-radius: 7px;
-        }
-
-        .button a {
-            background: transparent;
-            display: inline-block;
-            padding: 8px 12px;
-            background-color: rgb(255, 255, 255);
-            color: #000;
-            text-decoration: none;
-            border-radius: 7px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.26);
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-        }
-
-        .button a:hover {
-            background-color: rgba(255, 255, 255, 0.94);
-            color: #000;
-            border-radius: 7px;
-        }
-
-        .btn-action {
-            text-decoration: none;
-            padding: 5px 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
+        .card-action {
+            display: flex;
             justify-content: center;
-            min-width: 75px;
+            padding: 15px 20px;
+            border-top: 1px solid rgba(51, 57, 66, 0.5);
+            background-color: rgba(33, 34, 39, 0.6);
+            margin-top: auto;
+        }
+
+        .btn-card {
+            padding: 12px 25px;
+            background-color: rgb(42, 56, 255);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
             text-align: center;
-            box-sizing: border-box;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
         }
 
-        .btn-action img {
-            display: none;
+        .btn-card:hover {
+            background-color: rgb(61, 74, 255);
+            box-shadow: 0 4px 12px rgba(51, 95, 255, 0.3);
         }
 
-        .btn-action span {
-            display: inline;
+        .btn-card.alt {
+            background-color: rgba(51, 95, 255, 0.15);
+            color: rgb(51, 95, 255);
+            border: 1px solid rgba(51, 95, 255, 0.3);
         }
 
-        .btn-edit {
-            background-color: #335fff !important;
-            color: white !important;
+        .btn-card.alt:hover {
+            background-color: rgba(51, 95, 255, 0.25);
+            border-color: rgb(51, 95, 255);
         }
 
-        .btn-delete {
-            border: 1px solid #ff3d3d !important;
-            background-color: transparent !important;
-            color: #ff3d3d !important;
+        /* Highlight animation */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(51, 95, 255, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(51, 95, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(51, 95, 255, 0);
+            }
         }
 
-        .action-buttons {
+        .card-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        /* Back button styling */
+        .btn-back-wrapper {
             display: flex;
-            gap: 5px;
-        }
-
-        .button-container {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            margin-top: 50px; /* Increased margin to bring it further down */
+            text-decoration: none;
+            color: #f7f7f8;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        .button-container a {
-            margin: 5px;
+        .btn-back-wrapper:hover {
+            transform: translateX(-3px);
         }
 
-        @media (max-width: 1024px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
-            }
-
-            table {
-                width: 100%;
-                table-layout: auto;
-            }
-
-            table th,
-            table td {
-                font-size: 0.95rem;
-                padding: 6px;
-            }
-
-            .btn-action {
-                padding: 6px 10px;
-                font-size: 0.85rem;
-            }
-
-            .btn-action span {
-                display: none;
-            }
-
-            .btn-action img {
-                display: inline;
-                width: 20px;
-                height: 20px;
-            }
+        .btn-back-wrapper span {
+            margin-left: 10px;
+            font-size: 16px;
         }
 
+        .btn-back-wrapper img {
+            width: 25px;
+            height: 25px;
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive styles */
         @media (max-width: 768px) {
-            .table-wrapper {
-                padding: 10px;
-                overflow-x: auto;
+            .transaction-container {
+                padding: 20px;
+                margin: 20px auto;
             }
 
-            table {
-                width: 100%;
-                table-layout: auto;
+            .transaction-header h2 {
+                font-size: 24px;
             }
 
-            table th,
-            table td {
-                font-size: 0.85rem;
-                padding: 6px;
+            .transaction-options {
+                gap: 15px;
             }
 
-            .btn-action {
-                padding: 6px 10px;
-                font-size: 0.75rem;
+            .card-header {
+                padding: 15px;
             }
 
-            .btn-action span {
-                display: none;
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
             }
 
-            .btn-action img {
-                display: inline;
-                width: 15px;
-                height: 15px;
+            .card-title {
+                font-size: 18px;
+            }
+
+            .card-body {
+                padding: 15px;
+            }
+
+            .btn-card {
+                padding: 10px 20px;
+                font-size: 14px;
             }
         }
 
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5em;
-            }
+        /* Animation utilities */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
 
-            h2 {
-                font-size: 0.8em;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-            .table-wrapper {
-                margin: 0;
-                width: 100%;
-            }
+        .hover-lift {
+            transition: transform 0.3s ease;
+        }
 
-            table {
-                font-size: 0.8rem;
-                display: block;
-                width: 100%;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            table th,
-            table td {
-                width: 100%;
-                font-size: 0.8rem;
-                padding: 5px;
-            }
-
-            .btn-action {
-                padding: 4px 10px;
-                font-size: 0.7rem;
-                min-width: 30px;
-            }
-
-            .btn-action span {
-                display: none;
-            }
-
-            .btn-action img {
-                display: inline;
-                width: 15px;
-                height: 15px;
-            }
+        .hover-lift:hover {
+            transform: translateY(-3px);
         }
     </style>
 </head>
@@ -339,13 +289,119 @@ include 'db.php';
 
     <!-- Main content -->
     <div class="main-content fade-in">
-        <!-- Centered buttons with text -->
-        <div class="button-container">
-            <h2>Choose Sale Type</h2>
-            <a href="addSale.php" class="btn btn-primary">Record a Sale</a>
-            <a href="addCredit.php" class="btn btn-primary">Record a Credit</a>
+        <div class="transaction-container">
+            <a href="dashboard.php" class="btn-back-wrapper" id="back-button">
+                <img src="images/back.png" alt="Back" class="btn-back" id="back-image">
+                <b><span>Back to Dashboard</span></b>
+            </a>
+
+            <div class="transaction-header">
+                <h2>Select Transaction Type</h2>
+                <p>Choose the type of transaction you want to record</p>
+            </div>
+
+            <div class="transaction-options">
+                <div class="transaction-card" id="sale-card" onclick="navigateTo('addSale.php')">
+                    <div class="card-header">
+                        <div class="card-icon">💵</div>
+                        <h3 class="card-title">Cash Sale</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">Record a direct cash transaction with immediate payment.</p>
+                        <ul class="card-features">
+                            <li>Immediate payment collection</li>
+                            <li>Automatic inventory update</li>
+                            <li>Change calculation</li>
+                            <li>Complete sales receipt</li>
+                        </ul>
+                    </div>
+                    <div class="card-action">
+                        <a href="addSale.php" class="btn-card">Record Cash Sale</a>
+                    </div>
+                </div>
+
+                <div class="transaction-card" id="credit-card" onclick="navigateTo('addCredit.php')">
+                    <div class="card-header">
+                        <div class="card-icon">📝</div>
+                        <h3 class="card-title">Credit Sale</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">Record a sale with delayed payment for trusted customers.</p>
+                        <ul class="card-features">
+                            <li>Customer information tracking</li>
+                            <li>Payment schedule options</li>
+                            <li>Balance tracking</li>
+                            <li>Payment reminders</li>
+                        </ul>
+                    </div>
+                    <div class="card-action">
+                        <a href="addCredit.php" class="btn-card alt">Record Credit Sale</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Button hover effect for back button
+            const backImage = document.getElementById('back-image');
+            
+            backImage.addEventListener('mouseover', function() {
+                this.src = 'images/back-hover.png';
+            });
+
+            backImage.addEventListener('mouseout', function() {
+                this.src = 'images/back.png';
+            });
+            
+            // Add subtle interaction effects
+            const cards = document.querySelectorAll('.transaction-card');
+            
+            cards.forEach(card => {
+                // Add subtle hover lift effect
+                card.addEventListener('mouseenter', function() {
+                    this.classList.add('hover-active');
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.classList.remove('hover-active');
+                });
+                
+                // Add focus effect for keyboard navigation
+                card.addEventListener('focus', function() {
+                    this.classList.add('hover-active');
+                });
+                
+                card.addEventListener('blur', function() {
+                    this.classList.remove('hover-active');
+                });
+                
+                // Add click effect
+                card.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+            });
+            
+            // Check URL parameters to highlight appropriate card
+            const urlParams = new URLSearchParams(window.location.search);
+            const highlight = urlParams.get('highlight');
+            
+            if (highlight === 'credit') {
+                document.getElementById('credit-card').classList.add('card-highlight');
+            } else if (highlight === 'sale') {
+                document.getElementById('sale-card').classList.add('card-highlight');
+            }
+        });
+        
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
 </body>
 
 </html>
