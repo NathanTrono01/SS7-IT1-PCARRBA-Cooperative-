@@ -8,14 +8,65 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Check if user has admin privileges for database reset
-// Only allow specific usernames to see and use the database reset feature
-$allowedResetUsers = ['admin', 'superadmin', 'itadmin', 'Nathrix']; // Add specific usernames here
-$canResetDatabase = false;
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Check if current user is in the allowed list
-if (isset($_SESSION['username']) && in_array($_SESSION['username'], $allowedResetUsers)) {
-    $canResetDatabase = true;
+// Change from a static allowed users list to a vault-based authentication system
+$canResetDatabase = false; // Default to no access
+$databaseVaultUnlocked = false; // Track if the vault is currently unlocked
+
+// Check if vault unlock request was submitted
+if (isset($_POST['unlock_vault']) && isset($_POST['vault_password'])) {
+    // The master vault password - ideally this should be stored securely, not hardcoded
+    // For a production system, consider using a separate secure configuration
+    $masterVaultPassword = "PCARBAStoreAdmin"; // Change to a very strong password
+    
+    if ($_POST['vault_password'] === $masterVaultPassword) {
+        // Password correct - unlock access and set session flag
+        $_SESSION['db_vault_unlocked'] = true;
+        $_SESSION['db_vault_unlock_time'] = time();
+        $databaseVaultUnlocked = true;
+        $canResetDatabase = true;
+    } else {
+        // Wrong password
+        $error = "Database vault access denied. Incorrect password.";
+        
+        // Log failed attempt
+        $currentUsername = $_SESSION['username'];
+        $action = "Database Vault Access Attempt";
+        $details = "User $currentUsername attempted to access database vault with incorrect password.";
+        
+        // Add code to log this to your audit log if desired
+        if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
+            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
+} 
+// Check if vault is already unlocked via session
+elseif (isset($_SESSION['db_vault_unlocked']) && $_SESSION['db_vault_unlocked'] === true) {
+    // Check if the session has expired (30 minutes timeout)
+    $vaultTimeout = 30 * 60; // 30 minutes in seconds
+    if ((time() - $_SESSION['db_vault_unlock_time']) < $vaultTimeout) {
+        $databaseVaultUnlocked = true;
+        $canResetDatabase = true;
+    } else {
+        // Session expired, require re-authentication
+        unset($_SESSION['db_vault_unlocked']);
+        unset($_SESSION['db_vault_unlock_time']);
+    }
+}
+
+// Add vault lock functionality
+if (isset($_POST['lock_vault'])) {
+    // Lock the vault by removing session access
+    unset($_SESSION['db_vault_unlocked']);
+    unset($_SESSION['db_vault_unlock_time']);
+    $databaseVaultUnlocked = false;
+    $canResetDatabase = false;
+    $success = "Database vault locked successfully.";
 }
 
 error_reporting(E_ALL);
@@ -31,7 +82,7 @@ if ($canResetDatabase) {
         $files = glob($backupDir . '*.sql');
         $now = time();
         $threshold = 30 * 24 * 60 * 60; // 30 days in seconds
-        
+
         foreach ($files as $file) {
             if (is_file($file)) {
                 if ($now - filemtime($file) > $threshold) {
@@ -45,31 +96,31 @@ if ($canResetDatabase) {
 // Handle database import request
 if (isset($_FILES['import_file']) && $canResetDatabase) {
     $uploadedFile = $_FILES['import_file'];
-    
+
     // Check for errors
     if ($uploadedFile['error'] === UPLOAD_ERR_OK) {
         $tempPath = $uploadedFile['tmp_name'];
         $fileName = basename($uploadedFile['name']);
-        
+
         // Validate file extension
         if (pathinfo($fileName, PATHINFO_EXTENSION) === 'sql') {
             // Database credentials from db.php, using the global variables defined there
             global $servername, $username, $password, $dbname;
-            
+
             // Import SQL file
             $importCommand = "mysql -h $servername -u $username -p$password $dbname < $tempPath";
             exec($importCommand, $output, $returnCode);
-            
+
             if ($returnCode !== 0) {
                 $error = "Failed to import database file. Error code: $returnCode";
             } else {
                 $success = "Database imported successfully from file: $fileName";
-                
+
                 // Log this critical action
                 $currentUsername = $_SESSION['username'];
                 $action = "Database Import";
                 $details = "User $currentUsername imported database from file: $fileName";
-                
+
                 // Check if userId exists and is valid
                 if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
                     // Check if the userId exists in the users table
@@ -77,12 +128,12 @@ if (isset($_FILES['import_file']) && $canResetDatabase) {
                     $checkUserStmt->bind_param("i", $_SESSION['userId']);
                     $checkUserStmt->execute();
                     $checkUserStmt->store_result();
-                    
+
                     if ($checkUserStmt->num_rows > 0) {
                         // User exists, proceed with logging
                         // Check if username column exists in audit_logs table
                         $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
-                        if($columnCheckResult->num_rows > 0) {
+                        if ($columnCheckResult->num_rows > 0) {
                             // If username column exists, use the original query
                             $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
                             $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
@@ -96,7 +147,7 @@ if (isset($_FILES['import_file']) && $canResetDatabase) {
                         // User doesn't exist, log this information but don't attempt to insert
                         $error .= " Warning: Could not log this action as user ID is invalid.";
                     }
-                    
+
                     $checkUserStmt->close();
                 } else {
                     // No valid userId, log this information
@@ -116,19 +167,19 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
     // Create backup first
     $backupFile = 'db_backup_' . date('Y-m-d_H-i-s') . '.sql';
     $backupPath = 'backups/' . $backupFile;
-    
+
     // Create backups directory if it doesn't exist
     if (!is_dir('backups')) {
         mkdir('backups', 0755, true);
     }
-    
+
     // Database credentials from db.php, using the global variables defined there
     global $servername, $username, $password, $dbname;
-    
+
     // Create backup using mysqldump
     $backupCommand = "mysqldump -h $servername -u $username -p$password $dbname > $backupPath";
     exec($backupCommand, $output, $returnCode);
-    
+
     if ($returnCode !== 0 || !file_exists($backupPath) || filesize($backupPath) < 100) {
         $error = "Failed to create database backup. Database reset aborted.";
     } else {
@@ -144,14 +195,14 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
             'credits'
             // Excluding 'users' table to preserve login ability
         ];
-        
+
         // Start a transaction for safety
         $conn->begin_transaction();
-        
+
         try {
             // Disable foreign key checks temporarily
             $conn->query("SET foreign_key_checks = 0");
-            
+
             $success_count = 0;
             foreach ($tables as $table) {
                 // TRUNCATE is faster than DELETE and resets auto-increment counters
@@ -159,23 +210,23 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
                     $success_count++;
                 }
             }
-            
+
             // Re-enable foreign key checks
             $conn->query("SET foreign_key_checks = 1");
-            
+
             // If all tables were successfully truncated
             if ($success_count === count($tables)) {
                 // Initial data setup - recreate default categories
                 $conn->query("INSERT INTO categories (categoryName) VALUES ('General')");
-                
+
                 $conn->commit();
                 $success = "Database has been reset successfully. All product, sales, and credit data have been cleared. Backup created: $backupFile";
-                
+
                 // Log this critical action
                 $currentUsername = $_SESSION['username'];
                 $action = "Database Reset";
                 $details = "User $currentUsername performed a complete database reset. Backup created: $backupFile";
-                
+
                 // Check if userId exists and is valid
                 if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
                     // Check if the userId exists in the users table
@@ -183,12 +234,12 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
                     $checkUserStmt->bind_param("i", $_SESSION['userId']);
                     $checkUserStmt->execute();
                     $checkUserStmt->store_result();
-                    
+
                     if ($checkUserStmt->num_rows > 0) {
                         // User exists, proceed with logging
                         // Check if username column exists in audit_logs table
                         $columnCheckResult = $conn->query("SHOW COLUMNS FROM audit_logs LIKE 'username'");
-                        if($columnCheckResult->num_rows > 0) {
+                        if ($columnCheckResult->num_rows > 0) {
                             // Username column exists
                             $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
                             $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
@@ -199,7 +250,7 @@ if (isset($_POST['reset_database']) && $_POST['reset_database'] === 'confirm' &&
                         }
                         $stmt->execute();
                     }
-                    
+
                     $checkUserStmt->close();
                 }
             } else {
@@ -292,72 +343,252 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="css/layer1.css">
 
     <style>
-        .card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            flex: 1 1 auto;
+        /* Main container styling */
+        .settings-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
-        .custom-card {
-            background-color: transparent;
+        /* Page header */
+        .settings-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
+        }
+
+        .settings-header h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .settings-header p {
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+        }
+
+        /* Tab navigation */
+        .settings-tabs {
+            display: flex;
+            background-color: rgba(23, 25, 30, 0.6);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #335fff #1e2028;
+        }
+
+        .settings-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .settings-tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .settings-tabs::-webkit-scrollbar-thumb {
+            background-color: rgba(51, 95, 255, 0.5);
+            border-radius: 4px;
+        }
+
+        .settings-tab {
+            padding: 12px 20px;
+            color: #94a3b8;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-tab:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .settings-tab.active {
+            color: white;
+            background-color: rgba(51, 95, 255, 0.2);
+        }
+
+        .tab-icon {
+            font-size: 16px;
+        }
+
+        /* Card styling */
+        .settings-card {
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            border-color: rgba(51, 95, 255, 0.3);
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            background-color: rgba(33, 34, 39, 0.6);
+            border-bottom: 1px solid rgba(51, 57, 66, 0.5);
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .card-header p {
+            margin: 5px 0 0 0;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Form controls */
+        .form-group {
             margin-bottom: 20px;
-            width: 1000px;
-            max-width: 100%;
-            justify-content: center;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #f7f7f8;
+            font-weight: 500;
+        }
+
+        .form-hint {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 5px;
+            display: block;
         }
 
         .custom-input {
-            background-color: rgba(0, 0, 0, 0.3);
-            ;
+            background-color: rgba(17, 18, 22, 0.7);
             color: white;
-            border: 1px solid hsla(0, 0%, 100%, 0.2);
-            padding: 8.5px;
-            font-size: 1rem;
-            border-radius: 7.5px;
+            border: 1px solid rgba(51, 57, 66, 0.5);
+            padding: 12px 16px;
+            font-size: 16px;
+            border-radius: 8px;
             width: 100%;
+            transition: all 0.3s ease;
         }
 
         .custom-input::placeholder {
-            color: #bdbebe;
+            color: rgba(247, 247, 248, 0.5);
         }
 
         .custom-input:focus {
-            border-color: white;
-            color: white;
+            border-color: #335fff;
             outline: none;
-            background-color: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 0 2px rgba(51, 95, 255, 0.2);
         }
 
         .custom-button {
-            background: transparent;
-            border: 0.5px solid rgba(187, 188, 190, 0.5);
-            transition: border-color 0.3s, color 0.3s;
-            color: rgba(255, 255, 255, 0.92);
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 4px;
-            width: 100%;
-            margin-top: 10px;
+            background-color: rgba(51, 95, 255, 0.1);
+            color: #f7f7f8;
+            border: 1px solid rgba(51, 95, 255, 0.3);
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            width: auto;
+            min-width: 120px;
         }
 
         .custom-button:hover {
-            background-color: rgba(255, 255, 255, 0.06);
-            border: 1.5px solid rgb(187, 188, 190);
-            color: #fff;
+            background-color: rgba(51, 95, 255, 0.2);
+            border-color: rgba(51, 95, 255, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background-color: rgb(42, 56, 255);
+            border-color: transparent;
+        }
+
+        .btn-primary:hover {
+            background-color: rgb(61, 74, 255);
+        }
+
+        .btn-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+            border-color: rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+            border-color: rgba(220, 53, 69, 0.5);
+        }
+
+        .btn-warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            border-color: rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-warning:hover {
+            background-color: rgba(255, 152, 0, 0.2);
+            border-color: rgba(255, 152, 0, 0.5);
+        }
+
+        .btn-info {
+            background-color: rgba(75, 171, 247, 0.1);
+            color: #4dabf7;
+            border-color: rgba(75, 171, 247, 0.3);
+        }
+
+        .btn-info:hover {
+            background-color: rgba(75, 171, 247, 0.2);
+            border-color: rgba(75, 171, 247, 0.5);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group .custom-input {
+            flex: 1;
+        }
+
+        .input-group .custom-button {
+            flex-shrink: 0;
+        }
+
+        /* Alert notifications */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
         }
 
         .alert-error {
-            border: 1px solid red;
-            background-color: rgb(255, 147, 147);
-            color: red;
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            margin-top: 10px;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(220, 53, 69, 0.3);
         }
 
         .alert-success {
@@ -365,225 +596,750 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             top: 100px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #d4edda;
-            border: 1px solid green;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
             z-index: 1000;
-            display: none;
-            color: green;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .alert-success.show {
+            animation: fadeIn 0.3s ease-out forwards;
+            pointer-events: auto;
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-close {
+            margin-left: auto;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        /* Section styling */
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .section.active {
             display: block;
         }
 
-        .section-title {
-            font-size: 1.5rem;
+        /* Database backup styling */
+        .backup-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .backup-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background-color: rgba(17, 18, 22, 0.4);
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .backup-item:hover {
+            background-color: rgba(17, 18, 22, 0.6);
+        }
+
+        .backup-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .backup-icon {
+            color: #4dabf7;
+            font-size: 18px;
+        }
+
+        .backup-name {
+            font-weight: 500;
+            color: #f7f7f8;
+        }
+
+        .backup-date {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .backup-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .backup-button {
+            background-color: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .backup-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #f7f7f8;
+        }
+
+        /* File upload styling */
+        .file-upload {
+            position: relative;
+            display: block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            height: 100%;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border: 1px dashed rgba(51, 57, 66, 0.7);
+            border-radius: 8px;
+            background-color: rgba(17, 18, 22, 0.4);
+            color: #94a3b8;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            border-color: #4dabf7;
+            background-color: rgba(17, 18, 22, 0.6);
+            color: #f7f7f8;
+        }
+
+        .file-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-weight: normal;
+            color: #4dabf7;
+        }
+
+        /* Animation keyframes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Media queries */
+        @media (max-width: 768px) {
+            .settings-container {
+                padding: 0 15px;
+                margin: 20px auto;
+            }
+
+            .card-header, .card-body {
+                padding: 15px;
+            }
+
+            .settings-tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Add these new vault-specific styles to your existing CSS */
+        
+        
+        .vault-animation {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 30px;
+        }
+        
+        .vault-door {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+        
+        .vault-door:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #333;
+            box-sizing: border-box;
+        }
+        
+        .vault-door:after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            border: 6px dashed rgba(255, 193, 7, 0.3);
+            box-sizing: border-box;
+        }
+        
+        .vault-door.closed {
+            background-color: #333;
+            box-shadow: 
+                0 0 0 6px rgba(51, 51, 51, 0.6),
+                0 0 0 12px rgba(51, 51, 51, 0.3),
+                0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .vault-door.open {
+            background-color: rgba(40, 167, 69, 0.2);
+            box-shadow: 
+                0 0 0 6px rgba(40, 167, 69, 0.2),
+                0 0 0 12px rgba(40, 167, 69, 0.1),
+                0 0 30px rgba(40, 167, 69, 0.2);
+            transform: rotateZ(90deg);
+        }
+        
+        .vault-icon {
+            font-size: 38px;
+            z-index: 10;
+        }
+        
+        .vault-door.open .vault-icon {
+            animation: unlockPulse 2s infinite;
+        }
+        
+        .vault-message {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+        
+        .vault-password-group {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            z-index: 5;
+        }
+        
+        .toggle-password:hover {
+            color: white;
+        }
+        
+        .vault-button {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .vault-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .vault-controls form {
+            flex: 1;
+        }
+        
+        .vault-controls button {
+            width: 100%;
+        }
+        
+        .vault-timer {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        #vault-countdown {
             font-weight: bold;
-            margin-bottom: 20px;
-            color: #fff;
+        }
+        
+        .vault-unlock-icon,
+        .vault-lock-icon,
+        .vault-enter-icon {
+            font-size: 18px;
+        }
+        
+        @keyframes unlockPulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.7; transform: scale(1); }
+        }
+        
+        /* Override for tab styling when vault is active */
+        .settings-tab .tab-icon {
+            transition: all 0.3s ease;
+        }
+        
+        /* Make icons slightly larger for better visibility */
+        .tab-icon {
+            font-size: 18px;
+            margin-right: 5px;
         }
     </style>
 </head>
 
-<?php include 'navbar.php'; ?>
-<script src="js/bootstrap.bundle.min.js"></script>
-
 <body>
+    <?php include 'navbar.php'; ?>
+    <script src="js/bootstrap.bundle.min.js"></script>
+
     <div class="main-content fade-in">
-        <div class="container">
-            <div class="container">
-                <div class="card-container">
-                    <div class="custom-card">
-                        <?php if ($error) echo "<div class='alert-error'>$error</div>"; ?>
-                        <?php if ($success) echo "<div class='alert-success show' id='alert-success'>$success</div>"; ?>
-                        <div class="section-title">Store Settings</div>
-                        <form method="POST" action="">
-                            <div class="mb-3">
-                                <label for="reorder_level" class="form-label">Low Stock Alert (Reorder Level)</label>
-                                <input type="number" name="reorder_level" class="custom-input" placeholder="Enter reorder level" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
-                            </div>
-                            <button type="submit" class="custom-button" id="submitButton">Submit</button>
-                        </form>
+        <div class="settings-container">
+            <div class="settings-header">
+                <div>
+                    <h2>Settings</h2>
+                    <p>Configure your system preferences and account settings</p>
+                </div>
+            </div>
+
+            <?php if ($error): ?>
+            <div class="alert alert-error">
+                <div class="alert-icon">⚠️</div>
+                <div><?php echo $error; ?></div>
+                <div class="alert-close" onclick="this.parentElement.style.display='none'">×</div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+            <div class="alert-success <?php echo $success ? 'show' : ''; ?>" id="alert-success">
+                <div class="alert-icon">✓</div>
+                <?php echo $success; ?>
+                <div class="alert-close" onclick="this.parentElement.classList.remove('show')">×</div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Tab Navigation -->
+            <div class="settings-tabs">
+                <div class="settings-tab active" onclick="showSection('store-settings')">
+                    <span class="tab-icon">🏪</span> Store Settings
+                </div>
+                <div class="settings-tab" onclick="showSection('user-settings')">
+                    <span class="tab-icon">👤</span> User Settings
+                </div>
+                <div class="settings-tab" onclick="showSection('database-vault')">
+                    <span class="tab-icon"><?php echo $databaseVaultUnlocked ? '🔓' : '🔒'; ?></span> Database Management
+                </div>
+            </div>
+
+            <!-- Store Settings Section -->
+            <div id="store-settings" class="section active">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Inventory Alert Settings</h3>
+                        <p>Configure when you'll be notified about low stock levels</p>
                     </div>
-                    <div class="custom-card">
-                        <div class="section-title">User Settings</div>
+                    <div class="card-body">
                         <form method="POST" action="">
-                            <input type="hidden" name="change_password" value="1">
-                            <div class="mb-3">
-                                <label for="current_password" class="form-label">Change Password</label>
-                                <input type="password" name="current_password" class="custom-input" placeholder="Current Password" required>
+                            <div class="form-group">
+                                <label for="reorder_level" class="form-label">Low Stock Alert Threshold</label>
+                                <input type="number" name="reorder_level" id="reorder_level" class="custom-input" placeholder="Enter number of items" value="<?php echo htmlspecialchars($reorderLevel); ?>" required>
+                                <span class="form-hint">Products with stock equal to or below this number will be flagged as low stock</span>
                             </div>
-                            <div class="mb-3">
-                                <label for="new_password" class="form-label">New Password</label>
-                                <input type="password" name="new_password" class="custom-input" placeholder="New Password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm New Password</label>
-                                <input type="password" name="confirm_password" class="custom-input" placeholder="Confirm New Password" required>
-                            </div>
-                            <button type="submit" class="custom-button" id="submitButton">Submit</button>
+                            <button type="submit" class="custom-button btn-primary">Save Changes</button>
                         </form>
                     </div>
                 </div>
-                
-                <?php if ($canResetDatabase): ?>
-                <!-- Database Management Card - Only visible to specific admin users -->
-                <div class="custom-card">
-                    <div class="section-title">Database Management</div>
-                    <div class="mb-3">
-                        <p class="text-warning">Warning: These actions cannot be undone and may result in permanent data loss.</p>
+            </div>
+
+            <!-- User Settings Section -->
+            <div id="user-settings" class="section">
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Password Management</h3>
+                        <p>Update your login credentials</p>
                     </div>
-                    
-                    <!-- Database Reset Section -->
-                    <div class="mb-4">
-                        <h5 style="color: #ff6b6b;">Reset Database</h5>
-                        <p>This will permanently delete all products, sales, inventory, and other operational data. User accounts will be preserved.</p>
-                        <p>A backup file will be automatically created before resetting the database.</p>
-                        <button type="button" class="custom-button" style="background-color: rgba(255, 0, 0, 0.1); border-color: #ff6b6b;" onclick="confirmDatabaseReset()">Reset Database</button>
-                    </div>
-                    
-                    <!-- Database Import Section -->
-                    <div class="mb-4">
-                        <h5 style="color: #4dabf7;">Import Database</h5>
-                        <p>Import a SQL database file. This will replace the current database structure and data.</p>
-                        <form method="POST" action="" enctype="multipart/form-data">
-                            <div class="mb-3">
-                                <input type="file" name="import_file" class="custom-input" accept=".sql" required>
+                    <div class="card-body">
+                        <form method="POST" action="">
+                            <input type="hidden" name="change_password" value="1">
+                            <div class="form-group">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input type="password" name="current_password" id="current_password" class="custom-input" placeholder="Enter your current password" required>
                             </div>
-                            <button type="button" class="custom-button" style="background-color: rgba(75, 171, 247, 0.1); border-color: #4dabf7;" onclick="confirmDatabaseImport(this.form)">Import Database</button>
+                            <div class="form-group">
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" name="new_password" id="new_password" class="custom-input" placeholder="Enter your new password" required>
+                                <span class="form-hint">Use a strong password with at least 8 characters, including numbers and symbols</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input type="password" name="confirm_password" id="confirm_password" class="custom-input" placeholder="Confirm your new password" required>
+                            </div>
+                            <button type="submit" class="custom-button btn-primary">Update Password</button>
                         </form>
                     </div>
-                    
-                    <!-- Database Backups Section -->
-                    <div class="mb-4">
-                        <h5 style="color: #4dabf7;">Database Backups</h5>
-                        <p>View and download existing database backups. Backups are automatically deleted after 30 days.</p>
-                        <?php
-                        $backups = glob('backups/*.sql');
-                        if (!empty($backups)) {
-                            echo '<ul style="list-style-type: none; padding-left: 0;">';
-                            foreach($backups as $backup) {
-                                $filename = basename($backup);
-                                $fileDate = date("F d, Y H:i:s", filemtime($backup));
-                                echo '<li style="margin-bottom: 5px;"><a href="' . $backup . '" download style="color: #4dabf7;">' . $filename . '</a> <span style="color: #aaa; font-size: 0.8em;">(' . $fileDate . ')</span></li>';
-                            }
-                            echo '</ul>';
-                        } else {
-                            echo '<p>No backups available.</p>';
-                        }
-                        ?>
+                </div>
+            </div>
+
+            <!-- Database Vault Section -->
+            <div id="database-vault" class="section">
+                <?php if (!$databaseVaultUnlocked): ?>
+                <!-- Locked Vault View -->
+                <div class="settings-card vault-card">
+                    <div class="card-header">
+                        <h3>Database Management Vault</h3>
+                        <p>Secure access to database management features</p>
                     </div>
-                    
-                    <!-- Hidden form for database reset -->
-                    <form id="resetDatabaseForm" method="POST" action="" style="display: none;">
-                        <input type="hidden" name="reset_database" value="confirm">
-                    </form>
+                    <div class="card-body">
+                        <div class="vault-animation">
+                            <div class="vault-door closed">
+                                <div class="vault-icon">🔒</div>
+                            </div>
+                        </div>
+                        <p class="vault-message">Access to database management features is restricted.</p>
+                        
+                        <form method="POST" action="" id="vaultForm">
+                            <div class="form-group">
+                                <label for="vault_password" class="form-label">Database Vault Password</label>
+                                <div class="input-group vault-password-group">
+                                    <input type="password" name="vault_password" id="vault_password" class="custom-input" 
+                                           placeholder="Enter vault password" required>
+                                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
+                                </div>
+                                <span class="form-hint">Enter the vault password to access database management features</span>
+                            </div>
+                            <input type="hidden" name="unlock_vault" value="1">
+                            <button type="submit" class="custom-button btn-primary vault-button">
+                                <span class="vault-unlock-icon">🔑</span> Unlock Vault Access
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <?php else: ?>
+                <!-- Unlocked Vault View -->
+                <div class="settings-card vault-card">
+                    <div class="card-header">
+                        <h3>Database Management Vault</h3>
+                        <p>You have secure access to database management features</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="vault-animation">
+                            <div class="vault-door open">
+                                <div class="vault-icon">🔓</div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <div class="alert-icon">✓</div>
+                            <div>
+                                <strong>Database vault unlocked.</strong> 
+                                You now have access to sensitive database management features.
+                                <br>
+                                <span class="vault-timer">Session will automatically expire in <span id="vault-countdown">30:00</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="vault-controls">
+                            <form method="POST" action="">
+                                <input type="hidden" name="lock_vault" value="1">
+                                <button type="submit" class="custom-button btn-warning vault-button">
+                                    <span class="vault-lock-icon">🔒</span> Lock Vault Access
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="custom-button btn-primary" onclick="showSection('database-settings')">
+                                <span class="vault-enter-icon">⚙️</span> Access Database Settings
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <?php endif; ?>
             </div>
+
+            <!-- Database Settings Section (Admin Only) -->
+            <?php if ($canResetDatabase): ?>
+            <div id="database-settings" class="section">
+                <!-- Database Import Card -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Import Database</h3>
+                        <p>Replace the current database with data from a SQL file</p>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="" enctype="multipart/form-data" id="importForm">
+                            <div class="form-group">
+                                <label class="form-label">Select SQL File</label>
+                                <div class="file-upload">
+                                    <input type="file" name="import_file" id="import_file" class="file-input" accept=".sql" required>
+                                    <div class="file-label">
+                                        <span class="file-icon">📁</span>
+                                        <span id="file-placeholder">Choose a SQL file</span>
+                                        <span class="file-name" id="file-name"></span>
+                                    </div>
+                                </div>
+                                <span class="form-hint">Only .sql files are supported</span>
+                            </div>
+                            <div class="alert alert-warning">
+                                <div class="alert-icon">⚠️</div>
+                                <div>Warning: Importing a database will replace all existing data. This action cannot be undone.</div>
+                            </div>
+                            <button type="button" class="custom-button btn-info" onclick="confirmDatabaseImport(document.getElementById('importForm'))">Import Database</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Database Backups Card -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Database Backups</h3>
+                        <p>View and download existing database backups (auto-deleted after 30 days)</p>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        $backups = glob('backups/*.sql');
+                        if (!empty($backups)):
+                        ?>
+                            <ul class="backup-list">
+                                <?php foreach ($backups as $backup):
+                                    $filename = basename($backup);
+                                    $fileDate = date("F d, Y H:i:s", filemtime($backup));
+                                ?>
+                                    <li class="backup-item">
+                                        <div class="backup-info">
+                                            <div class="backup-icon">📊</div>
+                                            <div>
+                                                <div class="backup-name"><?php echo $filename; ?></div>
+                                                <div class="backup-date"><?php echo $fileDate; ?></div>
+                                            </div>
+                                        </div>
+                                        <div class="backup-actions">
+                                            <a href="<?php echo $backup; ?>" download class="backup-button" title="Download">⬇️</a>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p>No backups available at this time.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Database Reset Card -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Reset Database</h3>
+                        <p>Clear all operational data while preserving user accounts</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-error">
+                            <div class="alert-icon">⚠️</div>
+                            <div>
+                                <strong>DANGER:</strong> This will permanently delete all products, sales, inventory, and other operational data. User accounts will be preserved.
+                                <br>A backup file will be automatically created before resetting.
+                            </div>
+                        </div>
+                        <form id="resetDatabaseForm" method="POST" action="" style="display: none;">
+                            <input type="hidden" name="reset_database" value="confirm">
+                        </form>
+                        <button type="button" class="custom-button btn-danger" onclick="confirmDatabaseReset()">Reset Database</button>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const successAlert = document.querySelector('.alert-success');
-                const errorAlert = document.querySelector('.alert-error');
+    </div>
 
-                if (successAlert && successAlert.textContent.trim() !== '') {
-                    successAlert.classList.add('show');
-                    setTimeout(function() {
-                        successAlert.classList.remove('show');
-                    }, 4000); // Hide after 4 seconds
-                }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // File input display handling
+            const fileInput = document.getElementById('import_file');
+            const filePlaceholder = document.getElementById('file-placeholder');
+            const fileName = document.getElementById('file-name');
 
-                if (errorAlert && errorAlert.textContent.trim() !== '') {
-                    errorAlert.style.display = 'block';
-                }
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (fileInput.files.length > 0) {
+                        filePlaceholder.textContent = 'Selected file:';
+                        fileName.textContent = fileInput.files[0].name;
+                    } else {
+                        filePlaceholder.textContent = 'Choose a SQL file';
+                        fileName.textContent = '';
+                    }
+                });
+            }
+
+            // Success alert auto-hide
+            const successAlert = document.querySelector('.alert-success');
+            if (successAlert && successAlert.textContent.trim() !== '') {
+                setTimeout(function() {
+                    successAlert.classList.remove('show');
+                }, 5000); // Hide after 5 seconds
+            }
+        });
+
+        // Section tab navigation
+        function showSection(sectionId) {
+            // Hide all sections and deactivate all tabs
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
             });
-
-            function exportData() {
-                // Implement data export functionality
-                alert('Data export functionality to be implemented.');
-            }
-
-            function importData() {
-                // Implement data import functionality
-                alert('Data import functionality to be implemented.');
-            }
-
-            function clearCache() {
-                // Implement cache clearing functionality
-                alert('Cache clearing functionality to be implemented.');
-            }
-
-            function resetData() {
-                // Implement data reset functionality
-                alert('Data reset functionality to be implemented.');
-            }
-
-            function confirmDatabaseReset() {
-                // First confirmation
-                if (confirm('WARNING: You are about to delete ALL data from the database.\n\nA backup will be created automatically, but this action will remove all products, sales, and inventory data.\n\nAre you sure you want to continue?')) {
-                    // Second confirmation with typing requirement for extra safety
-                    const confirmText = prompt('To confirm, please type "RESET" in all capitals:');
-                    if (confirmText === 'RESET') {
-                        // Show loading message
-                        const loadingModal = document.createElement('div');
-                        loadingModal.style.position = 'fixed';
-                        loadingModal.style.top = '0';
-                        loadingModal.style.left = '0';
-                        loadingModal.style.width = '100%';
-                        loadingModal.style.height = '100%';
-                        loadingModal.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        loadingModal.style.zIndex = '9999';
-                        loadingModal.style.display = 'flex';
-                        loadingModal.style.alignItems = 'center';
-                        loadingModal.style.justifyContent = 'center';
-                        loadingModal.style.color = 'white';
-                        loadingModal.innerHTML = '<div><h3>Creating database backup and resetting...</h3><p>Please do not close this window.</p></div>';
-                        document.body.appendChild(loadingModal);
-                        
-                        // Submit the form after a short delay to allow the modal to render
-                        setTimeout(() => {
-                            document.getElementById('resetDatabaseForm').submit();
-                        }, 100);
-                    } else {
-                        alert('Database reset cancelled. The confirmation text did not match "RESET".');
-                    }
-                }
-            }
+            document.querySelectorAll('.settings-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
             
-            function confirmDatabaseImport(form) {
-                // First confirmation
-                if (confirm('WARNING: You are about to import a database file. This may overwrite existing data.\n\nAre you sure you want to continue?')) {
-                    // Second confirmation with typing requirement for extra safety
-                    const confirmText = prompt('To confirm, please type "IMPORT" in all capitals:');
-                    if (confirmText === 'IMPORT') {
-                        // Show loading message
-                        const loadingModal = document.createElement('div');
-                        loadingModal.style.position = 'fixed';
-                        loadingModal.style.top = '0';
-                        loadingModal.style.left = '0';
-                        loadingModal.style.width = '100%';
-                        loadingModal.style.height = '100%';
-                        loadingModal.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        loadingModal.style.zIndex = '9999';
-                        loadingModal.style.display = 'flex';
-                        loadingModal.style.alignItems = 'center';
-                        loadingModal.style.justifyContent = 'center';
-                        loadingModal.style.color = 'white';
-                        loadingModal.innerHTML = '<div><h3>Importing database...</h3><p>Please do not close this window.</p></div>';
-                        document.body.appendChild(loadingModal);
-                        
-                        // Submit the form
-                        form.submit();
-                    } else {
-                        alert('Database import cancelled. The confirmation text did not match "IMPORT".');
-                    }
+            // Activate selected section and its tab
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`.settings-tab[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        }
+
+        function confirmDatabaseReset() {
+            // First confirmation
+            if (confirm('WARNING: You are about to delete ALL data from the database.\n\nA backup will be created automatically, but this action will remove all products, sales, and inventory data.\n\nAre you sure you want to continue?')) {
+                // Second confirmation with typing requirement for extra safety
+                const confirmText = prompt('To confirm, please type "RESET" in all capitals:');
+                if (confirmText === 'RESET') {
+                    // Show loading message
+                    showLoadingOverlay('Creating database backup and resetting...');
+                    
+                    // Submit the form after a short delay to allow the modal to render
+                    setTimeout(() => {
+                        document.getElementById('resetDatabaseForm').submit();
+                    }, 100);
+                } else {
+                    alert('Database reset cancelled. The confirmation text did not match "RESET".');
                 }
             }
-        </script>
-    </body>
+        }
+
+        function confirmDatabaseImport(form) {
+            // Check if a file was selected
+            const fileInput = form.querySelector('input[type="file"]');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select a SQL file to import.');
+                return;
+            }
+
+            // First confirmation
+            if (confirm('WARNING: You are about to import a database file. This may overwrite existing data.\n\nAre you sure you want to continue?')) {
+                // Second confirmation with typing requirement for extra safety
+                const confirmText = prompt('To confirm, please type "IMPORT" in all capitals:');
+                if (confirmText === 'IMPORT') {
+                    // Show loading message
+                    showLoadingOverlay('Importing database...');
+                    
+                    // Submit the form
+                    setTimeout(() => {
+                        form.submit();
+                    }, 100);
+                } else {
+                    alert('Database import cancelled. The confirmation text did not match "IMPORT".');
+                }
+            }
+        }
+
+        function showLoadingOverlay(message) {
+            const loadingModal = document.createElement('div');
+            loadingModal.style.position = 'fixed';
+            loadingModal.style.top = '0';
+            loadingModal.style.left = '0';
+            loadingModal.style.width = '100%';
+            loadingModal.style.height = '100%';
+            loadingModal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            loadingModal.style.zIndex = '9999';
+            loadingModal.style.display = 'flex';
+            loadingModal.style.flexDirection = 'column';
+            loadingModal.style.alignItems = 'center';
+            loadingModal.style.justifyContent = 'center';
+            loadingModal.style.color = 'white';
+            
+            // Add loading spinner
+            loadingModal.innerHTML = `
+                <div style="width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); 
+                      border-radius: 50%; border-top-color: white; 
+                      animation: spin 1s ease-in-out infinite;"></div>
+                <h3 style="margin-top: 20px;">${message}</h3>
+                <p style="margin-top: 10px;">Please do not close this window.</p>
+            `;
+            
+            // Add the spinner animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(loadingModal);
+        }
+    </script>
+</body>
+
 </html>

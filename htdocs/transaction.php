@@ -53,22 +53,14 @@ include 'db.php';
         }
 
         .transaction-card {
-            background-color: rgba(39, 41, 48, 0.8);
             border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(51, 57, 66, 0.5);
             transition: all 0.3s ease;
             position: relative;
             cursor: pointer;
             height: 100%;
             display: flex;
             flex-direction: column;
-        }
-
-        .transaction-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-            border-color: rgba(51, 95, 255, 0.5);
         }
 
         .transaction-card:active {
@@ -140,7 +132,6 @@ include 'db.php';
             justify-content: center;
             padding: 15px 20px;
             border-top: 1px solid rgba(51, 57, 66, 0.5);
-            background-color: rgba(33, 34, 39, 0.6);
             margin-top: auto;
         }
 
