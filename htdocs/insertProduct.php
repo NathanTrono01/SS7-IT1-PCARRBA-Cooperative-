@@ -493,7 +493,7 @@ if (isset($_POST['add_item'])) {
             </div>
             <br>
             <div class="d-grid">
-                <button type="submit" name="add_item" class="btn-primary">Add Item</button>
+                <button type="submit" name="add_item" class="btn-primary">Add Product</button>
             </div>
             </form>
         </div>

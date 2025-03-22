@@ -995,7 +995,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <span class="tab-icon">👤</span> User Settings
                 </div>
                 <div class="settings-tab" onclick="showSection('database-vault')">
-                    <span class="tab-icon"><?php echo $databaseVaultUnlocked ? '🔓' : '🔒'; ?></span> Database Management
+                    <span class="tab-icon"><?php echo $databaseVaultUnlocked ? '🔓' : '🔒'; ?></span> Admin Panel
                 </div>
             </div>
 
@@ -1006,6 +1006,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3>Inventory Alert Settings</h3>
                         <p>Configure when you'll be notified about low stock levels</p>
                     </div>
+                    <br>
                     <div class="card-body">
                         <form method="POST" action="">
                             <div class="form-group">
@@ -1026,6 +1027,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3>Password Management</h3>
                         <p>Update your login credentials</p>
                     </div>
+                    <br>
                     <div class="card-body">
                         <form method="POST" action="">
                             <input type="hidden" name="change_password" value="1">
@@ -1054,26 +1056,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Locked Vault View -->
                 <div class="settings-card vault-card">
                     <div class="card-header">
-                        <h3>Database Management Vault</h3>
-                        <p>Secure access to database management features</p>
+                        <h3>Admin Panel</h3>
+                        <p>Secure access to Admin features</p>
                     </div>
+                    <br>
                     <div class="card-body">
                         <div class="vault-animation">
                             <div class="vault-door closed">
                                 <div class="vault-icon">🔒</div>
                             </div>
                         </div>
-                        <p class="vault-message">Access to database management features is restricted.</p>
+                        <p class="vault-message">Access to Admin features is restricted.</p>
                         
                         <form method="POST" action="" id="vaultForm">
                             <div class="form-group">
-                                <label for="vault_password" class="form-label">Database Vault Password</label>
+                                <label for="vault_password" class="form-label">Admin Panel Password</label>
                                 <div class="input-group vault-password-group">
                                     <input type="password" name="vault_password" id="vault_password" class="custom-input" 
                                            placeholder="Enter vault password" required>
-                                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
                                 </div>
-                                <span class="form-hint">Enter the vault password to access database management features</span>
+                                <span class="form-hint">Enter the Admin secret password to access database management features</span>
                             </div>
                             <input type="hidden" name="unlock_vault" value="1">
                             <button type="submit" class="custom-button btn-primary vault-button">
@@ -1086,8 +1088,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Unlocked Vault View -->
                 <div class="settings-card vault-card">
                     <div class="card-header">
-                        <h3>Database Management Vault</h3>
-                        <p>You have secure access to database management features</p>
+                        <h3>Admin Panel</h3>
+                        <p>You have secure access to Admin features</p>
                     </div>
                     <div class="card-body">
                         <div class="vault-animation">
@@ -1099,8 +1101,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="alert alert-success">
                             <div class="alert-icon">✓</div>
                             <div>
-                                <strong>Database vault unlocked.</strong> 
-                                You now have access to sensitive database management features.
+                                <strong>Admin Panel unlocked.</strong> 
+                                You now have access to sensitive Admin features.
                                 <br>
                                 <span class="vault-timer">Session will automatically expire in <span id="vault-countdown">30:00</span></span>
                             </div>
