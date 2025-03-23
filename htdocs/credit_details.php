@@ -20,12 +20,12 @@ $creditId = $_GET['creditId'];
 
 // Fetch credit details
 $query = "SELECT c.creditId, c.transactionDate, c.paymentStatus, cr.customerName, cr.phoneNumber, cr.creditBalance, cr.amountPaid,
-                 p.productName, si.quantity, si.subTotal, cr.creditorId, c.userId, c.lastUpdated
-          FROM credits c
-          JOIN sale_item si ON c.creditId = si.creditId
-          JOIN products p ON si.productId = p.productId
-          JOIN creditor cr ON c.creditorId = cr.creditorId
-          WHERE c.creditId = ?";
+               p.productName, p.imagePath AS image, si.quantity, si.subTotal, cr.creditorId, c.userId, c.lastUpdated
+        FROM credits c
+        JOIN sale_item si ON c.creditId = si.creditId
+        JOIN products p ON si.productId = p.productId
+        JOIN creditor cr ON c.creditorId = cr.creditorId
+        WHERE c.creditId = ?";
 $stmt = $conn->prepare($query);
 if (!$stmt) {
     die("Prepare failed: " . $conn->error);
@@ -104,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         .form-container {
             background-color: transparent;
-            padding: 10px;
             align-content: center;
         }
 
@@ -138,7 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 25px auto;
             position: relative;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
         }
 
         table {
@@ -206,6 +204,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 25px;
             height: 25px;
         }
+
+        /* Product thumbnail styling */
+        .product-thumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            /* This makes the image cover the container */
+            object-position: center;
+            /* Centers the image within the container */
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            /* Ensures the image doesn't spill outside */
+        }
+
+        /* Hide thumbnails on small screens */
+        @media (max-width: 576px) {
+            .product-thumbnail {
+                display: none;
+            }
+
+            .product-thumb-container {
+                gap: 0;
+            }
+        }
+
+        /* Enhanced payment form styles */
+        .payment-form-container {
+            background-color: #242529;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-form-container h3 {
+            color: #f7f7f8;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .payment-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .payment-info {
+            padding: 10px;
+            font-size: 16px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .payment-info div {
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .label-highlight {
+            color: #a4cfff;
+            font-weight: 600;
+        }
+
+        .amount-paid {
+            color: #64dd17;
+        }
+
+        .balance-due {
+            color: #ff9800;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #f7f7f8;
+            padding: 10px 15px;
+            height: 45px;
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #f7f7f8;
+            border-color: #a4cfff;
+        }
+
+        .form-control::placeholder {
+            color: rgba(247, 247, 248, 0.6);
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+        }
+
+        /* Product thumbnail styling - already present but ensuring it's optimized */
+        .product-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            object-position: center;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -218,59 +343,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <b><span>Back</span></b>
             </a>
             <hr>
-            <div class="table-wrapper">
-                <h1 align="center">Credit Details</h1>
-                <table>
-                    <tr>
-                        <td>
-                            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
-                        </td>
-                        <td>
-                            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
-                        </td>
-                        <td>
-                            <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
-                        </td>
-                    </tr>
-                </table>
-                <hr>
-                <h3>Bought on Credit:</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>PRODUCT DETAILS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($creditDetails as $item) { ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?> </td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-            <hr>
             <?php if ($creditDetails[0]['paymentStatus'] !== 'Paid') { ?>
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="amountPaid" class="form-label">Payment Amount:</label>
-                        <input type="number" id="amountPaid" name="amountPaid" class="form-control" min="0" max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>" placeholder="Enter customer's payment" required>
+                <div class="payment-form-container">
+                    <h3>Update Payment</h3>
+                    <div class="payment-summary">
+                        <div class="payment-info">
+                            <div>
+                                <span class="label-highlight">Amount Paid:</span>
+                                <span class="amount-paid">₱ <?php echo number_format($creditDetails[0]['amountPaid'], 2); ?></span>
+                            </div>
+                            <div>
+                                <span class="label-highlight">Balance:</span>
+                                <span class="balance-due">₱ <?php echo number_format($creditDetails[0]['creditBalance'], 2); ?></span>
+                            </div>
+                        </div>
                     </div>
-                    <p><strong>Amount Paid: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['amountPaid']); ?> &nbsp; <strong>Credit Balance: </strong> ₱ <?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?></p>
-                    <input type="submit" value="Update Payment" class="btn btn-primary">
-                </form>
+
+                    <form method="POST" action="">
+                        <div class="mb-3">
+                            <label for="amountPaid" class="form-label">Payment Amount:</label>
+                            <input type="number"
+                                id="amountPaid"
+                                name="amountPaid"
+                                class="form-control"
+                                step="0.01"
+                                min="0.01"
+                                max="<?php echo htmlspecialchars($creditDetails[0]['creditBalance']); ?>"
+                                placeholder="Enter amount (₱)"
+                                required>
+                        </div>
+                        <input type="submit" value="Update Payment" class="btn btn-primary">
+                    </form>
+                </div>
+            <?php } else { ?>
+                <div class="payment-form-container">
+                    <h3>Payment Status</h3>
+                    <div class="payment-info">
+                        <div>
+                            <span class="label-highlight">Status:</span>
+                            <span class="amount-paid">Fully Paid</span>
+                        </div>
+                        <div>
+                            <span class="label-highlight">Total Amount Paid:</span>
+                            <span class="amount-paid">₱ <?php echo number_format($creditDetails[0]['amountPaid'], 2); ?></span>
+                        </div>
+                    </div>
+                </div>
             <?php } ?>
+        </div>
+        <hr>
+        <div class="table-wrapper">
+            <h1 align="center">Credit Details</h1>
+            <table>
+                <tr>
+                    <td>
+                        <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($creditDetails[0]['customerName']); ?></p>
+                    </td>
+                    <td>
+                        <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($creditDetails[0]['phoneNumber']); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>Credit ID:</strong> <?php echo htmlspecialchars($creditDetails[0]['creditId']); ?></p>
+                    </td>
+                    <td>
+                        <p><strong>Transaction Date:</strong> <?php echo htmlspecialchars($transactionDate); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p><strong>Payment Status: </strong> <?php echo htmlspecialchars($creditDetails[0]['paymentStatus']); ?></p>
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <h3>Bought on Credit:</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>PRODUCT DETAILS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($creditDetails as $item) {
+                        // Check if image exists in the correct path from database
+                        $imagePath = isset($item['image']) && !empty($item['image'])
+                            ? (file_exists($item['image']) ? $item['image'] : 'images/no-image.png')
+                            : 'images/no-image.png';
+                    ?>
+                        <tr>
+                            <td>
+                                <div class="product-thumb-container">
+                                    <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($item['productName']); ?>" class="product-thumbnail">
+                                    <span><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?></span>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
         <script>
             document.getElementById('another-image').addEventListener('mouseover', function() {

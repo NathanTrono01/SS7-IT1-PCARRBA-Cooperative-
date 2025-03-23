@@ -19,7 +19,7 @@ $saleId = $_GET['saleId'];
 
 // Fetch sale details
 $query = "SELECT s.saleId, s.dateSold, s.transactionType, s.totalPrice, 
-                 p.productName, si.quantity, si.subTotal 
+                 p.productName, p.imagePath AS image, si.quantity, si.subTotal 
           FROM sales s
           JOIN sale_item si ON s.saleId = si.saleId
           JOIN products p ON si.productId = p.productId
@@ -90,7 +90,6 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             margin: 25px auto;
             position: relative;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.58);
         }
 
         table {
@@ -158,6 +157,35 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
             width: 25px;
             height: 25px;
         }
+
+        /* Product thumbnail styling */
+        .product-thumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover; /* This makes the image cover the container */
+            object-position: center; /* Centers the image within the container */
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden; /* Ensures the image doesn't spill outside */
+        }
+
+        /* Hide thumbnails on small screens */
+        @media (max-width: 576px) {
+            .product-thumbnail {
+                display: none;
+            }
+
+            .product-thumb-container {
+                gap: 0;
+            }
+        }
     </style>
 </head>
 
@@ -195,9 +223,20 @@ $dateSold = !empty($saleDetails[0]['dateSold']) ? date("M d, Y -- g:i A", strtot
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($saleDetails as $item) { ?>
+                        <?php foreach ($saleDetails as $item) { 
+                            // Check if image exists in the correct path from database
+                            // The database uses 'image' field but your products table has 'imagePath'
+                            $imagePath = isset($item['image']) && !empty($item['image']) 
+                                ? (file_exists($item['image']) ? $item['image'] : 'images/no-image.png') 
+                                : 'images/no-image.png';
+                        ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?></td>
+                                <td>
+                                    <div class="product-thumb-container">
+                                        <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($item['productName']); ?>" class="product-thumbnail">
+                                        <span><?php echo htmlspecialchars($item['productName']); ?> x <?php echo htmlspecialchars($item['quantity']); ?></span>
+                                    </div>
+                                </td>
                             </tr>
                         <?php } ?>
                     </tbody>
