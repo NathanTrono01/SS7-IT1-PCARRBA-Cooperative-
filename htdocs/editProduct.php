@@ -392,7 +392,7 @@ if (isset($_POST['edit_item'])) {
                     <b><span>Back</span></b>
                 </a>
                 <br>
-                <h3 class="text-center flex-grow-1 m-0">Update Product</h3>
+                <h3 class="text-center flex-grow-1 m-0">Edit Product</h3>
                 <hr>
                 
                 <?php if (isset($message)): ?>

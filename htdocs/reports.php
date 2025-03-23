@@ -754,7 +754,7 @@ while ($row = $product_stock_result->fetch_assoc()) {
             <!-- Navigation Tabs -->
             <div class="tabs-container">
                 <div class="tabs">
-                    <div class="tab" onclick="showTab('revenue')">Revenue Report</div>
+                    <div class="tab" onclick="showTab('revenue')">Sales Report</div>
                     <div class="tab" onclick="showTab('product')">Inventory Report</div>
                     <div class="tab" onclick="showTab('items')">Product Outflow</div>
                 </div>
@@ -803,54 +803,87 @@ while ($row = $product_stock_result->fetch_assoc()) {
                 row.style.backgroundColor = colors[currentColorIndex];
             });
         }
+        
+        // Fix for sidebar toggle functionality
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar-open');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+
+            sidebar.classList.toggle('sidebar-open-visible');
+            overlay.classList.toggle('overlay-open');
+
+            // Adjust grid layout for tablets
+            if (window.innerWidth >= 768 && window.innerWidth <= 1024) {
+                if (sidebar.classList.contains('sidebar-open-visible')) {
+                    body.style.gridTemplateColumns = '40% 1fr'; /* Show sidebar */
+                } else {
+                    body.style.gridTemplateColumns = '1fr'; /* Hide sidebar */
+                }
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Add toggle sidebar event listener
+            const minimizeBtn = document.querySelector('.minimize-btn');
+            if (minimizeBtn) {
+                minimizeBtn.addEventListener('click', toggleSidebar);
+            }
+            
             const urlParams = new URLSearchParams(window.location.search);
             const activeTab = urlParams.get('tab') || 'revenue';
             showTab(activeTab);
-            groupRowsById('saleItemTable', 'data-sale-id');
-            groupRowsById('creditItemTable', 'data-credit-id');
+            
+            // Initialize grouping for tables if they exist
+            if (document.getElementById('saleItemTable')) {
+                groupRowsById('saleItemTable', 'data-sale-id');
+            }
+            if (document.getElementById('creditItemTable')) {
+                groupRowsById('creditItemTable', 'data-credit-id');
+            }
         });
 
         document.addEventListener("DOMContentLoaded", function() {
             // Initialize the line chart (Sales Trends)
-            const salesCtx = document.getElementById("salesChart").getContext("2d");
-            window.salesChart = new Chart(salesCtx, {
-                type: "line",
-                data: {
-                    labels: <?php echo json_encode($sales_dates); ?>.map(date => {
-                        const options = {
-                            month: 'short',
-                            day: 'numeric'
-                        };
-                        return new Date(date).toLocaleDateString('en-US', options);
-                    }),
-                    datasets: [{
-                        label: "Total Sales",
-                        data: <?php echo json_encode($sales_totals); ?>,
-                        borderColor: "rgb(43, 114, 255)",
-                        backgroundColor: "transparent",
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true, // Ensure the y-axis starts at 0
-                            grid: {
-                                color: "rgba(255, 255, 255, 0.1)" // Change grid line color
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: "rgba(255, 255, 255, 0.1)" // Change grid line color
+            const salesCtx = document.getElementById("salesChart");
+            if (salesCtx) {
+                window.salesChart = new Chart(salesCtx.getContext("2d"), {
+                    type: "line",
+                    data: {
+                        labels: <?php echo json_encode($sales_dates); ?>.map(date => {
+                            const options = {
+                                month: 'short',
+                                day: 'numeric'
+                            };
+                            return new Date(date).toLocaleDateString('en-US', options);
+                        }),
+                        datasets: [{
+                            label: "Total Sales",
+                            data: <?php echo json_encode($sales_totals); ?>,
+                            borderColor: "rgb(43, 114, 255)",
+                            backgroundColor: "transparent",
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: "rgba(255, 255, 255, 0.1)"
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
 
             // Initialize the bar chart (Stock Status Breakdown)
             const barCtx = document.getElementById("stockBarChart").getContext("2d");

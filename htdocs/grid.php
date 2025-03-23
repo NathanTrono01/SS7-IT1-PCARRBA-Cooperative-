@@ -410,7 +410,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </script>
             <?php endif; ?>
             <div class="header-container">
-                <h2>Products</h2>
+                <h2>Product Management</h2>
                 <div class="button">
                     <a href="restock.php" class="restock-button">Restock</a>
                     <a href="insertProduct.php" class="button-product">Add Product</a>

@@ -162,10 +162,10 @@ $total_cost = $total_cost_result->fetch_assoc()['total_cost'] ?? 0;
     <div class="main-content fade-in">
         <div class="dashboard-wrapper">
             <h2>Overview</h2>
-            <div class="button">
+            <!-- <div class="button">
                 <a href="restock.php" class="restock-button">Restock</a>
                 <a href="insertProduct.php" class="button-product">Add Product</a>
-            </div>
+            </div> -->
             <hr>
             <div class="status-cards">
                 <div class="card1 total-inventory">

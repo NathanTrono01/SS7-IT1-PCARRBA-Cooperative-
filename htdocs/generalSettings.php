@@ -29,19 +29,27 @@ if (isset($_POST['unlock_vault']) && isset($_POST['vault_password'])) {
         $canResetDatabase = true;
     } else {
         // Wrong password
-        $error = "Database vault access denied. Incorrect password.";
+        $error = "Admin Panel access denied. Incorrect password.";
         
         // Log failed attempt
         $currentUsername = $_SESSION['username'];
-        $action = "Database Vault Access Attempt";
-        $details = "User $currentUsername attempted to access database vault with incorrect password.";
+        $action = "Admin Access Attempt";
+        $details = "User $currentUsername attempted to access Admin with incorrect password.";
         
         // Add code to log this to your audit log if desired
         if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
-            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, username, action, details) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("isss", $_SESSION['userId'], $currentUsername, $action, $details);
-            $stmt->execute();
-            $stmt->close();
+            $stmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
+            if ($stmt) {
+                $stmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                if (!$stmt->execute()) {
+                    // Log failure can be handled here, e.g. add to $error message
+                    $error .= " (Warning: Failed to log this action: " . $conn->error . ")";
+                }
+                $stmt->close();
+            } else {
+                // Handle prepare statement failure
+                $error .= " (Warning: Failed to prepare log statement: " . $conn->error . ")";
+            }
         }
     }
 } 
@@ -67,6 +75,58 @@ if (isset($_POST['lock_vault'])) {
     $databaseVaultUnlocked = false;
     $canResetDatabase = false;
     $success = "Database vault locked successfully.";
+}
+
+// Handle admin registration form submission
+if (isset($_POST['register_admin']) && $canResetDatabase) {
+    $adminUsername = htmlspecialchars($_POST['admin_username']);
+    $adminPassword = $_POST['admin_password'];
+    $adminConfirmPassword = $_POST['admin_confirm_password'];
+
+    // Check if passwords match
+    if ($adminPassword !== $adminConfirmPassword) {
+        $error = "Passwords do not match.";
+    }
+    // Check if password meets length requirement
+    else if (strlen($adminPassword) < 8) {
+        $error = "Password must be at least 8 characters long.";
+    } 
+    else {
+        // Hash the password
+        $password_hashed = password_hash($adminPassword, PASSWORD_DEFAULT);
+
+        // Check if username is unique
+        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->bind_param("s", $adminUsername);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $error = "Username already exists. Choose a different username.";
+        } else {
+            // Insert new admin user - using the actual schema structure
+            $stmt = $conn->prepare("INSERT INTO users (username, password, login_count) VALUES (?, ?, 0)");
+            $stmt->bind_param("ss", $adminUsername, $password_hashed);
+            
+            if ($stmt->execute()) {
+                $success = "New account registered successfully!";
+                
+                // Log this critical action
+                $currentUsername = $_SESSION['username'];
+                $action = "Account Creation";
+                $details = "User $currentUsername created new account: $adminUsername";
+                
+                if (isset($_SESSION['userId']) && is_numeric($_SESSION['userId'])) {
+                    $logStmt = $conn->prepare("INSERT INTO audit_logs (userId, action, details) VALUES (?, ?, ?)");
+                    $logStmt->bind_param("iss", $_SESSION['userId'], $action, $details);
+                    $logStmt->execute();
+                }
+            } else {
+                $error = "Failed to register account. Database error.";
+            }
+            $stmt->close();
+        }
+    }
 }
 
 error_reporting(E_ALL);
@@ -345,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <style>
         /* Main container styling */
         .settings-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 30px auto;
             padding: 0 20px;
         }
@@ -583,6 +643,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             align-items: center;
             gap: 12px;
             animation: slideIn 0.3s ease-out;
+            position: relative;
+            z-index: 100;
         }
 
         .alert-error {
@@ -592,24 +654,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .alert-success {
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
             background-color: rgba(40, 167, 69, 0.1);
             color: #28a745;
             border: 1px solid rgba(40, 167, 69, 0.3);
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
+            margin-bottom: 20px;
         }
 
-        .alert-success.show {
+        /* Fixed alert that appears at the top */
+        .fixed-alert {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 300px;
+            max-width: 80%;
+        }
+
+        .fixed-alert.show {
             animation: fadeIn 0.3s ease-out forwards;
-            pointer-events: auto;
         }
 
         .alert-warning {
@@ -859,7 +923,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 0 0 0 6px rgba(40, 167, 69, 0.2),
                 0 0 0 12px rgba(40, 167, 69, 0.1),
                 0 0 30px rgba(40, 167, 69, 0.2);
-            transform: rotateZ(90deg);
         }
         
         .vault-icon {
@@ -954,6 +1017,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 18px;
             margin-right: 5px;
         }
+
+        /* Fix the alert styling */
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Create a separate class for the fixed success alert */
+        .fixed-alert-success {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .fixed-alert-success.show {
+            animation: fadeIn 0.3s ease-out forwards;
+            pointer-events: auto;
+        }
+        
+        /* Fix the vault door open animation to prevent icon rotation */
+        .vault-door.open {
+            background-color: rgba(40, 167, 69, 0.2);
+            box-shadow: 
+                0 0 0 6px rgba(40, 167, 69, 0.2),
+                0 0 0 12px rgba(40, 167, 69, 0.1),
+                0 0 30px rgba(40, 167, 69, 0.2);
+        }
+        
+        .vault-door.open:before {
+            border-color: #28a745;
+        }
+        
+        /* Use a separate animation for the door rather than transform */
+        .vault-door.open {
+            animation: doorOpen 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6) forwards;
+        }
+        
+        @keyframes doorOpen {
+            0% {
+                background-color: #333;
+                box-shadow: 
+                    0 0 0 6px rgba(51, 51, 51, 0.6),
+                    0 0 0 12px rgba(51, 51, 51, 0.3),
+                    0 0 30px rgba(0, 0, 0, 0.5);
+            }
+            100% {
+                background-color: rgba(40, 167, 69, 0.2);
+                box-shadow: 
+                    0 0 0 6px rgba(40, 167, 69, 0.2),
+                    0 0 0 12px rgba(40, 167, 69, 0.1),
+                    0 0 30px rgba(40, 167, 69, 0.2);
+            }
+        }
+        
+        /* Create a separate shine effect instead of rotating the door */
+        .vault-door.open:after {
+            animation: shineEffect 2s infinite;
+            border-color: rgba(40, 167, 69, 0.3);
+        }
+        
+        @keyframes shineEffect {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
     </style>
 </head>
 
@@ -971,7 +1110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <?php if ($error): ?>
-            <div class="alert alert-error">
+            <div class="alert alert-error" id="alert-error">
                 <div class="alert-icon">⚠️</div>
                 <div><?php echo $error; ?></div>
                 <div class="alert-close" onclick="this.parentElement.style.display='none'">×</div>
@@ -979,10 +1118,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <?php if ($success): ?>
-            <div class="alert-success <?php echo $success ? 'show' : ''; ?>" id="alert-success">
+            <div class="alert alert-success" id="alert-success">
                 <div class="alert-icon">✓</div>
-                <?php echo $success; ?>
-                <div class="alert-close" onclick="this.parentElement.classList.remove('show')">×</div>
+                <div><?php echo $success; ?></div>
+                <div class="alert-close" onclick="this.parentElement.style.display='none'">×</div>
             </div>
             <?php endif; ?>
 
@@ -1193,14 +1332,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
 
+                <!-- New Account Registration Card -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <h3>Register New Account</h3>
+                        <p>Create a new user account for the system</p>
+                    </div>
+                    <br>
+                    <div class="card-body">
+                        <form method="POST" action="" id="adminRegisterForm">
+                            <div class="form-group">
+                                <label for="admin_username" class="form-label">Username</label>
+                                <input type="text" name="admin_username" id="admin_username" class="custom-input" 
+                                       placeholder="Enter username" required>
+                                <span class="form-hint">Choose a unique username for the account</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin_password" class="form-label">Password</label>
+                                <input type="password" name="admin_password" id="admin_password" class="custom-input" 
+                                       placeholder="Enter password" required minlength="8">
+                                <span class="form-hint">Password must be at least 8 characters long</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin_confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" name="admin_confirm_password" id="admin_confirm_password" class="custom-input" 
+                                       placeholder="Confirm password" required minlength="8">
+                            </div>
+                            <input type="hidden" name="register_admin" value="1">
+                            <div class="alert alert-info">
+                                <div class="alert-icon">ℹ️</div>
+                                <div>This account will have full access to the system</div>
+                            </div>
+                            <button type="submit" class="custom-button btn-primary">Register New Account</button>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- Database Reset Card -->
                 <div class="settings-card">
                     <div class="card-header">
                         <h3>Reset Database</h3>
                         <p>Clear all operational data while preserving user accounts</p>
                     </div>
+                    <br>
                     <div class="card-body">
-                        <div class="alert alert-error">
+                        <div class="alert alert-danger">
                             <div class="alert-icon">⚠️</div>
                             <div>
                                 <strong>DANGER:</strong> This will permanently delete all products, sales, inventory, and other operational data. User accounts will be preserved.
@@ -1237,14 +1413,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 });
             }
 
-            // Success alert auto-hide
-            const successAlert = document.querySelector('.alert-success');
+            // Success alert handling
+            const successAlert = document.getElementById('alert-success');
             if (successAlert && successAlert.textContent.trim() !== '') {
+                // Add fixed position class
+                successAlert.classList.add('fixed-alert');
+                
                 setTimeout(function() {
                     successAlert.classList.remove('show');
                 }, 5000); // Hide after 5 seconds
             }
+            
+            // For error alerts, also add fixed position if needed
+            const errorAlert = document.querySelector('.alert-error');
+            if (errorAlert) {
+                errorAlert.classList.add('fixed-alert');
+                errorAlert.classList.add('show');
+            }
         });
+        
+        // Rest of the JavaScript code remains the same
 
         // Section tab navigation
         function showSection(sectionId) {
