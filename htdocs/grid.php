@@ -413,7 +413,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <h2>Product Management</h2>
                 <div class="button">
                     <a href="restock.php" class="restock-button">Restock</a>
-                    <a href="insertProduct.php" class="button-product">Add Product</a>
+                    <a href="insertProduct.php" class="button-product">New Product</a>
                 </div>
                 <div class="search-container">
                     <div class="search-wrapper">
