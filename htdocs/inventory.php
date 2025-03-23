@@ -397,7 +397,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* Product thumbnail in table view */
+        /* Product thumbnail in table view - optimized for perfect square fit */
         .product-thumb-container {
             display: flex;
             align-items: center;
@@ -408,9 +408,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 40px;
             height: 40px;
             border-radius: 4px;
-            object-fit: cover;
+            object-fit: cover; /* Makes the image cover the entire container */
+            object-position: center; /* Centers the image */
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden; /* Ensures the image doesn't spill outside */
+            flex-shrink: 0; /* Prevents the image from shrinking */
         }
 
         /* For mobile responsiveness */

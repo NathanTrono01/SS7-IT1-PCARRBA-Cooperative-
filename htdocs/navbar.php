@@ -1,7 +1,20 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Add session_start() at the top if it's not already there
+// Function to check if current page is in a group of related pages
+if (!function_exists('isActiveGroup')) {
+    function isActiveGroup($page, $group_pages) {
+        return in_array($page, $group_pages);
+    }
+}
+
+// Define page groups
+$inventory_group = ['inventory.php', 'grid.php', 'editProduct.php', 'insertProduct.php'];
+$transaction_group = ['transaction.php', 'addSale.php', 'addCredit.php'];
+$sales_group = ['sales.php', 'sale_details.php'];
+$credit_group = ['credit.php', 'credit_details.php'];
+
+// Check for session status
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -457,20 +470,20 @@ if (session_status() == PHP_SESSION_NONE) {
     </nav>
 
     <div class="sidebar sidebar-open">
-        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo in_array($current_page, ['addSale.php', 'addCredit.php', 'transaction.php']) ? 'active' : ''; ?>">New Transaction</a>
-        <a href="restock.php" class="sidebar-link sidebar-restock <?php echo in_array($current_page, ['restock.php']) ? 'active' : ''; ?>">Restock</a>
+        <a href="transaction.php" class="sidebar-link sidebar-record-sale <?php echo isActiveGroup($current_page, $transaction_group) ? 'active' : ''; ?>">New Transaction</a>
+        <a href="restock.php" class="sidebar-link sidebar-restock <?php echo $current_page == 'restock.php' ? 'active' : ''; ?>">Restock</a>
         <hr>
         <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'dashboard.php' ? 'DB.png' : 'DB.png'; ?>" alt="Dashboard">&nbsp;Dashboard
         </a>
-        <a href="inventory.php" class="<?php echo $current_page == 'inventory.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'inventory.php' ? 'cabinet_active.png' : 'cabinet.png'; ?>" alt="Inventory">&nbsp;Inventory
+        <a href="inventory.php" class="<?php echo isActiveGroup($current_page, $inventory_group) ? 'active' : ''; ?>">
+            <img src="images/<?php echo isActiveGroup($current_page, $inventory_group) ? 'cabinet_active.png' : 'cabinet.png'; ?>" alt="Inventory">&nbsp;Inventory
         </a>
-        <a href="sales.php" class="<?php echo $current_page == 'sales.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'sales.php' ? 'barsales_active.png' : 'barsales.png'; ?>" alt="Sales">&nbsp;Sales
+        <a href="sales.php" class="<?php echo isActiveGroup($current_page, $sales_group) ? 'active' : ''; ?>">
+            <img src="images/<?php echo isActiveGroup($current_page, $sales_group) ? 'barsales_active.png' : 'barsales.png'; ?>" alt="Sales">&nbsp;Sales
         </a>
-        <a href="credit.php" class="<?php echo $current_page == 'credit.php' ? 'active' : ''; ?>">
-            <img src="images/<?php echo $current_page == 'credit.php' ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credit
+        <a href="credit.php" class="<?php echo isActiveGroup($current_page, $credit_group) ? 'active' : ''; ?>">
+            <img src="images/<?php echo isActiveGroup($current_page, $credit_group) ? 'credits-active.png' : 'credits.png'; ?>" alt="Credits">&nbsp;Credit
         </a>
         <a href="audit_logs.php" class="<?php echo $current_page == 'audit_logs.php' ? 'active' : ''; ?>">
             <img src="images/<?php echo $current_page == 'audit_logs.php' ? 'auditlogs-active.png' : 'auditlogs.png'; ?>" alt="Audit Logs">&nbsp;Audit Log
@@ -512,12 +525,14 @@ if (session_status() == PHP_SESSION_NONE) {
                 'addSale.php': 'Transaction',
                 'dashboard.php': 'Dashboard',
                 'inventory.php': 'Inventory',
+                'grid.php': 'Inventory',
                 'sales.php': 'Sales',
+                'sale_details.php': 'Sales',
                 'credit.php': 'Credit',
+                'credit_details.php': 'Credit',
                 'audit_logs.php': 'Audit Log',
                 'reports.php': 'Reports',
-                'generalSettings.php': 'Settings',
-                'grid.php': 'Inventory',
+                'generalSettings.php': 'Settings'
             };
 
             const navbarBrandMobile = document.querySelector('.navbar-brand-mobile');
