@@ -396,6 +396,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 padding: 4px;
             }
         }
+
+        /* Product thumbnail in table view */
+        .product-thumb-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-thumbnail {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* For mobile responsiveness */
+        @media (max-width: 576px) {
+            .product-thumbnail {
+                display: none; /* Hide thumbnails on small devices */
+            }
+            
+            .product-thumb-container {
+                gap: 0; /* Remove gap when image is hidden */
+            }
+        }
     </style>
 </head>
 
@@ -469,7 +496,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     : 'images/no-image.png';
                             ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($product['productName']); ?></td>
+                                    <td>
+                                        <div class="product-thumb-container">
+                                            <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($product['productName']); ?>" class="product-thumbnail">
+                                            <span><?php echo htmlspecialchars($product['productName']); ?></span>
+                                        </div>
+                                    </td>
                                     <td><?php echo htmlspecialchars($product['productCategory']); ?></td>
                                     <td>
                                         <span class="stock-badge <?php echo $stockClass; ?>">
