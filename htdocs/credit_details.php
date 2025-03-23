@@ -456,12 +456,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.addEventListener('DOMContentLoaded', function() {
                 var referrer = document.referrer;
                 var backButton = document.getElementById('back-button');
-                if (referrer.includes('credit.php')) {
+                var paymentStatus = "<?php echo $creditDetails[0]['paymentStatus']; ?>";
+
+                // If payment status is 'Paid', direct back to sales page
+                if (paymentStatus === 'Paid') {
                     backButton.href = 'credit.php';
-                } else if (referrer.includes('sales.php')) {
-                    backButton.href = 'sales.php';
-                } else {
-                    backButton.href = 'reports.php?tab=items';
+                }
+                // If payment status is 'Partially Paid' or 'Unpaid', direct back to credit page
+                else {
+                    backButton.href = 'credit.php';
+                }
+
+                // Override with referrer if it's explicitly from one of these pages
+                if (referrer) {
+                    if (referrer.includes('credit.php')) {
+                        backButton.href = 'credit.php';
+                    } else if (referrer.includes('sales.php')) {
+                        backButton.href = 'sales.php';
+                    }
                 }
             });
         </script>
