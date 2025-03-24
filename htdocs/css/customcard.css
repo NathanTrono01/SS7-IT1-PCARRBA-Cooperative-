@@ -1,7 +1,7 @@
 .custom-card {
     width: 95%;
     max-width: 800px;
-    min-height: 600px;
+    min-height: 500px;
     background-color: #333;
     color: white;
     padding: 2rem;
@@ -99,7 +99,7 @@
 /* Enhanced Responsive Adjustments */
 @media (min-width: 769px) {
     .custom-card {
-        width: 600px;
+        width: 500px;
     }
 }
 

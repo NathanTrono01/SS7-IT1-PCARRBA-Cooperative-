@@ -10,7 +10,7 @@ $offset = ($page - 1) * $records_per_page;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
     $credit_name = trim($_POST['credit_name']);
-    
+
     if (empty($credit_name)) {
         $credit_error = "Please enter a name to search.";
     } else {
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
         $count_query = "SELECT COUNT(*) as total FROM creditor c 
                        LEFT JOIN credits cr ON c.creditorId = cr.creditorId
                        WHERE c.customerName LIKE ? AND c.creditBalance > 0";
-        
+
         $stmt = $conn->prepare($count_query);
         $like = "%" . $credit_name . "%";
         $stmt->bind_param("s", $like);
@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>PCARBA Credit Search</title>
     <meta charset="utf-8">
@@ -60,6 +61,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
     <link rel="stylesheet" href="css/customcard.css">
     <link rel="stylesheet" href="css/layer1.css">
     <style>
+        .custom-card {
+            width: 95%;
+            max-width: 800px;
+            min-height: auto; /* Changed from fixed 500px */
+            background-color: #333;
+            color: white;
+            padding: 2rem;
+            box-sizing: border-box;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: min-height 0.3s ease-in-out;
+        }
+
+        /* Style for when results are not shown */
+        .custom-card:not(:has(.table-responsive)) {
+            min-height: 250px;
+        }
+
+        /* Style for when results are shown */
+        .custom-card:has(.table-responsive) {
+            min-height: 600px;
+        }
+
+        /* Update table responsive max height */
+        .table-responsive {
+            max-height: 300px;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease-in-out;
+        }
+
+        @media (min-width: 769px) {
+            .custom-card {
+                width: 500px;
+            }
+            .custom-card:not(:has(.table-responsive)) {
+                min-height: 200px;
+            }
+            .custom-card:has(.table-responsive) {
+                width: 800px;
+            }
+        }
+
         .admin-btn {
             position: fixed;
             top: 20px;
@@ -72,20 +117,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
+
         .admin-btn:hover {
             border-color: white;
             color: white;
         }
+
         .modal-content {
             background-color: #333;
             color: white;
         }
+
         .modal-header {
             border-bottom: 1px solid #444;
         }
+
         .modal-footer {
             border-top: 1px solid #444;
         }
+
         .btn-close {
             filter: invert(1) grayscale(100%) brightness(200%);
         }
@@ -93,8 +143,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
         .text-muted {
             color: #bdbebe !important;
         }
+
+        @media (min-width: 769px) {
+            .custom-card {
+                width: 500px;
+            }
+        }
     </style>
 </head>
+
 <body>
     <!-- Admin Login Button -->
     <button type="button" class="admin-btn" data-bs-toggle="modal" data-bs-target="#adminModal">
@@ -140,15 +197,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
             <!-- Credit Search Form -->
             <form method="POST" action="">
                 <div class="mb-3">
-                    <input type="text" 
-                           name="credit_name" 
-                           class="custom-input" 
-                           placeholder="Enter your name" 
-                           required 
-                           value="<?php echo isset($_POST['credit_name']) ? htmlspecialchars($_POST['credit_name']) : ''; ?>">
+                    <input type="text"
+                        name="credit_name"
+                        class="custom-input"
+                        placeholder="Enter your name"
+                        required
+                        value="<?php echo isset($_POST['credit_name']) ? htmlspecialchars($_POST['credit_name']) : ''; ?>">
                 </div>
                 <button type="submit" name="searchCredit" class="custom-button">Search Credit</button>
-                
+
                 <?php if (!empty($credit_error)): ?>
                     <div class="alert mt-3"><?php echo $credit_error; ?></div>
                 <?php endif; ?>
@@ -173,9 +230,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
                                     <td>₱<?php echo number_format($credit['amountPaid'], 2); ?></td>
                                     <td>₱<?php echo number_format($credit['creditBalance'], 2); ?></td>
                                     <td>
-                                        <span class="<?php 
-                                            echo ($credit['payment_status'] == 'Unpaid') ? 'text-danger' : 'text-warning';
-                                        ?>">
+                                        <span class="<?php
+                                                        echo ($credit['payment_status'] == 'Unpaid') ? 'text-danger' : 'text-warning';
+                                                        ?>">
                                             <?php echo $credit['payment_status']; ?>
                                         </span>
                                     </td>
@@ -195,13 +252,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
                                         <a class="page-link" href="?page=<?php echo ($page - 1); ?>&credit_name=<?php echo urlencode($credit_name); ?>">&laquo;</a>
                                     </li>
                                 <?php endif; ?>
-                                
+
                                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                     <li class="page-item <?php echo ($i == $page) ? 'active' : ''; ?>">
                                         <a class="page-link" href="?page=<?php echo $i; ?>&credit_name=<?php echo urlencode($credit_name); ?>"><?php echo $i; ?></a>
                                     </li>
                                 <?php endfor; ?>
-                                
+
                                 <?php if ($page < $total_pages): ?>
                                     <li class="page-item">
                                         <a class="page-link" href="?page=<?php echo ($page + 1); ?>&credit_name=<?php echo urlencode($credit_name); ?>">&raquo;</a>
@@ -239,25 +296,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
             scrollbar-width: thin;
             scrollbar-color: #666 #333;
         }
+
         .table-responsive::-webkit-scrollbar {
             width: 8px;
         }
+
         .table-responsive::-webkit-scrollbar-track {
             background: #333;
         }
+
         .table-responsive::-webkit-scrollbar-thumb {
             background-color: #666;
             border-radius: 4px;
         }
+
         .pagination .page-link {
             background-color: #333;
             border-color: #444;
             color: #fff;
         }
+
         .pagination .page-item.active .page-link {
             background-color: #007bff;
             border-color: #007bff;
         }
+
         .pagination .page-link:hover {
             background-color: #444;
             border-color: #666;
@@ -265,4 +328,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['searchCredit'])) {
         }
     </style>
 </body>
+
 </html>
