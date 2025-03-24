@@ -43,9 +43,16 @@ $query = "
         p.productId, p.productName, c.categoryName, p.unitPrice, p.unit, p.imagePath
 ";
 
-
 $result = $conn->query($query);
 $products = $result->fetch_all(MYSQLI_ASSOC);
+
+// Add this query near the top of the file, after the existing product query
+$categoryQuery = "SELECT DISTINCT c.categoryName 
+                 FROM categories c 
+                 INNER JOIN products p ON c.categoryId = p.categoryId 
+                 ORDER BY c.categoryName";
+$categoryResult = $conn->query($categoryQuery);
+$categories = $categoryResult->fetch_all(MYSQLI_ASSOC);
 
 // Handle form submission for editing or deleting products
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -426,6 +433,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 gap: 0; /* Remove gap when image is hidden */
             }
         }
+
+        /* Add to your existing <style> section */
+        .category-filter {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 6px 10px;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .category-filter:hover {
+            border-color: #666;
+        }
+
+        .category-filter:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
     </style>
 </head>
 
@@ -471,7 +500,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <thead>
                         <tr align="left">
                             <th onclick="sortTable(0)">Name <span class="sort-indicator active-sort">▼</span></th>
-                            <th onclick="sortTable(1)">Category <span class="sort-indicator">◆</span></th>
+                            <th>
+                                <select id="categoryFilter" class="category-filter" onchange="filterByCategory()">
+                                    <option value="">All Categories</option>
+                                    <?php foreach ($categories as $category): ?>
+                                        <option value="<?php echo htmlspecialchars($category['categoryName']); ?>">
+                                            <?php echo htmlspecialchars($category['categoryName']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </th>
                             <th onclick="sortTable(2)">Stock <span class="sort-indicator">◆</span></th>
                             <th onclick="sortTable(3)">Price <span class="sort-indicator">◆</span></th>
                             <th>Actions</th>
@@ -603,6 +641,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Initial sort on name column
             sortTable(0);
         });
+
+        // Add to your existing <script> section
+        function filterByCategory() {
+            const categorySelect = document.getElementById('categoryFilter');
+            const selectedCategory = categorySelect.value.toLowerCase();
+            const table = document.getElementById('productTable');
+            const tr = table.getElementsByTagName('tr');
+            let visibleCount = 0;
+
+            // Get the search input value as well to combine filters
+            const searchInput = document.getElementById('searchBar');
+            const searchFilter = searchInput.value.toLowerCase();
+
+            // Loop through all table rows, starting from index 1 to skip header
+            for (let i = 1; i < tr.length; i++) {
+                const nameCell = tr[i].getElementsByTagName('td')[0];
+                const categoryCell = tr[i].getElementsByTagName('td')[1];
+                
+                if (nameCell && categoryCell) {
+                    const nameText = nameCell.textContent || nameCell.innerText;
+                    const categoryText = categoryCell.textContent || categoryCell.innerText;
+                    
+                    // Check both search term and category
+                    const matchesSearch = searchFilter === '' || 
+                                        nameText.toLowerCase().includes(searchFilter) ||
+                                        categoryText.toLowerCase().includes(searchFilter);
+                    const matchesCategory = selectedCategory === '' || 
+                                          categoryText.toLowerCase() === selectedCategory;
+
+                    if (matchesSearch && matchesCategory) {
+                        tr[i].style.display = '';
+                        visibleCount++;
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+
+            // Update search results count
+            const resultsCounter = document.getElementById('searchResultsCount');
+            if (selectedCategory || searchFilter) {
+                resultsCounter.textContent = `${visibleCount} product${visibleCount !== 1 ? 's' : ''} found`;
+                resultsCounter.style.display = 'inline-block';
+            } else {
+                resultsCounter.style.display = 'none';
+            }
+        }
+
+        // Modify the existing filterProducts function to also check category filter
+        function filterProducts() {
+            filterByCategory(); // This will handle both search and category filtering
+        }
+
+        // Update the clear search function to reset category filter
+        function clearSearch() {
+            document.getElementById('searchBar').value = '';
+            document.getElementById('categoryFilter').value = '';
+            filterProducts();
+            toggleClearIcon();
+        }
     </script>
     <!-- Update the filterProducts function to show search result counts -->
     <script>
