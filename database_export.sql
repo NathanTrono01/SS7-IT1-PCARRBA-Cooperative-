@@ -307,7 +307,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (22,'test','$2y$10$R1bfEuhmhAOgMALkQn0AX..mKuRc9Yf6PaIjjgqTwZY3H3LFSEj6q',0),(23,'testAdmin','$2y$10$EO1ypxhIAqv1/alLEMwppOg2aEy4dX/WJDT4VhvLOnOIVoBHYRBKq',12),(24,'test2','$2y$10$0lB.HqlAM/A738vupKcwtOAfjWGAA7VtEgVOLyovuvP.FPY6CytOG',6),(25,'Nate','$2y$10$UkxGown0aqtSig.T266jo.eSNpsLSZm8EWh923UqKbF/.O.L3aftO',0),(26,'Nigga','$2y$10$EG8/5gWrlL2e5E47MakosOOiup6nLhgPYM5Xtwn9bsFi0GQACF3xe',7),(27,'testAccount','$2y$10$IuO1etgMsh4clDMnfsrQNusPDKrOpvQJ4718PhtK8yelgxM/luMiG',3),(28,'Nathrix','$2y$10$SwGdz2svx2qr8BCu2tUhTeueXLyAH7rJSK97I/manJcRtCeN2oV7W',3);
+INSERT INTO `users` VALUES (22,'test','$2y$10$R1bfEuhmhAOgMALkQn0AX..mKuRc9Yf6PaIjjgqTwZY3H3LFSEj6q',0),(23,'testAdmin','$2y$10$EO1ypxhIAqv1/alLEMwppOg2aEy4dX/WJDT4VhvLOnOIVoBHYRBKq',12),(24,'test2','$2y$10$0lB.HqlAM/A738vupKcwtOAfjWGAA7VtEgVOLyovuvP.FPY6CytOG',6),(25,'Nate','$2y$10$UkxGown0aqtSig.T266jo.eSNpsLSZm8EWh923UqKbF/.O.L3aftO',0),(26,'Nigga','$2y$10$EG8/5gWrlL2e5E47MakosOOiup6nLhgPYM5Xtwn9bsFi0GQACF3xe',8),(27,'testAccount','$2y$10$IuO1etgMsh4clDMnfsrQNusPDKrOpvQJ4718PhtK8yelgxM/luMiG',3),(28,'Nathrix','$2y$10$SwGdz2svx2qr8BCu2tUhTeueXLyAH7rJSK97I/manJcRtCeN2oV7W',5);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -320,4 +320,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-24  2:11:56
+-- Dump completed on 2025-04-07 10:49:20
